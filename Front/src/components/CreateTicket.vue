@@ -76,6 +76,7 @@ defineProps({
         </div>
       </div>
     </div>
+    </div>
 <!--      si jours faire *60*24 pour stocker en minutes-->
 <!--  si heures faire *60 pour stocker en minutes-->
 
