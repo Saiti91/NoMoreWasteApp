@@ -83,4 +83,4 @@ async function deleteOne(id, issuer) {
     return await Repository.deleteOne(id);
 }
 
-module.exports = {createOne, getOne, getAll, updateOne, deleteOne,getProviderOne};
+module.exports = {createOne, getOne, getAll, updateOne, deleteOne};
