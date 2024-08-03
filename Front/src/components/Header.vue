@@ -45,7 +45,7 @@ const logout = () => {
   <div class="ui fixed menu">
     <div class="ui container">
       <router-link to="/" class="header item logo-container">
-        <img class="logo" src="/src/assets/logo.svg" alt="Company Logo">
+       <!-- <img class="logo" src="/src/assets/logo.svg" alt="Company Logo"> -->
       </router-link>
       <div class="right menu">
         <router-link v-if="!isAuthenticated" to="/login" class="item">{{ $t('login') }}</router-link>
