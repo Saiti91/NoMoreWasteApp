@@ -13,5 +13,5 @@ npm start
 ```
 cd ../Front
 npm install
-npm start
+npm run dev
 ```
