@@ -4,7 +4,7 @@ import {createRouter, createWebHistory} from 'vue-router';
 import LoginPage from '/src/vues/LoginPage.vue';
 import useAuthGuard from '/src/components/Auth/AuthGuard.js';
 */
-
+import BackOfficeHome from '../vue/backOffice/Home.vue';
 
 const routes = [
     /*
@@ -17,7 +17,7 @@ const routes = [
         beforeEnter: useAuthGuard(['admin', 'staff', 'customer', 'owner'])
     },
     */
-
+    {path: '/', name: 'BackOfficeHome', component: BackOfficeHome},
 
 
 ];
