@@ -11,7 +11,7 @@ const options = {
     definition: {
         openapi: "3.0.0", // Utilisation de la version 3.0.0 du standard OpenAPI
         info: {
-            title: "PCS_API", // Titre de l'API
+            title: "NoMoreWasteAPI", // Titre de l'API
             version: "1.0.0", // Version de l'API
             description: "This API allows managing apartments for a company renting private people's properties.", // Description de l'API
         },

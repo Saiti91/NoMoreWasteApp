@@ -1,140 +1,156 @@
-CREATE TABLE Address (
-                         Address_ID INT AUTO_INCREMENT PRIMARY KEY,
-                         Street VARCHAR(255),
-                         City VARCHAR(100),
-                         State VARCHAR(100),
-                         Postal_Code VARCHAR(20),
-                         Country VARCHAR(100)
+CREATE TABLE Address
+(
+    Address_ID  INT AUTO_INCREMENT PRIMARY KEY,
+    Street      VARCHAR(255),
+    City        VARCHAR(100),
+    State       VARCHAR(100),
+    Postal_Code VARCHAR(20),
+    Country     VARCHAR(100)
 );
 
-CREATE TABLE User (
-                      ID INT AUTO_INCREMENT PRIMARY KEY,
-                      Name VARCHAR(100),
-                      Firstname VARCHAR(100),
-                      Address_ID INT,
-                      Tel VARCHAR(20),
-                      Email VARCHAR(255),
-                      Password VARCHAR(255),
-                      Birthdate DATE,
-                      Cotisation_En_Cours BOOLEAN,
-                      FOREIGN KEY (Address_ID) REFERENCES Address(Address_ID)
+CREATE TABLE Users
+(
+    User_ID             INT AUTO_INCREMENT PRIMARY KEY,
+    Name                VARCHAR(100),
+    Firstname           VARCHAR(100),
+    Address_ID          INT,
+    Phone               VARCHAR(20),
+    Email               VARCHAR(255),
+    Password            VARCHAR(255),
+    Birthdate           DATE,
+    Current_Subscription BOOLEAN,
+    FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID)
 );
 
-CREATE TABLE Capacite (
-                          Capacite_ID INT AUTO_INCREMENT PRIMARY KEY,
-                          Nom VARCHAR(100)
+CREATE TABLE Skills
+(
+    Skill_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Name     VARCHAR(100)
 );
 
-CREATE TABLE User_Capacite (
-                               User_ID INT,
-                               Capacite_ID INT,
-                               Date_Validation DATE,
-                               PRIMARY KEY (User_ID, Capacite_ID),
-                               FOREIGN KEY (User_ID) REFERENCES User(ID),
-                               FOREIGN KEY (Capacite_ID) REFERENCES Capacite(Capacite_ID)
+CREATE TABLE User_Skills
+(
+    User_ID         INT,
+    Skill_ID        INT,
+    Validation_Date DATE,
+    PRIMARY KEY (User_ID, Skill_ID),
+    FOREIGN KEY (User_ID) REFERENCES Users (User_ID),
+    FOREIGN KEY (Skill_ID) REFERENCES Skills (Skill_ID)
 );
 
-CREATE TABLE Cotisations (
-                             User_ID INT,
-                             Date_De_Paiement DATE,
-                             Montant DECIMAL(10, 2),
-                             Status BOOLEAN, -- true for 'paid', false for 'pending'
-                             PRIMARY KEY (User_ID, Date_De_Paiement),
-                             FOREIGN KEY (User_ID) REFERENCES User(ID)
+CREATE TABLE Subscriptions
+(
+    User_ID           INT,
+    Payment_Date      DATE,
+    Amount            DECIMAL(10, 2),
+    Status            BOOLEAN, -- true for 'paid', false for 'pending'
+    PRIMARY KEY (User_ID, Payment_Date),
+    FOREIGN KEY (User_ID) REFERENCES Users (User_ID)
 );
 
-CREATE TABLE Planning (
-                          Planning_ID INT AUTO_INCREMENT PRIMARY KEY,
-                          User_ID INT,
-                          Date DATE,
-                          Type BOOLEAN, -- true for 'collect', false for 'distrib'
-                          FOREIGN KEY (User_ID) REFERENCES User(ID)
+CREATE TABLE Schedules
+(
+    Schedule_ID INT AUTO_INCREMENT PRIMARY KEY,
+    User_ID     INT,
+    Date        DATE,
+    Type        BOOLEAN, -- true for 'collect', false for 'distribute'
+    FOREIGN KEY (User_ID) REFERENCES Users (User_ID)
 );
 
-CREATE TABLE Tournees (
-                          Tournee_ID INT AUTO_INCREMENT PRIMARY KEY,
-                          Date DATE,
-                          User_ID INT,
-                          Camion_ID INT,
-                          Type BOOLEAN, -- true for 'collect', false for 'distrib'
-                          FOREIGN KEY (User_ID) REFERENCES User(ID),
-                          FOREIGN KEY (Camion_ID) REFERENCES Camions(Camion_ID)
+CREATE TABLE Routes
+(
+    Route_ID   INT AUTO_INCREMENT PRIMARY KEY,
+    Date       DATE,
+    User_ID    INT,
+    Truck_ID   INT,
+    Type       BOOLEAN, -- true for 'collect', false for 'distribute'
+    FOREIGN KEY (User_ID) REFERENCES Users (User_ID),
+    FOREIGN KEY (Truck_ID) REFERENCES Trucks (Truck_ID)
 );
 
-CREATE TABLE Planning_Tournees (
-                                   Planning_ID INT,
-                                   Tournee_ID INT,
-                                   PRIMARY KEY (Planning_ID, Tournee_ID),
-                                   FOREIGN KEY (Planning_ID) REFERENCES Planning(Planning_ID),
-                                   FOREIGN KEY (Tournee_ID) REFERENCES Tournees(Tournee_ID)
+CREATE TABLE Schedule_Routes
+(
+    Schedule_ID INT,
+    Route_ID    INT,
+    PRIMARY KEY (Schedule_ID, Route_ID),
+    FOREIGN KEY (Schedule_ID) REFERENCES Schedules (Schedule_ID),
+    FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID)
 );
 
-CREATE TABLE Tournees_Dons (
-                               Tournees_ID INT,
-                               Date DATE,
-                               PRIMARY KEY (Tournees_ID),
-                               FOREIGN KEY (Tournees_ID) REFERENCES Tournees(Tournee_ID)
+CREATE TABLE Route_Donations
+(
+    Route_ID   INT,
+    Date       DATE,
+    PRIMARY KEY (Route_ID),
+    FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID)
 );
 
-CREATE TABLE Destinations (
-                              Destination_ID INT AUTO_INCREMENT PRIMARY KEY,
-                              Tournees_ID INT,
-                              Address_ID INT,
-                              Type BOOLEAN, -- true for 'collect', false for 'distrib'
-                              FOREIGN KEY (Tournees_ID) REFERENCES Tournees(Tournee_ID),
-                              FOREIGN KEY (Address_ID) REFERENCES Address(Address_ID)
+CREATE TABLE Destinations
+(
+    Destination_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Route_ID       INT,
+    Address_ID     INT,
+    Type           BOOLEAN, -- true for 'collect', false for 'distribute'
+    FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID),
+    FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID)
 );
 
-CREATE TABLE Destinations_Produit (
-                                      Destination_ID INT,
-                                      Produit_ID INT,
-                                      Quantity INT,
-                                      PRIMARY KEY (Destination_ID, Produit_ID),
-                                      FOREIGN KEY (Destination_ID) REFERENCES Destinations(Destination_ID),
-                                      FOREIGN KEY (Produit_ID) REFERENCES Produits(Produit_ID)
+CREATE TABLE Destination_Products
+(
+    Destination_ID INT,
+    Product_ID     INT,
+    Quantity       INT,
+    PRIMARY KEY (Destination_ID, Product_ID),
+    FOREIGN KEY (Destination_ID) REFERENCES Destinations (Destination_ID),
+    FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
 );
 
-CREATE TABLE Stocks (
-                        Produit_ID INT,
-                        Quantity INT,
-                        Date_Stockage DATE,
-                        PRIMARY KEY (Produit_ID),
-                        FOREIGN KEY (Produit_ID) REFERENCES Produits(Produit_ID)
+CREATE TABLE Stocks
+(
+    Product_ID    INT,
+    Quantity      INT,
+    Storage_Date  DATE,
+    PRIMARY KEY (Product_ID),
+    FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
 );
 
-CREATE TABLE Demande (
-                         Produit_ID INT,
-                         Quantity INT,
-                         Date DATE,
-                         User_ID INT,
-                         PRIMARY KEY (Produit_ID, User_ID, Date),
-                         FOREIGN KEY (Produit_ID) REFERENCES Produits(Produit_ID),
-                         FOREIGN KEY (User_ID) REFERENCES User(ID)
+CREATE TABLE Requests
+(
+    Product_ID INT,
+    Quantity   INT,
+    Date       DATE,
+    User_ID    INT,
+    PRIMARY KEY (Product_ID, User_ID, Date),
+    FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID),
+    FOREIGN KEY (User_ID) REFERENCES Users (User_ID)
 );
 
-CREATE TABLE Dons (
-                      Produit_ID INT,
-                      Quantity INT,
-                      Donation_User_ID INT,
-                      User_ID INT,
-                      PRIMARY KEY (Produit_ID, Donation_User_ID),
-                      FOREIGN KEY (Produit_ID) REFERENCES Produits(Produit_ID),
-                      FOREIGN KEY (Donation_User_ID) REFERENCES User(ID),
-                      FOREIGN KEY (User_ID) REFERENCES User(ID)
+CREATE TABLE Donations
+(
+    Product_ID       INT,
+    Quantity         INT,
+    Donor_User_ID    INT,
+    Recipient_User_ID INT,
+    PRIMARY KEY (Product_ID, Donor_User_ID),
+    FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID),
+    FOREIGN KEY (Donor_User_ID) REFERENCES Users (User_ID),
+    FOREIGN KEY (Recipient_User_ID) REFERENCES Users (User_ID)
 );
 
-CREATE TABLE Produits (
-                          Produit_ID INT AUTO_INCREMENT PRIMARY KEY,
-                          CodeBarre VARCHAR(50),
-                          Nom VARCHAR(100),
-                          Type_De_Stockage VARCHAR(100),
-                          Date_De_Peremption DATE
+CREATE TABLE Products
+(
+    Product_ID         INT AUTO_INCREMENT PRIMARY KEY,
+    Barcode            VARCHAR(50),
+    Name               VARCHAR(100),
+    Storage_Type       VARCHAR(100),
+    Expiration_Date    DATE
 );
 
-CREATE TABLE Camions (
-                         Camion_ID INT AUTO_INCREMENT PRIMARY KEY,
-                         Immatriculation VARCHAR(50),
-                         Capacite INT,
-                         Modele VARCHAR(100),
-                         Etat VARCHAR(100)
+CREATE TABLE Trucks
+(
+    Truck_ID         INT AUTO_INCREMENT PRIMARY KEY,
+    Registration     VARCHAR(50),
+    Capacity         INT,
+    Model            VARCHAR(100),
+    Condition        VARCHAR(100)
 );
