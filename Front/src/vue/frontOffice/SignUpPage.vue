@@ -57,7 +57,7 @@ const submitForm = async () => {
   <div class="ui middle aligned center aligned grid" style="height: 100vh;">
     <div class="column" style="max-width: 450px;">
       <h2 class="ui teal image header">
-        <div class="content">{{ $t('account_creation') }}</div>
+        {{ $t('account_creation') }}
       </h2>
       <div v-if="error" class="ui negative message">{{ error }}</div>
       <div v-if="success" class="ui positive message">{{ success }}</div>
@@ -98,7 +98,7 @@ const submitForm = async () => {
         </div>
       </form>
       <div class="ui message">{{ $t('older_to_us') }}
-        <router-link to="/login" class="item">{{ $t('login') }}</router-link>
+        <router-link to="/login" class="item">{{ $t('account_Login') }}</router-link>
       </div>
     </div>
   </div>
