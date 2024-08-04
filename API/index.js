@@ -8,7 +8,7 @@ const authMiddleware = require("./common/middlewares/auth_middleware");
 const cors = require("cors");
 
 const app = express();
-const port = 80;
+const port = 3000;
 
 // Transform le json en un objet utilisable dans le code
 app.use(bodyParser.json());
