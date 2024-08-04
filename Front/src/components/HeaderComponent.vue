@@ -23,9 +23,21 @@ const props = defineProps({
     required: false,
     default: '',
   },
+  profileSrc: {
+    type: String,
+    required: true,
+  },
+  profileAlt: {
+    type: String,
+    required: true,
+  },
+  profileText: {
+    type: String,
+    required: false,
+    default: '',
+  },
 });
 
-// i18n setup
 const {locale, availableLocales, changeLocale, currentLocale} = useLocale();
 
 // Component setup
@@ -49,7 +61,9 @@ function logout() {
       </router-link>
       <div class="right menu">
         <slot name="nav"></slot>
-        <a class="item" @click="logout">{{ t('logout') }}</a>
+        <a class="item" @click="profileText">
+          <img :alt="profileAlt" :src="profileSrc" class="logo">
+        </a>
         <div class="ui simple dropdown item">
           <i class="world icon"></i> {{ currentLocale }}
           <div class="menu">
