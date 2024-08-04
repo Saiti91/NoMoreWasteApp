@@ -6,15 +6,17 @@ import useAuthGuard from '../components/Auth/AuthGuard.js';
 
 //***** FRONT OFFICE
 import SignUpPage from "../vue/frontOffice/SignUpPage.vue";
-
+import Home from "../vue/frontOffice/Home.vue";
 
 //***** BACK OFFICE
 import BackOfficeHome from '../vue/backOffice/Home.vue';
 
 
+
 const routes = [
 
     {path: '/login', name: 'Login', component: LoginPage},
+    {path: '/', name: 'Home', component: Home},
 
 
     //***** FRONT OFFICE
