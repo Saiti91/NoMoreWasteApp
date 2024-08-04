@@ -1,2 +1,15 @@
 {
+  "admin_DashBoard": "Tableau de bord Admin",
+  "services": "Services",
+  "users": "Utilisateurs",
+  "apartment": "Appartement",
+  "news": "Actualités",
+  "logout": "Déconnexion",
+  "home": "Accueil",
+  "about": "À propos",
+  "contact": "Contact",
+  "stocks": "Stocks",
+  "don_requests": "Demandes de dons",
+  "tours": "Tournées",
+  "service_requests": "Demandes de services"
 }

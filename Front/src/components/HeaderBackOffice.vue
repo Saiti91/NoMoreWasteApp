@@ -1,34 +1,20 @@
 <!-- src/components/HeaderBackOffice.vue -->
 <template>
-  <HeaderComponent logo="path/to/backoffice-logo.png">
+  <HeaderComponent logoSrc="path/to/backoffice-logo.svg" logoAlt="Back Office Logo" logoText="Back Office">
     <template #nav>
-      <div class="ui secondary menu">
-        <a class="item" href="#stocks">Stocks</a>
-        <a class="item" href="#users">Utilisateurs</a>
-        <a class="item" href="#don-requests">Demandes de dons</a>
-        <a class="item" href="#tours">Tournées</a>
-        <a class="item" href="#service-requests">Demandes de services</a>
-      </div>
-    </template>
-    <template #actions>
-      <div class="ui buttons">
-        <button class="ui button">Logout</button>
-      </div>
+      <router-link class="item" to="/stocks">{{ $t('stocks') }}</router-link>
+      <router-link class="item" to="/users">{{ $t('users') }}</router-link>
+      <router-link class="item" to="/don-requests">{{ $t('don_requests') }}</router-link>
+      <router-link class="item" to="/tours">{{ $t('tours') }}</router-link>
+      <router-link class="item" to="/service-requests">{{ $t('service_requests') }}</router-link>
     </template>
   </HeaderComponent>
 </template>
 
-<script>
-import HeaderComponent from './HeaderComponent.vue'
-
-export default {
-  name: 'HeaderBackOffice',
-  components: {
-    HeaderComponent
-  }
-}
+<script setup>
+import HeaderComponent from './HeaderComponent.vue';
 </script>
 
 <style scoped>
-/* Ajoutez ici des styles supplémentaires si nécessaire */
+/* Ajoutez ici des styles spécifiques si nécessaire */
 </style>

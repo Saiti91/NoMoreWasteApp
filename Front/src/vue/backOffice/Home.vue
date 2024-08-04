@@ -1,17 +1,15 @@
-<script>
-import {defineComponent} from "vue";
-import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
-
-export default defineComponent({
-  components: {HeaderBackOffice}
-})
-
-
-</script>
+<!-- src/views/BackOfficeHome.vue -->
 <template>
   <div id="app">
-    <HeaderBackOffice/>
+    <HeaderBackOffice />
+    <p>Bonjour Michel</p>
   </div>
 </template>
 
+<script setup>
+import HeaderBackOffice from '@/components/HeaderBackOffice.vue';
+</script>
 
+<style scoped>
+/* Ajoutez ici des styles globaux */
+</style>

@@ -1,2 +1,15 @@
 {
+  "admin_DashBoard": "Admin Dashboard",
+  "services": "Services",
+  "users": "Users",
+  "apartment": "Apartment",
+  "news": "News",
+  "logout": "Logout",
+  "home": "Home",
+  "about": "About",
+  "contact": "Contact",
+  "stocks": "Stocks",
+  "don_requests": "Donation Requests",
+  "tours": "Tours",
+  "service_requests": "Service Requests"
 }
