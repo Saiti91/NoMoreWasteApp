@@ -6,10 +6,13 @@ import VueJwtDecode from 'vue-jwt-decode';
 import 'fomantic-ui-css/semantic.min.css';
 import axiosInstance from "../utils/Axios.js";
 
+import { useI18n } from 'vue-i18n';
+
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
 const router = useRouter();
+const { t } = useI18n();
 
 const validateEmail = (email) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -79,31 +82,31 @@ const submitForm = async () => {
   <div class="outer-container">
     <div class="form-container">
       <h2 class="ui teal image header">
-        {{ $t('account_Login') }}
+        {{ t('account_Login') }}
       </h2>
       <form class="ui large form" @submit.prevent="submitForm">
         <div class="ui stacked segment">
           <div class="field">
             <div class="ui left icon input">
               <i class="user icon"></i>
-              <input type="email" v-model="email" name="email" :placeholder="$t('email')" required>
+              <input type="email" v-model="email" name="email" :placeholder="t('email')" required>
             </div>
           </div>
           <div class="field">
             <div class="ui left icon input">
               <i class="lock icon"></i>
-              <input type="password" v-model="password" name="password" :placeholder="$t('password')" required>
+              <input type="password" v-model="password" name="password" :placeholder="t('password')" required>
             </div>
           </div>
-          <button class="ui fluid large teal submit button" type="submit">{{ $t('account_Login') }}</button>
+          <button class="ui fluid large teal submit button" type="submit">{{ t('account_Login') }}</button>
         </div>
 
         <div class="ui error message" v-if="errorMessage">
           {{ errorMessage }}
         </div>
       </form>
-      <div class="ui message">{{ $t('new_to_us') }}
-        <router-link to="/sign-up" class="item">{{ $t('sign_up') }}</router-link>
+      <div class="ui message">{{ t('new_to_us') }}
+        <router-link to="/sign-up" class="item">{{ t('sign_up') }}</router-link>
       </div>
     </div>
   </div>
