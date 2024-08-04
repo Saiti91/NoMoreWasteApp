@@ -1,15 +1,19 @@
 {
-  "admin_DashBoard": "Admin Dashboard",
-  "services": "Services",
-  "users": "Users",
-  "apartment": "Apartment",
-  "news": "News",
-  "logout": "Logout",
-  "home": "Home",
   "about": "About",
+  "account_Login": "Login",
+  "admin_DashBoard": "Admin Dashboard",
+  "apartment": "Apartment",
   "contact": "Contact",
-  "stocks": "Stocks",
   "don": "Donations",
+  "email": "Email",
+  "home": "Home",
+  "logout": "Logout",
+  "new_to_us": "Not registered yet?",
+  "news": "News",
+  "password": "Password",
+  "services": "Services",
+  "sign_up": "Sign up",
+  "stocks": "Stocks",
   "tours": "Tours",
-  "services": "Services"
+  "users": "Users"
 }

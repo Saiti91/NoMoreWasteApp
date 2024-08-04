@@ -1,15 +1,19 @@
 {
-  "admin_DashBoard": "Tableau de bord Admin",
-  "services": "Services",
-  "users": "Utilisateurs",
-  "apartment": "Appartement",
-  "news": "Actualités",
-  "logout": "Déconnexion",
-  "home": "Accueil",
   "about": "À propos",
+  "account_Login": "Connexion",
+  "admin_DashBoard": "Tableau de bord Admin",
+  "apartment": "Appartement",
   "contact": "Contact",
-  "stocks": "Stocks",
   "don": "Dons",
+  "email": "Email",
+  "home": "Accueil",
+  "logout": "Déconnexion",
+  "new_to_us": "Pas encore inscrit ?",
+  "news": "Actualités",
+  "password": "Mot de passe",
+  "services": "Services",
+  "sign_up": "S'inscrire",
+  "stocks": "Stocks",
   "tours": "Tournées",
-  "services": "Services"
+  "users": "Utilisateurs"
 }
