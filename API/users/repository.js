@@ -7,7 +7,7 @@ async function createOne(user) {
 
 // Récupère un utilisateur en fonction de son ID
 async function getOne(id) {
-    return await db.oneOrNone("SELECT * FROM users WHERE users_id=${id}", {id});
+    return await db.oneOrNone("SELECT * FROM Users WHERE User_ID=${id}", {id});
 }
 
 async function checkPassword(id, password) {

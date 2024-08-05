@@ -1,4 +1,4 @@
-CREATE TABLE Address
+CREATE TABLE IF NOT EXISTS Address
 (
     Address_ID  INT AUTO_INCREMENT PRIMARY KEY,
     Street      VARCHAR(255),
@@ -8,7 +8,16 @@ CREATE TABLE Address
     Country     VARCHAR(100)
 );
 
-CREATE TABLE Users
+CREATE TABLE IF NOT EXISTS Products
+(
+    Product_ID         INT AUTO_INCREMENT PRIMARY KEY,
+    Barcode            VARCHAR(50),
+    Name               VARCHAR(100),
+    Storage_Type       VARCHAR(100),
+    Expiration_Date    DATE
+);
+
+CREATE TABLE IF NOT EXISTS Users
 (
     User_ID             INT AUTO_INCREMENT PRIMARY KEY,
     Name                VARCHAR(100),
@@ -22,13 +31,13 @@ CREATE TABLE Users
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID)
 );
 
-CREATE TABLE Skills
+CREATE TABLE IF NOT EXISTS Skills
 (
     Skill_ID INT AUTO_INCREMENT PRIMARY KEY,
     Name     VARCHAR(100)
 );
 
-CREATE TABLE User_Skills
+CREATE TABLE IF NOT EXISTS User_Skills
 (
     User_ID         INT,
     Skill_ID        INT,
@@ -38,7 +47,16 @@ CREATE TABLE User_Skills
     FOREIGN KEY (Skill_ID) REFERENCES Skills (Skill_ID)
 );
 
-CREATE TABLE Subscriptions
+CREATE TABLE IF NOT EXISTS Trucks
+(
+    Truck_ID         INT AUTO_INCREMENT PRIMARY KEY,
+    Registration     VARCHAR(50),
+    Capacity         INT,
+    Model            VARCHAR(100),
+    Conditions       VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS Subscriptions
 (
     User_ID           INT,
     Payment_Date      DATE,
@@ -48,7 +66,7 @@ CREATE TABLE Subscriptions
     FOREIGN KEY (User_ID) REFERENCES Users (User_ID)
 );
 
-CREATE TABLE Schedules
+CREATE TABLE IF NOT EXISTS Schedules
 (
     Schedule_ID INT AUTO_INCREMENT PRIMARY KEY,
     User_ID     INT,
@@ -57,7 +75,7 @@ CREATE TABLE Schedules
     FOREIGN KEY (User_ID) REFERENCES Users (User_ID)
 );
 
-CREATE TABLE Routes
+CREATE TABLE IF NOT EXISTS Routes
 (
     Route_ID   INT AUTO_INCREMENT PRIMARY KEY,
     Date       DATE,
@@ -68,7 +86,7 @@ CREATE TABLE Routes
     FOREIGN KEY (Truck_ID) REFERENCES Trucks (Truck_ID)
 );
 
-CREATE TABLE Schedule_Routes
+CREATE TABLE IF NOT EXISTS Schedule_Routes
 (
     Schedule_ID INT,
     Route_ID    INT,
@@ -77,7 +95,7 @@ CREATE TABLE Schedule_Routes
     FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID)
 );
 
-CREATE TABLE Route_Donations
+CREATE TABLE IF NOT EXISTS Route_Donations
 (
     Route_ID   INT,
     Date       DATE,
@@ -85,7 +103,7 @@ CREATE TABLE Route_Donations
     FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID)
 );
 
-CREATE TABLE Destinations
+CREATE TABLE IF NOT EXISTS Destinations
 (
     Destination_ID INT AUTO_INCREMENT PRIMARY KEY,
     Route_ID       INT,
@@ -95,7 +113,7 @@ CREATE TABLE Destinations
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID)
 );
 
-CREATE TABLE Destination_Products
+CREATE TABLE IF NOT EXISTS Destination_Products
 (
     Destination_ID INT,
     Product_ID     INT,
@@ -105,7 +123,7 @@ CREATE TABLE Destination_Products
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
 );
 
-CREATE TABLE Stocks
+CREATE TABLE IF NOT EXISTS Stocks
 (
     Product_ID    INT,
     Quantity      INT,
@@ -114,7 +132,7 @@ CREATE TABLE Stocks
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
 );
 
-CREATE TABLE Requests
+CREATE TABLE IF NOT EXISTS Requests
 (
     Product_ID INT,
     Quantity   INT,
@@ -125,7 +143,7 @@ CREATE TABLE Requests
     FOREIGN KEY (User_ID) REFERENCES Users (User_ID)
 );
 
-CREATE TABLE Donations
+CREATE TABLE IF NOT EXISTS Donations
 (
     Product_ID       INT,
     Quantity         INT,
@@ -137,20 +155,6 @@ CREATE TABLE Donations
     FOREIGN KEY (Recipient_User_ID) REFERENCES Users (User_ID)
 );
 
-CREATE TABLE Products
-(
-    Product_ID         INT AUTO_INCREMENT PRIMARY KEY,
-    Barcode            VARCHAR(50),
-    Name               VARCHAR(100),
-    Storage_Type       VARCHAR(100),
-    Expiration_Date    DATE
-);
 
-CREATE TABLE Trucks
-(
-    Truck_ID         INT AUTO_INCREMENT PRIMARY KEY,
-    Registration     VARCHAR(50),
-    Capacity         INT,
-    Model            VARCHAR(100),
-    Condition        VARCHAR(100)
-);
+
+
