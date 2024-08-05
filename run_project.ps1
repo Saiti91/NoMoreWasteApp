@@ -5,8 +5,8 @@ Write-Output "Executing run_mysql.ps1..."
 ./run_mysql.ps1
 
 # Wait for 5 seconds
-Write-Output "Waiting for 5 seconds..."
-Start-Sleep -Seconds 5
+Write-Output "Waiting for 10 seconds..."
+Start-Sleep -Seconds 10
 
 # Change to API directory and install dependencies
 Write-Output "Navigating to API directory..."
