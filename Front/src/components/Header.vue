@@ -48,10 +48,8 @@ const logout = () => {
        <!-- <img class="logo" src="/src/assets/logo.svg" alt="Company Logo"> -->
       </router-link>
       <div class="right menu">
-        <router-link v-if="!isAuthenticated" to="/login" class="item">{{ $t('login') }}</router-link>
+        <router-link v-if="!isAuthenticated" to="/login" class="item">{{ $t('account_Login') }}</router-link>
         <a v-if="isAuthenticated" @click="logout" class="item">{{ $t('logout') }}</a>
-        <router-link to="/housing" class="item">{{ $t('our-housing') }}</router-link>
-        <router-link to="/join-us" class="item">{{ $t('join-us-btn') }}</router-link>
         <router-link v-if="isAuthenticated" to="/my-account" class="item">{{ $t('account') }}</router-link>
         <div class="ui simple dropdown item">
           <i class="world icon"></i> {{ currentLocale }}
