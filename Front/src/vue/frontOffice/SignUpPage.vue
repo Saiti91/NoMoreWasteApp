@@ -1,7 +1,6 @@
 <script setup>
 import {ref} from 'vue';
 import {useRouter} from 'vue-router';
-import 'fomantic-ui-css/semantic.min.css';
 import {useI18n} from 'vue-i18n'; // Importation de useI18n
 
 const email = ref('');

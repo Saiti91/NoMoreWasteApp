@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Cookies from 'js-cookie';
 import VueJwtDecode from 'vue-jwt-decode';
-import 'fomantic-ui-css/semantic.min.css';
 import axiosInstance from "../utils/Axios.js";
 
 import { useI18n } from 'vue-i18n';
@@ -79,82 +78,41 @@ const submitForm = async () => {
 </script>
 
 <template>
-  <div class="outer-container">
-    <div class="form-container">
+  <div class="ui middle aligned center aligned grid" style="height: 100vh;">
+    <div class="column" style="max-width: 450px;">
       <h2 class="ui teal image header">
-        {{ t('account_Login') }}
+        {{ $t('account_Login') }}
       </h2>
       <form class="ui large form" @submit.prevent="submitForm">
         <div class="ui stacked segment">
           <div class="field">
             <div class="ui left icon input">
               <i class="user icon"></i>
-              <input type="email" v-model="email" name="email" :placeholder="t('email')" required>
+              <input type="email" v-model="email" name="email" :placeholder="$t('email')" required>
             </div>
           </div>
           <div class="field">
             <div class="ui left icon input">
               <i class="lock icon"></i>
-              <input type="password" v-model="password" name="password" :placeholder="t('password')" required>
+              <input type="password" v-model="password" name="password" :placeholder="$t('password')" required>
             </div>
           </div>
-          <button class="ui fluid large teal submit button" type="submit">{{ t('account_Login') }}</button>
+          <button class="ui fluid large teal submit button" type="submit">{{ $t('account_Login') }}</button>
         </div>
 
         <div class="ui error message" v-if="errorMessage">
           {{ errorMessage }}
         </div>
       </form>
-      <div class="ui message">{{ t('new_to_us') }}
-        <router-link to="/sign-up" class="item">{{ t('sign_up') }}</router-link>
+      <div class="ui message">{{ $t('new_to_us') }}
+        <router-link to="/sign-up" class="item">{{ $t('sign_up') }}</router-link>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.outer-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  width: 100vw;
-  margin: 0;
-  padding: 0;
-}
-
-.form-container {
-  max-width: 500px;
-  width: 100%;
-  padding: 20px;
-  box-sizing: border-box;
-  text-align: center;
-}
-
-.ui.large.form {
-  font-size: 1.2rem;
-}
-
-.ui.teal.image.header {
-  font-size: 2.5rem;
-}
-
-.ui.left.icon.input i {
-  font-size: 1.5rem;
-}
-
-.ui.fluid.large.teal.submit.button {
-  font-size: 1.2rem;
-}
-
-.ui.message {
-  font-size: 1.2rem;
-}
-
 .ui.error.message {
   display: block !important;
 }
 </style>
-
-
-
