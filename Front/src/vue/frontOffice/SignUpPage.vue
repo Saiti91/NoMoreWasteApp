@@ -57,7 +57,7 @@ const submitForm = async () => {
   <div class="ui middle aligned center aligned grid" style="height: 100vh;">
     <div class="column" style="max-width: 450px;">
       <h2 class="ui teal image header">
-        {{ $t('account_creation') }}
+        {{ t('account_creation') }}
       </h2>
       <div v-if="error" class="ui negative message">{{ error }}</div>
       <div v-if="success" class="ui positive message">{{ success }}</div>
@@ -66,39 +66,39 @@ const submitForm = async () => {
           <div class="field">
             <div class="ui left icon input">
               <i class="user icon"></i>
-              <input type="text" v-model="first_name" name="first_name" :placeholder="$t('first-name')" required>
+              <input type="text" v-model="first_name" name="first_name" :placeholder="t('first-name')" required>
             </div>
           </div>
           <div class="field">
             <div class="ui left icon input">
               <i class="user icon"></i>
-              <input type="text" v-model="last_name" name="last_name" :placeholder="$t('last-name')" required>
+              <input type="text" v-model="last_name" name="last_name" :placeholder="t('last-name')" required>
             </div>
           </div>
           <div class="field">
             <div class="ui left icon input">
               <i class="mail icon"></i>
-              <input type="email" v-model="email" name="email" :placeholder="$t('email')" required>
+              <input type="email" v-model="email" name="email" :placeholder="t('email')" required>
             </div>
           </div>
           <div class="field">
             <div class="ui left icon input">
               <i class="lock icon"></i>
-              <input type="password" v-model="password" name="password" :placeholder="$t('password')" required>
+              <input type="password" v-model="password" name="password" :placeholder="t('password')" required>
             </div>
           </div>
           <div class="field">
             <div class="ui left icon input">
               <i class="lock icon"></i>
               <input type="password" v-model="confirmPassword" name="confirmPassword"
-                     :placeholder="$t('confirm_password')" required>
+                     :placeholder="t('confirm_password')" required>
             </div>
           </div>
-          <button class="ui fluid large teal submit button" type="submit">{{ $t('sign_up') }}</button>
+          <button class="ui fluid large teal submit button" type="submit">{{ t('sign_up') }}</button>
         </div>
       </form>
-      <div class="ui message">{{ $t('older_to_us') }}
-        <router-link to="/login" class="item">{{ $t('account_Login') }}</router-link>
+      <div class="ui message">{{ t('older_to_us') }}
+        <router-link to="/login" class="item">{{ t('account_Login') }}</router-link>
       </div>
     </div>
   </div>

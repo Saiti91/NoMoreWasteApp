@@ -69,7 +69,7 @@ const controller = Router();
  */
 controller.get(
     "/",
-    authorize(["admin"]),
+    // authorize([/*"admin"*/]),
     (_req, res, next) => {
         usersService.getAll()
             .then((data) => res.json(data))
@@ -102,7 +102,7 @@ controller.get(
  */
 controller.get(
     "/:id",
-    authorize(["admin"]),
+    authorize([/*"admin"*/]),
     (req, res, next) => {
         usersService.getOne(Number(req.params.id), {
             id: req.auth?.uid,
@@ -168,7 +168,7 @@ controller.post(
  */
 controller.delete(
     "/:id",
-    authorize(["admin"]),
+    authorize([/*"admin"*/]),
     (req, res, next) => {
         usersService.deleteOne(Number(req.params.id), {
             id: req.auth?.uid,
@@ -215,7 +215,7 @@ controller.delete(
  */
 controller.patch(
     "/:id",
-    authorize(["admin"]),
+    authorize([/*"admin"*/]),
     (req, res, next) => {
         usersService.updateOne(Number(req.params.id), req.body, {
             id: req.auth?.uid,
