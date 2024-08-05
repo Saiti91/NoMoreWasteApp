@@ -1,86 +1,70 @@
-// users/service.js
-const {createUserSchema, updateUserSchema} = require("./model");
+const { createUserSchema, updateUserSchema } = require("./model");
 const Repository = require("./repository");
-const {InvalidArgumentError, UnauthorizedError} = require("../common/service_errors");
-
+const { InvalidArgumentError, UnauthorizedError } = require("../common/service_errors");
 
 // Fonction de création d'utilisateur
 async function createOne(user) {
-    // Validation de l'utilisateur avec un schéma Joi ou similaire
-    const {value, error} = createUserSchema.validate(user);
+    const { value, error } = createUserSchema.validate(user);
     if (error) {
         throw error;
     }
 
-    // Vérification de l'existence de l'email
-    if (await Repository.getOneBy("email", value.email)) {
-        throw new InvalidArgumentError("This email is already taken.");
+    if (await Repository.getOneBy("Email", value.email)) {
+        throw new InvalidArgumentError("Cet email est déjà utilisé.");
     }
 
-    // Création de l'utilisateur dans la base de données
     const newUser = await Repository.createOne(value);
-
-    // Renvoi de l'utilisateur nouvellement créé avec le mot de passe masqué
-    return {...newUser, password: "[redacted]"};
+    return { ...newUser, password: "[redacted]" };
 }
 
-// fonction de récupération d'un utilisateur en fonction d'un id
+// Fonction de récupération d'un utilisateur en fonction de son ID
 async function getOne(id, issuer) {
     if (["volunteer"].includes(issuer.role) && issuer.id !== id) {
-        throw new UnauthorizedError("You can only see your own account.");
+        throw new UnauthorizedError("Vous ne pouvez voir que votre propre compte.");
     }
 
     const user = await Repository.getOne(id);
-    if (user) {
-        return {...user, password: "[redacted]"};
-    } else return user;
+    return user ? { ...user, password: "[redacted]" } : null;
 }
 
-//fonction de récupération de tous les utilisateurs
+// Fonction de récupération de tous les utilisateurs
 async function getAll() {
     const users = await Repository.getAll();
-    return users.map((user) => ({...user, password: "[redacted]"}));
+    return users.map(user => ({ ...user, password: "[redacted]" }));
 }
 
-// fonction de changement d'information sur un utilisateur en fonction de son ID
+// Fonction de mise à jour d'un utilisateur en fonction de son ID
 async function updateOne(id, user, issuer) {
     if (["volunteer"].includes(issuer.role) && issuer.id !== id) {
-        throw new UnauthorizedError("You can only update your own account.");
+        throw new UnauthorizedError("Vous ne pouvez mettre à jour que votre propre compte.");
     }
 
-    const {value, error} = updateUserSchema.validate(user);
-        if (error) {
+    const { value, error } = updateUserSchema.validate(user);
+    if (error) {
         throw error;
     }
 
-    // Check if the email is already taken by another user
-    const existingUser = await Repository.getOneBy("email", value.email);
-
-    if (existingUser && existingUser.users_id !== id) {
-        throw new InvalidArgumentError("This email is already taken.");
+    const existingUser = await Repository.getOneBy("Email", value.email);
+    if (existingUser && existingUser.User_ID !== id) {
+        throw new InvalidArgumentError("Cet email est déjà utilisé.");
     }
 
-    const newUser =  await Repository.updateOne(id, value);
-
-    if (newUser) {
-        return {...newUser, password: "[redacted]"};
-    }
-
-    return newUser;
+    const updatedUser = await Repository.updateOne(id, value);
+    return updatedUser ? { ...updatedUser, password: "[redacted]" } : null;
 }
 
-// Suppression d'un utilisateur
+// Fonction de suppression d'un utilisateur
 async function deleteOne(id, issuer) {
-
     if (["customer", "owner", "provider"].includes(issuer.role) && issuer.id !== id) {
-        throw new UnauthorizedError("You can only delete your own account.");
+        throw new UnauthorizedError("Vous ne pouvez supprimer que votre propre compte.");
     }
 
-    if ((await Repository.getOne(id))?.role === "admin") {
-        throw new UnauthorizedError("You cannot delete an admin's account.");
+    const user = await Repository.getOne(id);
+    if (user?.role === "admin") {
+        throw new UnauthorizedError("Vous ne pouvez pas supprimer le compte d'un administrateur.");
     }
 
     return await Repository.deleteOne(id);
 }
 
-module.exports = {createOne, getOne, getAll, updateOne, deleteOne};
+module.exports = { createOne, getOne, getAll, updateOne, deleteOne };
