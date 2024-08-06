@@ -1,14 +1,12 @@
 <script setup>
-import {onMounted} from 'vue';
-import {useLocale} from '@/composables/useLocale';
-import {useRouter} from 'vue-router';
+import { onMounted } from 'vue';
+import { useLocale } from '@/composables/useLocale';
+import { useRouter } from 'vue-router';
 import Cookies from 'js-cookie';
-import {useI18n} from 'vue-i18n';
+import { useI18n } from 'vue-i18n';
 
-// Utilisation de useI18n pour accéder à la méthode t
-const {t} = useI18n();
+const { t } = useI18n();
 
-// Props
 const props = defineProps({
   logoSrc: {
     type: String,
@@ -38,13 +36,12 @@ const props = defineProps({
   },
 });
 
-const {locale, availableLocales, changeLocale, currentLocale} = useLocale();
+const { locale, availableLocales, changeLocale, currentLocale } = useLocale();
 
-// Component setup
 const router = useRouter();
 
-onMounted(async () => {
-  // Initialization code
+onMounted(() => {
+  $('.ui.dropdown').dropdown();
 });
 
 function logout() {
@@ -61,9 +58,15 @@ function logout() {
       </router-link>
       <div class="right menu">
         <slot name="nav"></slot>
-        <a class="item" @click="profileText">
-          <img :alt="profileAlt" :src="profileSrc" class="logo">
-        </a>
+        <div class="ui simple dropdown item">
+          <img :alt="profileAlt" :src="profileSrc" class="ui avatar image">
+          <div class="menu">
+            <slot name="profile-dropdown">
+              <!-- Default content if no slot is provided -->
+              <div class="item" @click="logout">{{ t('logout') }}</div>
+            </slot>
+          </div>
+        </div>
         <div class="ui simple dropdown item">
           <i class="world icon"></i> {{ currentLocale }}
           <div class="menu">
@@ -100,5 +103,10 @@ function logout() {
 
 .logo {
   object-fit: cover;
+}
+
+.ui.avatar.image {
+  width: 35px;
+  height: 35px;
 }
 </style>

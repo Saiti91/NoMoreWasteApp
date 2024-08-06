@@ -1,5 +1,5 @@
 <script setup>
-import Header from "@/components/Header.vue";
+import Header from "@/components/HeaderFrontOffice.vue";
 import {useI18n} from 'vue-i18n';
 </script>
 

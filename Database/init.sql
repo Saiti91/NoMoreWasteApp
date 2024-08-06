@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS Users
     Password             VARCHAR(255),
     Birthdate            DATE,
     Current_Subscription BOOLEAN,
+    Role                 ENUM ('admin', 'volunteer') NOT NULL DEFAULT 'volunteer',
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID)
 );
 
@@ -176,12 +177,12 @@ VALUES ('1234567890123', 'Pomme', 'Frais', '2025-12-31'),
        ('5678901234567', 'Lait', 'Frais', '2024-11-20');
 
 -- Données de test pour la table Users
-INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, Current_Subscription)
-VALUES ('admin', 'admin', 1, '0102030405', 'admin@user.com', 'password', '1985-05-15', true),
-       ('Martin', 'Lucie', 2, '0607080910', 'l.martin@user.com', 'password', '1990-07-22', false),
-       ('Lefevre', 'Pierre', 3, '0708091011', 'p.lefevre@user.com', 'password', '1980-02-17', true),
-       ('Moreau', 'Sophie', 4, '0809101112', 's.moreau@user.com', 'password', '1995-12-25', false),
-       ('Dubois', 'Louis', 5, '0910111213', 'l.dubois@user.com', 'password', '1978-09-30', true);
+INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, Current_Subscription, Role)
+VALUES ('admin', 'admin', 1, '0102030405', 'admin@user.com', 'password', '1985-05-15', true,'admin'),
+       ('Martin', 'Lucie', 2, '0607080910', 'l.martin@user.com', 'password', '1990-07-22', false,'volunteer'),
+       ('Lefevre', 'Pierre', 3, '0708091011', 'p.lefevre@user.com', 'password', '1980-02-17', true,'volunteer'),
+       ('Moreau', 'Sophie', 4, '0809101112', 's.moreau@user.com', 'password', '1995-12-25', false,'volunteer'),
+       ('Dubois', 'Louis', 5, '0910111213', 'l.dubois@user.com', 'password', '1978-09-30', true,'volunteer');
 
 -- Données de test pour la table Skills
 INSERT INTO Skills (Name)
