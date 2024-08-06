@@ -6,11 +6,13 @@ const authController = require("./auth/controller");
 const idParamGuard = require("./common/middlewares/id_param_guard_middleware");
 const authMiddleware = require("./common/middlewares/auth_middleware");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const { specs } = require("./common/swagger_handler");
 
 const app = express();
 const port = 3000;
 
-// Transform le json en un objet utilisable dans le code
+// Transforme le JSON en un objet utilisable dans le code
 app.use(bodyParser.json());
 app.use(cors({
     origin: 'http://localhost:5173', // Remplacez par le domaine de votre application front-end
@@ -19,32 +21,32 @@ app.use(cors({
     exposedHeaders: 'Authorization'
 }));
 
-// Transform le token en un objet utilisable dans le code
+// Transforme le token en un objet utilisable dans le code
 app.use(authMiddleware);
 
-// Regex
-app.use("/*/[1-9]+$", idParamGuard);
-
-//Récupère la requète et délivre un message de base si celle-ci ne contient pas d'argument
+// Route de base
 app.get("/", (_req, res) => {
     res.json({
         message: "Welcome to PCS API!",
-        routes: ["/users", "/auth", "/apartments", "/reservations", "/services", "/calendar", "/commentary",
-            "/apartmentsCalendar", "/servicesCalendar", "/inventory", "/tickets", "/invoices"],
+        routes: ["/users", "/auth", "/api-docs"]
     });
 });
 
-// importation des autres scripts
+// Route Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+
+// Importation des autres scripts
 app.use("/auth", authController);
 app.use("/users", usersController);
 
-//Pour stripe
-// app.use('/stripe', stripeRoutes);
+// Application du middleware `idParamGuard` aux routes avec paramètre `id`
+app.use("/users/:id", idParamGuard);
+app.use("/auth/:id", idParamGuard);
 
 // Middleware de gestion des erreurs
 app.use(errorHandlingMiddleware);
 
-//Console
+// Démarrer le serveur
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });

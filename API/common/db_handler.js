@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 const mysql = require('mysql2/promise');
 
 const connectionOptions = {
@@ -10,21 +9,15 @@ const connectionOptions = {
     port: process.env.DB_PORT
 };
 
-async function connectToDatabase() {
+async function getConnection() {
     try {
         const connection = await mysql.createConnection(connectionOptions);
         console.log("Connected to the database successfully");
-
-        // Example query to test the connection
-        const [rows, fields] = await connection.execute('SELECT 1');
-        console.log('Test query result:', rows);
-
-        connection.end();
+        return connection;
     } catch (error) {
         console.error("Failed to connect to the database:", error.message);
+        throw error;
     }
 }
 
-connectToDatabase();
-
-module.exports = connectToDatabase;
+module.exports = getConnection;

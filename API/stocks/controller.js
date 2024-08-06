@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const usersService = require("./service");
+const stocksService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
 const authorize = require("../common/middlewares/authorize_middleware");
 
@@ -71,7 +71,7 @@ controller.get(
     "/",
     // authorize([/*"admin"*/]),
     (_req, res, next) => {
-        usersService.getAll()
+        stocksService.getAll()
             .then((data) => res.json(data))
             .catch((err) => next(err));
     },
@@ -102,12 +102,8 @@ controller.get(
  */
 controller.get(
     "/:id",
-    authorize([/*"admin"*/]),
     (req, res, next) => {
-        usersService.getOne(Number(req.params.id), {
-            id: req.auth?.uid,
-            role: req.auth?.urole,
-        })
+        stocksService.getOne(Number(req.params.id))
             .then((data) => {
                 if (data === null) {
                     throw new NotFoundError(`Utilisateur avec l'id ${req.params.id} non trouvé`);
@@ -141,7 +137,7 @@ controller.get(
 controller.post(
     "/",
     (req, res, next) => {
-        usersService.createOne(req.body)
+        stocksService.createOne(req.body)
             .then((data) => res.status(201).json(data))
             .catch((err) => next(err));
     },
@@ -168,12 +164,9 @@ controller.post(
  */
 controller.delete(
     "/:id",
-    authorize([/*"admin"*/]),
+    authorize(["admin"]),
     (req, res, next) => {
-        usersService.deleteOne(Number(req.params.id), {
-            id: req.auth?.uid,
-            role: req.auth?.urole,
-        })
+        stocksService.deleteOne(Number(req.params.id))
             .then((id) => {
                 if (id === null) {
                     throw new NotFoundError(`Utilisateur avec l'id ${req.params.id} non trouvé`);
@@ -215,12 +208,8 @@ controller.delete(
  */
 controller.patch(
     "/:id",
-    authorize([/*"admin"*/]),
     (req, res, next) => {
-        usersService.updateOne(Number(req.params.id), req.body, {
-            id: req.auth?.uid,
-            role: req.auth?.urole,
-        })
+        stocksService.updateOne(Number(req.params.id), req.body)
             .then((data) => {
                 if (data === null) {
                     throw new NotFoundError(`Utilisateur avec l'id ${req.params.id} non trouvé`);

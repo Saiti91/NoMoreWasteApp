@@ -1,43 +1,139 @@
-// Importation du routeur d'Express
-const {Router} = require("express");
-// Importation du service d'authentification qui gère la logique métier spécifique à l'authentification
+const { Router } = require("express");
 const authService = require("./service");
 
-// Création d'une nouvelle instance de Router pour gérer les routes liées à l'authentification
 const controller = Router();
 
-// Route POST pour la connexion des utilisateurs
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: Authentication management
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Login:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           description: The user's email.
+ *         password:
+ *           type: string
+ *           description: The user's password.
+ *       example:
+ *         email: user@example.com
+ *         password: secret
+ *     Register:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *         - first_name
+ *         - last_name
+ *         - role
+ *       properties:
+ *         email:
+ *           type: string
+ *           description: The user's email.
+ *         password:
+ *           type: string
+ *           description: The user's password.
+ *         first_name:
+ *           type: string
+ *           description: The user's first name.
+ *         last_name:
+ *           type: string
+ *           description: The user's last name.
+ *         role:
+ *           type: string
+ *           description: The user's role.
+ *       example:
+ *         email: user@example.com
+ *         password: secret
+ *         first_name: John
+ *         last_name: Doe
+ *         role: user
+ */
+
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: User login
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Login'
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         headers:
+ *           Authorization:
+ *             description: Bearer token
+ *             schema:
+ *               type: string
+ *               example: Bearer <token>
+ *       400:
+ *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
+ */
 controller.post("/login", (req, res, next) => {
-    // Appel de la fonction de connexion du service d'authentification avec les données envoyées par l'utilisateur
     authService
         .login(req.body)
         .then((token) => {
-            // En cas de succès, envoie du token JWT dans l'en-tête Authorization
             res.set('Authorization', `Bearer ${token}`);
             res.status(200).send({
                 message: 'Login successful'
             });
         })
         .catch((err) => {
-            // En cas d'erreur, passe l'erreur au middleware de gestion des erreurs d'Express
             next(err);
         });
 });
 
-// Route POST pour l'enregistrement des utilisateurs
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: User registration
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Register'
+ *     responses:
+ *       200:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Register'
+ *       400:
+ *         description: Invalid input
+ *       409:
+ *         description: Email already taken
+ */
 controller.post("/register", (req, res, next) => {
-    // Appel de la fonction d'enregistrement du service d'authentification avec les données de l'utilisateur
     authService
-        .register(req.body) // Supposition que `req.body` est dans le format correct pour un utilisateur
+        .register(req.body)
         .then((data) => {
-            // En cas de succès, envoie des données de l'utilisateur enregistré au client
             res.json(data);
         })
         .catch((err) => {
-            // En cas d'erreur, passe l'erreur au middleware de gestion des erreurs d'Express
             next(err);
         });
 });
 
-// Exportation du contrôleur pour utilisation dans d'autres parties de l'application
 module.exports = controller;
