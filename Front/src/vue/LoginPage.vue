@@ -19,7 +19,7 @@ const validateEmail = (email) => {
 };
 
 const submitForm = async () => {
-  errorMessage.value = ''; // Clear previous error message
+  errorMessage.value = '';
 
   if (!validateEmail(email.value)) {
     errorMessage.value = 'Invalid email format';
@@ -47,10 +47,10 @@ const submitForm = async () => {
       console.log('Token stored in cookies:', token);
 
       const decodedToken = VueJwtDecode.decode(token);
-      if (decodedToken.urole === 'admin' || decodedToken.urole === 'staff') {
-        router.push('/accueil-admin');
-      } else if (decodedToken.urole === 'provider') {
-        router.push('/HomeServicePage');
+      console.log('decodedToken:', decodedToken);
+      console.log('decodedToken.urole:', decodedToken.urole);
+      if (decodedToken.urole === 'admin') {
+        router.push('/back-office');
       } else {
         router.push('/');
       }
@@ -81,31 +81,31 @@ const submitForm = async () => {
   <div class="ui middle aligned center aligned grid" style="height: 100vh;">
     <div class="column" style="max-width: 450px;">
       <h2 class="ui teal image header">
-        {{ $t('account_Login') }}
+        {{ t('account_Login') }}
       </h2>
       <form class="ui large form" @submit.prevent="submitForm">
         <div class="ui stacked segment">
           <div class="field">
             <div class="ui left icon input">
               <i class="user icon"></i>
-              <input type="email" v-model="email" name="email" :placeholder="$t('email')" required>
+              <input type="email" v-model="email" name="email" :placeholder="t('email')" required>
             </div>
           </div>
           <div class="field">
             <div class="ui left icon input">
               <i class="lock icon"></i>
-              <input type="password" v-model="password" name="password" :placeholder="$t('password')" required>
+              <input type="password" v-model="password" name="password" :placeholder="t('password')" required>
             </div>
           </div>
-          <button class="ui fluid large teal submit button" type="submit">{{ $t('account_Login') }}</button>
+          <button class="ui fluid large teal submit button" type="submit">{{ t('account_Login') }}</button>
         </div>
 
         <div class="ui error message" v-if="errorMessage">
           {{ errorMessage }}
         </div>
       </form>
-      <div class="ui message">{{ $t('new_to_us') }}
-        <router-link to="/sign-up" class="item">{{ $t('sign_up') }}</router-link>
+      <div class="ui message">{{ t('new_to_us') }}
+        <router-link to="/sign-up" class="item">{{ t('sign_up') }}</router-link>
       </div>
     </div>
   </div>

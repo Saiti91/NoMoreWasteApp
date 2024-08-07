@@ -126,10 +126,10 @@ CREATE TABLE IF NOT EXISTS Destination_Products
 
 CREATE TABLE IF NOT EXISTS Stocks
 (
+    Stock_ID     INT AUTO_INCREMENT PRIMARY KEY,
     Product_ID   INT,
     Quantity     INT,
     Storage_Date DATE,
-    PRIMARY KEY (Product_ID),
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
 );
 
@@ -272,6 +272,7 @@ VALUES (1, 1, 100),
 -- Données de test pour la table Stocks
 INSERT INTO Stocks (Product_ID, Quantity, Storage_Date)
 VALUES (1, 1000, '2023-09-01'),
+       (1, 2000, '2024-06-01'),
        (2, 2000, '2023-09-02'),
        (3, 3000, '2023-09-03'),
        (4, 4000, '2023-09-04'),
@@ -291,6 +292,9 @@ VALUES (1, 5, 1, 2),
        (2, 10, 2, 3),
        (3, 15, 3, 4),
        (4, 20, 4, 5),
+       (4, 20, 2, null),
+       (3, 20, 3, null),
+       (1, 20, 2, null),
        (5, 25, 5, 1);
 
 

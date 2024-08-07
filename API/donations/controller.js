@@ -1,5 +1,5 @@
-const { Router } = require("express");
-const stocksService = require("./service");
+const {Router} = require("express");
+const donationsService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
 const authorize = require("../common/middlewares/authorize_middleware");
 
@@ -57,7 +57,7 @@ const controller = Router();
 controller.get(
     "/",
     (req, res, next) => {
-        stocksService.getAll()
+        donationsService.getAll()
             .then((data) => res.json(data))
             .catch((err) => next(err));
     },
@@ -87,57 +87,18 @@ controller.get(
  *         description: Stock not found
  */
 controller.get(
-    "/donorID",
+    "/:donorID",
     (req, res, next) => {
-        stocksService.getOne(Number(req.params.id))
+        donationsService.getOne(Number(req.params.donorID))
             .then((data) => {
                 if (data === null) {
-                    throw new NotFoundError(`Stock with Product_ID ${req.params.id} not found`);
+                    throw new NotFoundError(`Stock with Product_ID ${req.params.donorID} not found`);
                 }
                 res.json(data);
             })
             .catch((err) => next(err));
     },
 );
-
-/**
- * @swagger
- * /stocks/product/{id}:
- *   get:
- *     summary: Get a stock by product ID
- *     tags: [Stocks]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: The product ID
- *     responses:
- *       200:
- *         description: A single stock.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Stock'
- *       404:
- *         description: Stock not found
- */
-
-controller.get(
-    "/product/:id",
-    (req, res, next) => {
-        stocksService.getOneBy('Product_ID',Number(req.params.id))
-            .then((data) => {
-                if (data === null) {
-                    throw new NotFoundError(`Stock with Product_ID ${req.params.id} not found`);
-                }
-                res.json(data);
-            })
-            .catch((err) => next(err));
-    },
-);
-
 
 /**
  * @swagger
@@ -162,7 +123,7 @@ controller.get(
 controller.post(
     "/",
     (req, res, next) => {
-        stocksService.createOne(req.body)
+        donationsService.createOne(req.body)
             .then((data) => res.status(201).json(data))
             .catch((err) => next(err));
     },
@@ -188,10 +149,10 @@ controller.post(
  *         description: Stock not found
  */
 controller.delete(
-    "/donorID",
+    "/:id",
     authorize(["admin"]),
     (req, res, next) => {
-        stocksService.deleteOne(Number(req.params.id), req.user)
+        donationsService.deleteOne(Number(req.params.id), req.user)
             .then((deleted) => {
                 if (!deleted) {
                     throw new NotFoundError(`Stock with Product_ID ${req.params.id} not found`);
@@ -231,19 +192,15 @@ controller.delete(
  *       404:
  *         description: Stock not found
  */
-controller.patch(
-    "/donorID",
-    (req, res, next) => {
-        const { Quantity, Storage_Date } = req.body;
-        stocksService.updateOne(Number(req.params.id), Quantity, Storage_Date)
-            .then((data) => {
-                if (data === null) {
-                    throw new NotFoundError(`Stock with Product_ID ${req.params.id} not found`);
-                }
-                res.status(200).json(data);
-            })
-            .catch((err) => next(err));
-    },
-);
+controller.patch("/:id", (req, res, next) => {
+    const donationId = Number(req.params.id);
+    const data = req.body;
+
+    donationsService.updateOne(donationId, data)
+        .then((updatedDonation) => {
+            res.status(200).json(updatedDonation);
+        })
+        .catch((err) => next(err));
+});
 
 module.exports = controller;

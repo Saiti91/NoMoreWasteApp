@@ -1,15 +1,14 @@
 <template>
-  <HeaderComponent :logoSrc="logoSrc" logoAlt="Back Office Logo" logoText="Back Office" :profileSrc="profileSrc">
+  <HeaderComponent :logoSrc="logoSrc" logoAlt="Back Office Logo" logoText="Back Office" :profileSrc="profileSrc" profile-alt="icon profile">
     <template #nav>
       <router-link class="item" to="/users">{{ t('users') }}</router-link>
-      <router-link class="item" to="/stocks">{{ t('stocks') }}</router-link>
+      <router-link class="item" to="/stocks-admin">{{ t('stocks') }}</router-link>
       <router-link class="item" to="/don-requests">{{ t('don') }}</router-link>
       <router-link class="item" to="/tours">{{ t('tours') }}</router-link>
       <router-link class="item" to="/service-requests">{{ t('services') }}</router-link>
     </template>
     <template #profile-dropdown>
       <router-link class="item" to="/profile">{{ t('monCompte') }}</router-link>
-      <router-link class="item" to="/settings">{{ t('settings') }}</router-link>
       <div class="item" @click="logout">{{ t('logout') }}</div>
     </template>
   </HeaderComponent>

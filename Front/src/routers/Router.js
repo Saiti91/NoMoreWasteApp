@@ -10,6 +10,10 @@ import Home from "../vue/frontOffice/Home.vue";
 import BackOfficeHome from '../vue/backOffice/Home.vue';
 import UsersAdmin from '../vue/backOffice/Users/UserAdmin.vue';
 import UserDetails from '@/vue/backOffice/Users/UserDetails.vue';
+import StocksAdmin from '@/vue/backOffice/Stocks/StocksAdmin.vue';
+import StocksDetails from '@/vue/backOffice/Stocks/StocksDetails.vue';
+import DonationAdmin from '@/vue/backOffice/Don/DonationsAdmin.vue';
+import DonationDetails from '@/vue/backOffice/Don/DonationsDetails.vue';
 
 const routes = [
     { path: '/login', name: 'Login', component: LoginPage },
@@ -36,7 +40,31 @@ const routes = [
         name: 'UserDetails',
         component: UserDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
-    }
+    },
+    {
+        path: '/stocks-admin',
+        name: 'StocksAdmin',
+        component: StocksAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/stocks-admin/:id',
+        name: 'StocksDetails',
+        component: StocksDetails,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/donation-admin',
+        name: 'DonationAdmin',
+        component: DonationAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/donation-admin/:id',
+        name: 'DonationDetails',
+        component: DonationDetails,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
 ];
 
 const router = createRouter({

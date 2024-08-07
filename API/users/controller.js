@@ -101,7 +101,7 @@ controller.get(
  *         description: User not found
  */
 controller.get(
-    "/:id",
+    "/donorID",
     authorize([/*"admin"*/]),
     (req, res, next) => {
         usersService.getOne(Number(req.params.id), {
@@ -167,7 +167,7 @@ controller.post(
  *         description: User not found
  */
 controller.delete(
-    "/:id",
+    "/donorID",
     authorize([/*"admin"*/]),
     (req, res, next) => {
         usersService.deleteOne(Number(req.params.id), {
@@ -214,7 +214,7 @@ controller.delete(
  *         description: User not found
  */
 controller.patch(
-    "/:id",
+    "/donorID",
     authorize([/*"admin"*/]),
     (req, res, next) => {
         usersService.updateOne(Number(req.params.id), req.body, {
