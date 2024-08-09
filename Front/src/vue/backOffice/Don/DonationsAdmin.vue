@@ -14,6 +14,7 @@ const fetchDonations = async () => {
   try {
     const response = await axios.get('/donations');
     donnations.value = response.data;
+    console.log(donnations.value);
   } catch (error) {
     console.error('Error fetching stocks:', error);
   }
@@ -22,6 +23,10 @@ const fetchDonations = async () => {
 const goToDetails = (donationId) => {
   router.push({ name: 'DonationDetails', params: { id: donationId } });
 };
+const goToUserDetails = (user_id) => {
+  router.push({ name: 'UserDetails', params: { id: user_id } });
+};
+
 
 onMounted(() => {
   fetchDonations();
@@ -36,22 +41,36 @@ onMounted(() => {
     <table class="ui celled table full-width-table">
       <thead>
       <tr>
-        <th>{{ t('idProduit') }}</th>
-        <th>{{ t('nom') }}</th>
-        <th>{{ t('categorie') }}</th>
-        <th>{{ t('quantité') }}</th>
+        <th>Nom du produit</th>
+        <th>Quantité</th>
+        <th>Type de stockage</th>
+        <th>Email du donneur</th>
+        <th>Email du receveur</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="donation in distinctDonations" :key="donation.Product_ID" class="clickable-row" @click="goToDetails(donation.Product_ID)">
-        <td>{{ donation.Product_ID }}</td>
-        <td>{{ donation.Quantity }}</td>
-        <td>{{ donation.Donor_User_ID }}</td>
+      <tr v-for="donation in donnations" :key="donation.Donation_ID" class="clickable-row" >
+        <td @click="goToDetails(donation.Donation_ID)">
+          {{ donation.Product.Name }}
+        </td>
+        <td @click="goToDetails(donation.Donation_ID)">
+          {{ donation.Quantity }}
+        </td>
+        <td @click="goToDetails(donation.Donation_ID)">
+          {{ donation.Product.Storage_Type }}
+        </td>
+        <td @click="goToUserDetails(donation.Donor_User.User_ID)">
+          {{ donation.Donor_User.Email }}
+        </td>
+        <td @click="goToUserDetails(donation.Recipient_User?.User_ID)">
+          {{ donation.Recipient_User ? donation.Recipient_User.Email : 'En attente' }}
+        </td>
       </tr>
       </tbody>
     </table>
   </div>
 </template>
+
 
 <style scoped>
 .spacer {
