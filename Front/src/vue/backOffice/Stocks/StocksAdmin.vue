@@ -41,7 +41,7 @@ onMounted(() => {
   <HeaderBackOffice />
   <div class="spacer"></div>
   <div class="ui container full-width no-center">
-    <h1>Admin Stocks</h1>
+    <h1>Stocks Admin</h1>
     <table class="ui celled table full-width-table">
       <thead>
       <tr>

@@ -4,7 +4,7 @@
       <router-link class="item" to="/users">{{ t('users') }}</router-link>
       <router-link class="item" to="/stocks-admin">{{ t('stocks') }}</router-link>
       <router-link class="item" to="/donation-admin">{{ t('don') }}</router-link>
-      <router-link class="item" to="/tours">{{ t('tours') }}</router-link>
+      <router-link class="item" to="/tour-admin">{{ t('tours') }}</router-link>
       <router-link class="item" to="/service-requests">{{ t('services') }}</router-link>
     </template>
     <template #profile-dropdown>
