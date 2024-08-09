@@ -13,6 +13,7 @@ const usersController = require("./users/controller");
 const authController = require("./auth/controller");
 const stockController= require ("./stocks/controller");
 const donationController= require ("./donations/controller");
+const tourController= require ("./tours/controller");
 
 const app = express();
 const port = 3000;
@@ -33,7 +34,7 @@ app.use(authMiddleware);
 app.get("/", (_req, res) => {
     res.json({
         message: "Welcome to PCS API!",
-        routes: ["/users", "/auth","/stocks", "/api-docs"]
+        routes: ["/users", "/auth","/stocks", "/api-docs", "/donations","/tours"],
     });
 });
 
@@ -45,12 +46,14 @@ app.use("/auth", authController);
 app.use("/stocks", stockController);
 app.use("/users", usersController);
 app.use("/donations", donationController);
+app.use("/tours", tourController);
 
 // Application du middleware `idParamGuard` aux routes avec paramètre `id`
 app.use("/users/:id", idParamGuard);
 app.use("/stocks/:id", idParamGuard);
 app.use("/auth/:id", idParamGuard);
 app.use("/donations/:id", idParamGuard);
+app.use("/tours/:id", idParamGuard);
 
 // Middleware de gestion des erreurs
 app.use(errorHandlingMiddleware);

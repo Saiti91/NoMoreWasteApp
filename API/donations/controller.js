@@ -1,4 +1,4 @@
-const {Router} = require("express");
+const { Router } = require("express");
 const donationsService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
 const authorize = require("../common/middlewares/authorize_middleware");
@@ -9,188 +9,182 @@ const controller = Router();
  * @swagger
  * components:
  *   schemas:
- *     Stock:
+ *     Donation:
  *       type: object
- *       required:
- *         - Product_ID
- *         - Quantity
  *       properties:
  *         Product_ID:
  *           type: integer
- *           description: The ID of the product.
+ *           description: The product ID
  *         Quantity:
  *           type: integer
- *           description: The quantity of the product in stock.
- *         Storage_Date:
+ *           description: The quantity of the product
+ *         Donor_User:
  *           type: string
- *           format: date
- *           description: The date when the product was stored.
- *       example:
- *         Product_ID: 1
- *         Quantity: 100
- *         Storage_Date: 2024-08-06
+ *           description: The ID or name of the donor user
+ *         Recipient_User:
+ *           type: string
+ *           description: The ID or name of the recipient user
+ *       required:
+ *         - Product_ID
+ *         - Quantity
+ *         - Donor_User
  */
 
 /**
  * @swagger
  * tags:
- *   name: Stocks
- *   description: Stock management
+ *   name: Donation
+ *   description: Donation management
  */
 
 /**
  * @swagger
- * /stocks:
+ * /donations:
  *   get:
- *     summary: Retrieve a list of stocks
- *     tags: [Stocks]
+ *     summary: Retrieve a list of donations
+ *     tags: [Donation]
  *     responses:
  *       200:
- *         description: A list of stocks.
+ *         description: A list of donations
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Stock'
+ *                 $ref: '#/components/schemas/Donation'
  */
-controller.get(
-    "/",
-    (req, res, next) => {
-        donationsService.getAll()
-            .then((data) => res.json(data))
-            .catch((err) => next(err));
-    },
-);
+controller.get("/", (req, res, next) => {
+    donationsService.getAll()
+        .then((data) => {
+            console.log("Data returned to controller:", data);
+            res.json(data);
+        })
+        .catch((err) => {
+            console.error("Error caught in controller:", err);
+            next(err);
+        });
+});
 
 /**
  * @swagger
- * /stocks/{id}:
+ * /donations/{donorID}:
  *   get:
- *     summary: Get a stock by ID
- *     tags: [Stocks]
+ *     summary: Retrieve a donation by donor ID
+ *     tags: [Donation]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: donorID
  *         schema:
  *           type: integer
  *         required: true
- *         description: The stock ID
+ *         description: The ID of the donor
  *     responses:
  *       200:
- *         description: A single stock.
+ *         description: A donation
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Stock'
+ *               $ref: '#/components/schemas/Donation'
  *       404:
- *         description: Stock not found
+ *         description: Donation not found
  */
-controller.get(
-    "/:donorID",
-    (req, res, next) => {
-        donationsService.getOne(Number(req.params.donorID))
-            .then((data) => {
-                if (data === null) {
-                    throw new NotFoundError(`Stock with Product_ID ${req.params.donorID} not found`);
-                }
-                res.json(data);
-            })
-            .catch((err) => next(err));
-    },
-);
+controller.get("/:donorID", (req, res, next) => {
+    donationsService.getOne(Number(req.params.donorID))
+        .then((data) => {
+            if (data === null) {
+                throw new NotFoundError(`Donation with donorID ${req.params.donorID} not found`);
+            }
+            res.json(data);
+        })
+        .catch((err) => next(err));
+});
 
 /**
  * @swagger
- * /stocks:
+ * /donations:
  *   post:
- *     summary: Create a new stock
- *     tags: [Stocks]
+ *     summary: Create a new donation
+ *     tags: [Donation]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Stock'
+ *             $ref: '#/components/schemas/Donation'
  *     responses:
  *       201:
- *         description: The created stock.
+ *         description: Donation created
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Stock'
+ *               $ref: '#/components/schemas/Donation'
  */
-controller.post(
-    "/",
-    (req, res, next) => {
-        donationsService.createOne(req.body)
-            .then((data) => res.status(201).json(data))
-            .catch((err) => next(err));
-    },
-);
+controller.post("/", (req, res, next) => {
+    donationsService.createOne(req.body)
+        .then((data) => res.status(201).json(data))
+        .catch((err) => next(err));
+});
 
 /**
  * @swagger
- * /stocks/{id}:
+ * /donations/{id}:
  *   delete:
- *     summary: Delete a stock by ID
- *     tags: [Stocks]
+ *     summary: Delete a donation by ID
+ *     tags: [Donation]
  *     parameters:
  *       - in: path
  *         name: id
  *         schema:
  *           type: integer
  *         required: true
- *         description: The stock ID
+ *         description: The ID of the donation
  *     responses:
  *       204:
- *         description: No content
+ *         description: Donation deleted
  *       404:
- *         description: Stock not found
+ *         description: Donation not found
+ *     security:
+ *       - bearerAuth: []
  */
-controller.delete(
-    "/:id",
-    authorize(["admin"]),
-    (req, res, next) => {
-        donationsService.deleteOne(Number(req.params.id), req.user)
-            .then((deleted) => {
-                if (!deleted) {
-                    throw new NotFoundError(`Stock with Product_ID ${req.params.id} not found`);
-                }
-                res.status(204).json();
-            })
-            .catch((err) => next(err));
-    },
-);
+controller.delete("/:id", authorize(["admin"]), (req, res, next) => {
+    donationsService.deleteOne(Number(req.params.id), req.user)
+        .then((deleted) => {
+            if (!deleted) {
+                throw new NotFoundError(`Donation with ID ${req.params.id} not found`);
+            }
+            res.status(204).json();
+        })
+        .catch((err) => next(err));
+});
 
 /**
  * @swagger
- * /stocks/{id}:
+ * /donations/{id}:
  *   patch:
- *     summary: Update a stock by ID
- *     tags: [Stocks]
+ *     summary: Update a donation by ID
+ *     tags: [Donation]
  *     parameters:
  *       - in: path
  *         name: id
  *         schema:
  *           type: integer
  *         required: true
- *         description: The stock ID
+ *         description: The ID of the donation
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Stock'
+ *             $ref: '#/components/schemas/Donation'
  *     responses:
  *       200:
- *         description: The updated stock.
+ *         description: Donation updated
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Stock'
+ *               $ref: '#/components/schemas/Donation'
  *       404:
- *         description: Stock not found
+ *         description: Donation not found
  */
 controller.patch("/:id", (req, res, next) => {
     const donationId = Number(req.params.id);

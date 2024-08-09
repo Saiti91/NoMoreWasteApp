@@ -27,7 +27,7 @@ async function getOneBy(attribute, value) {
 // Fonction de récupération de tous les utilisateurs
 async function getAll() {
     const donations = await donationRepository.getAll();
-    return donations.map(stock => ({ ...stock}));
+    return donations.map(donation => ({ ...donation}));
 }
 
 // Fonction de mise à jour d'un utilisateur en fonction de son ID

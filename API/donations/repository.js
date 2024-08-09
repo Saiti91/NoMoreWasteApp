@@ -67,18 +67,40 @@ async function getOneBy(attribute, value) {
 async function getAll() {
     const connection = await getConnection();
     const query = `
-        SELECT d.*,
-               u_donor.*,
-               u_recipient.*,
-               p.*
+        SELECT d.Donation_ID,
+               d.Quantity,
+               d.Donor_User_ID,
+               d.Recipient_User_ID,
+               JSON_OBJECT(
+                       'User_ID', u_donor.User_ID,
+                       'Email', u_donor.Email
+               )       AS Donor_User,
+               IF(d.Recipient_User_ID IS NOT NULL, JSON_OBJECT(
+                       'User_ID', u_recipient.User_ID,
+                       'Email', u_recipient.Email
+                                                   ), NULL) AS Recipient_User,
+               JSON_OBJECT(
+                       'Product_ID', p.Product_ID,
+                       'Name', p.Name,
+                       'Storage_Type', p.Storage_Type
+               )       AS Product
         FROM Donations d
-                 JOIN Users u_donor ON d.Donor_User_ID = u_donor.User_ID
-                 JOIN Users u_recipient ON d.Recipient_User_ID = u_recipient.User_ID
-                 JOIN Products p ON d.Product_ID = p.Product_ID
+                 LEFT JOIN Users u_donor ON d.Donor_User_ID = u_donor.User_ID
+                 LEFT JOIN Users u_recipient ON d.Recipient_User_ID = u_recipient.User_ID
+                 LEFT JOIN Products p ON d.Product_ID = p.Product_ID
+        WHERE d.Recipient_User_ID IS NULL
+           OR u_recipient.User_ID IS NOT NULL
     `;
+    console.log("Executing query:", query);
     const [rows] = await connection.execute(query);
     await connection.end();
-    return rows;
+    return rows.map(row => ({
+        Donation_ID: row.Donation_ID,
+        Quantity: row.Quantity,
+        Donor_User: typeof row.Donor_User === 'string' ? JSON.parse(row.Donor_User) : row.Donor_User,
+        Recipient_User: row.Recipient_User ? (typeof row.Recipient_User === 'string' ? JSON.parse(row.Recipient_User) : row.Recipient_User) : null,
+        Product: typeof row.Product === 'string' ? JSON.parse(row.Product) : row.Product
+    }));
 }
 
 
@@ -113,7 +135,7 @@ async function deleteOne(id) {
         throw new Error("deleteOne: id must be defined");
     }
     const connection = await getConnection();
-    const [result] = await connection.execute('DELETE FROM Stocks WHERE Product_ID = ?', [id]);
+    const [result] = await connection.execute('DELETE FROM Donations WHERE Product_ID = ?', [id]);
     await connection.end();
     return result.affectedRows > 0;
 }
