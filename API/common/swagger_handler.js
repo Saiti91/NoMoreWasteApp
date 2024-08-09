@@ -13,7 +13,14 @@ const options = {
             description: "This API allows managing apartments for a company renting private people's properties.",
         },
     },
-    apis: [path.join(basePath, "auth", "*.js"), path.join(basePath, "users", "*.js"), path.join(basePath, "index.js")],
+    apis: [
+        path.join(basePath, "auth", "*.js"),
+        path.join(basePath, "users", "*.js"),
+        path.join(basePath, "index.js"),
+        path.join(basePath, "stocks", "*.js"),
+        path.join(basePath, "donations", "*.js"),
+        path.join(basePath, "tours", "*.js"),
+        path.join(basePath, "Destination", "*.js"),],
 };
 
 const specs = swaggerJsdoc(options);

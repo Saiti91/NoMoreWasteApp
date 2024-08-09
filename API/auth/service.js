@@ -28,7 +28,7 @@ async function login(loginForm) {
         throw new AuthError("Could not login: password or email is incorrect");
     }
     // Génération du jeton JWT pour l'utilisateur et retour du jeton
-    return generateJWT(user.User_ID, user.role);
+    return generateJWT(user.User_ID, user.Role);
 }
 
 // Fonction asynchrone pour l'enregistrement des utilisateurs

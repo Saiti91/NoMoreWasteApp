@@ -12,6 +12,14 @@ async function createOne(stock) {
 async function getOne(id) {
     const stock = await stockRepository.getOne(id);
 }
+//TODO:
+async function getOneBy(attribute, value) {
+    if (attribute === undefined || value === undefined) {
+        throw new Error("getOneBy: Both attribute and value must be defined");
+    }
+    const stock = await stockRepository.getOneBy(attribute, value);
+    return stock ? { ...stock } : null;
+}
 
 // Fonction de récupération de tous les utilisateurs
 async function getAll() {
@@ -49,4 +57,4 @@ async function deleteOne(id, issuer) {
 }
 
 
-module.exports = { createOne, getOne, getAll, updateOne, deleteOne };
+module.exports = { createOne, getOne,getOneBy, getAll, updateOne, deleteOne };

@@ -5,6 +5,10 @@ async function createOne(stock) {
 
 }
 
+async function getOne(id) {
+
+}
+
 // Récupère un ou plusieurs utilisateurs en fonction d'un attribut
 async function getOneBy(attribute, value) {
     if (attribute === undefined || value === undefined) {
@@ -20,7 +24,7 @@ async function getOneBy(attribute, value) {
     `;
     const [rows] = await connection.execute(query, [value]);
     await connection.end();
-    return rows[0] || null;
+    return rows || null;
 }
 
 // Récupère tous les utilisateurs
@@ -67,4 +71,4 @@ async function deleteOne(id) {
     return result.affectedRows > 0;
 }
 
-module.exports = {createOne, getAll, updateOne, deleteOne, getOneBy};
+module.exports = {createOne, getAll,getOne, updateOne, deleteOne, getOneBy};

@@ -116,41 +116,41 @@ CREATE TABLE IF NOT EXISTS Destinations
 
 CREATE TABLE IF NOT EXISTS Destination_Products
 (
+    Destination_Product_ID INT AUTO_INCREMENT PRIMARY KEY,
     Destination_ID INT,
     Product_ID     INT,
     Quantity       INT,
-    PRIMARY KEY (Destination_ID, Product_ID),
     FOREIGN KEY (Destination_ID) REFERENCES Destinations (Destination_ID),
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
 );
 
 CREATE TABLE IF NOT EXISTS Stocks
 (
+    Stock_ID     INT AUTO_INCREMENT PRIMARY KEY,
     Product_ID   INT,
     Quantity     INT,
     Storage_Date DATE,
-    PRIMARY KEY (Product_ID),
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
 );
 
 CREATE TABLE IF NOT EXISTS Requests
 (
+    Request_ID INT AUTO_INCREMENT PRIMARY KEY,
     Product_ID INT,
     Quantity   INT,
     Date       DATE,
     User_ID    INT,
-    PRIMARY KEY (Product_ID, User_ID, Date),
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID),
     FOREIGN KEY (User_ID) REFERENCES Users (User_ID)
 );
 
 CREATE TABLE IF NOT EXISTS Donations
 (
+    Donation_ID       INT AUTO_INCREMENT PRIMARY KEY,
     Product_ID        INT,
     Quantity          INT,
     Donor_User_ID     INT,
     Recipient_User_ID INT,
-    PRIMARY KEY (Product_ID, Donor_User_ID),
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID),
     FOREIGN KEY (Donor_User_ID) REFERENCES Users (User_ID),
     FOREIGN KEY (Recipient_User_ID) REFERENCES Users (User_ID)
@@ -256,6 +256,7 @@ VALUES (1, '2023-08-01'),
 -- Données de test pour la table Destinations
 INSERT INTO Destinations (Route_ID, Address_ID, Type)
 VALUES (1, 1, true),
+       (1,2,true),
        (2, 2, false),
        (3, 3, true),
        (4, 4, false),
@@ -264,6 +265,11 @@ VALUES (1, 1, true),
 -- Données de test pour la table Destination_Products
 INSERT INTO Destination_Products (Destination_ID, Product_ID, Quantity)
 VALUES (1, 1, 100),
+       (1,2,10),
+       (1, 3, 20),
+       (3, 3, 30),
+       (4, 4, 40),
+       (5, 5, 50),
        (2, 2, 200),
        (3, 3, 300),
        (4, 4, 400),
@@ -272,6 +278,7 @@ VALUES (1, 1, 100),
 -- Données de test pour la table Stocks
 INSERT INTO Stocks (Product_ID, Quantity, Storage_Date)
 VALUES (1, 1000, '2023-09-01'),
+       (1, 2000, '2024-06-01'),
        (2, 2000, '2023-09-02'),
        (3, 3000, '2023-09-03'),
        (4, 4000, '2023-09-04'),
@@ -291,6 +298,9 @@ VALUES (1, 5, 1, 2),
        (2, 10, 2, 3),
        (3, 15, 3, 4),
        (4, 20, 4, 5),
+       (4, 20, 2, null),
+       (3, 20, 3, null),
+       (1, 20, 2, null),
        (5, 25, 5, 1);
 
 

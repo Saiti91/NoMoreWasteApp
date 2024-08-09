@@ -1,8 +1,8 @@
 <script setup>
-import { onMounted } from 'vue';
-import { useLocale } from '@/composables/useLocale';
-import { useRouter } from 'vue-router';
+import {onMounted, ref} from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import Cookies from 'js-cookie';
+import VueJwtDecode from 'vue-jwt-decode';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -36,26 +36,55 @@ const props = defineProps({
   },
 });
 
-const { locale, availableLocales, changeLocale, currentLocale } = useLocale();
+const { locale, availableLocales, changeLocale, currentLocale } = useI18n();
 
 const router = useRouter();
+const route = useRoute();
+
+const isAdmin = ref(false);
 
 onMounted(() => {
+  const token = Cookies.get('token');
+  if (token) {
+    try {
+      const decodedToken = VueJwtDecode.decode(token);
+      console.log('decodedToken:', decodedToken);
+
+      if (decodedToken.urole) {
+        console.log('decodedToken urole:', decodedToken.urole);
+        if (decodedToken.urole === 'admin') {
+          isAdmin.value = true;
+        }
+      } else {
+        console.error('Token does not contain urole property');
+      }
+    } catch (error) {
+      console.error('Invalid token', error);
+    }
+  }
   $('.ui.dropdown').dropdown();
 });
 
-function logout() {
+const handleLogoClick = () => {
+  if (isAdmin.value && route.path !== '/back-office') {
+    router.push('/back-office');
+  } else {
+    router.push('/');
+  }
+};
+
+const logout = () => {
   Cookies.remove('token');
   router.push('/');
-}
+};
 </script>
 
 <template>
   <div class="ui top fixed menu">
     <div class="ui container">
-      <router-link class="header item logo-container" to="/">
+      <div class="header item logo-container" @click="handleLogoClick">
         <img :alt="logoAlt" :src="logoSrc" class="logo">
-      </router-link>
+      </div>
       <div class="right menu">
         <slot name="nav"></slot>
         <div class="ui simple dropdown item">
@@ -98,6 +127,7 @@ function logout() {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   padding: 0 !important;
 }
 
