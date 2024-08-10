@@ -1,7 +1,8 @@
 <script setup>
 import {ref} from 'vue';
 import {useRouter} from 'vue-router';
-import {useI18n} from 'vue-i18n'; // Importation de useI18n
+import {useI18n} from 'vue-i18n';
+import axios from '@/utils/Axios.js';
 
 const email = ref('');
 const password = ref('');
@@ -34,8 +35,8 @@ const submitForm = async () => {
       role: "customer"
     }
 
-    const response = await fetch('http://localhost:80/auth/register/', {
-      method: 'POST',
+    //problème de connexion à l'API (rien dans les logs de l'API)
+    const response = await axios.post('auth/register/', {
       headers: {
         'Content-Type': 'application/json'
       },
