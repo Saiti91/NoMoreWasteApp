@@ -5,6 +5,9 @@ import useAuthGuard from '../components/Auth/AuthGuard.js';
 //***** FRONT OFFICE
 import SignUpPage from "../vue/frontOffice/SignUpPage.vue";
 import Home from "../vue/frontOffice/Home.vue";
+import CatalogueProduct from "@/vue/frontOffice/Don/CatalogueProduct.vue";
+import Donation from "@/vue/frontOffice/Recevoir/Donation.vue";
+import MyAccount from "@/vue/frontOffice/Compte/MyAccount.vue";
 
 //***** BACK OFFICE
 import BackOfficeHome from '../vue/backOffice/Home.vue';
@@ -17,12 +20,33 @@ import DonationDetails from '@/vue/backOffice/Don/DonationsDetails.vue';
 import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
 import TourDetails from "@/vue/backOffice/Tournee/TourDetails.vue";
 
+
+
+
 const routes = [
     { path: '/login', name: 'Login', component: LoginPage },
     { path: '/', name: 'Home', component: Home },
 
     //***** FRONT OFFICE
     { path: '/sign-up', name: 'SignUp', component: SignUpPage },
+    {
+        path: '/catalogue',
+        name: 'Catalogue',
+        component: CatalogueProduct,
+        //beforeEnter: useAuthGuard(['client'])
+    },
+    {
+        path: '/donation',
+        name: 'Donation',
+        component: Donation,
+        //beforeEnter: useAuthGuard(['client'])
+    },
+    {
+        path: '/my-account',
+        name: 'MyAccount',
+        component: MyAccount,
+        //beforeEnter: useAuthGuard(['client'])
+    },
 
     //***** BACK OFFICE
     {
