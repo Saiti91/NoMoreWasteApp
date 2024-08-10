@@ -5,8 +5,8 @@ import useAuthGuard from '../components/Auth/AuthGuard.js';
 //***** FRONT OFFICE
 import SignUpPage from "../vue/frontOffice/SignUpPage.vue";
 import Home from "../vue/frontOffice/Home.vue";
-import CatalogueProduct from "@/vue/frontOffice/Don/CatalogueProduct.vue";
-import Donation from "@/vue/frontOffice/Recevoir/Donation.vue";
+import CatalogueProduct from "@/vue/frontOffice/Recevoir/CatalogueProduct.vue";
+import Donation from "@/vue/frontOffice/Don/Donation.vue";
 import MyAccount from "@/vue/frontOffice/Compte/MyAccount.vue";
 
 //***** BACK OFFICE
