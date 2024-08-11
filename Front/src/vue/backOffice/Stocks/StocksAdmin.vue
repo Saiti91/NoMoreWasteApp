@@ -14,15 +14,7 @@ const fetchStocks = async () => {
   try {
     const response = await axios.get('/stocks');
     stocks.value = response.data;
-    // Filtrer les produits distincts par Product_ID
-    const productsMap = new Map();
-    stocks.value.forEach(stock => {
-      if (!productsMap.has(stock.Product_ID)) {
-        productsMap.set(stock.Product_ID, stock);
-      }
-    });
-    distinctProducts.value = Array.from(productsMap.values());
-    console.log('Distinct Products:', distinctProducts.value);
+
   } catch (error) {
     console.error('Error fetching stocks:', error);
   }
@@ -52,7 +44,7 @@ onMounted(() => {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="product in distinctProducts" :key="product.Product_ID" class="clickable-row" @click="goToDetails(product.Product_ID)">
+      <tr v-for="product in stocks" :key="product.Product_ID" class="clickable-row" @click="goToDetails(product.Product_ID)">
         <td>{{ product.Product_ID }}</td>
         <td>{{ product.Name }}</td>
         <td>{{ product.Storage_Type }}</td>

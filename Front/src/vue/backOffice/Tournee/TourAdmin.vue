@@ -1,41 +1,90 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-import axios from '@/utils/Axios.js';
+import {onMounted} from 'vue';
+import {useRouter} from 'vue-router';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import {useI18n} from 'vue-i18n';
 
-const { t } = useI18n();
-const tours = ref([]);
+const {t} = useI18n();
 const router = useRouter();
 
-const fetchDonations = async () => {
-  try {
-    const response = await axios.get('/tours');
-    tours.value = response.data;
-    console.log(tours.value);
-  } catch (error) {
-    console.error('Error fetching stocks:', error);
-  }
+const navigateToPickup = () => {
+  router.push('/pickup-tours');
+};
+
+const navigateToDistribution = () => {
+  router.push('/distribution-tours');
 };
 
 onMounted(() => {
-  fetchDonations();
 });
 </script>
 
 <template>
-  <HeaderBackOffice />
+  <HeaderBackOffice/>
   <div class="spacer"></div>
-  <div class="ui container full-width no-center">
-    <h1>Tours Admin</h1>
-
+  <div class="dashboard-container">
+    <div class="ui two cards">
+      <div class="ui huge card" @click="navigateToPickup">
+        <div class="image">
+          <img src="https://via.placeholder.com/400x200" alt="Pickup Image"> <!-- Placeholder image -->
+        </div>
+        <div class="content">
+          <div class="header">{{ t('pickupTours') }}</div>
+          <div class="meta">
+            <span class="category">{{ t('category') }}</span>
+          </div>
+          <div class="description">
+            {{ t('navigateToPickupTours') }}
+          </div>
+        </div>
+      </div>
+      <div class="ui huge card" @click="navigateToDistribution">
+        <div class="image">
+          <img src="https://via.placeholder.com/400x200" alt="Distribution Image"> <!-- Placeholder image -->
+        </div>
+        <div class="content">
+          <div class="header">{{ t('distributionTours') }}</div>
+          <div class="meta">
+            <span class="category">{{ t('category') }}</span>
+          </div>
+          <div class="description">
+            {{ t('navigateToDistributionTours') }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-
 <style scoped>
-.spacer {
-  margin: 20px 0;
+.dashboard-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.ui.two.cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* Espacement entre les cartes */
+}
+
+.ui.huge.card {
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  width: 600px; /* Taille personnalisée pour la carte */
+}
+
+.ui.huge.card:hover {
+  transform: translateY(-5px);
+}
+
+.ui.huge.card .image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover; /* Assure que l'image occupe tout l'espace de son conteneur sans être déformée */
 }
 </style>

@@ -36,7 +36,7 @@ const props = defineProps({
   },
 });
 
-const { locale, availableLocales, changeLocale, currentLocale } = useI18n();
+const { locale, availableLocales, currentLocale } = useI18n();
 
 const router = useRouter();
 const route = useRoute();
@@ -64,6 +64,10 @@ onMounted(() => {
   }
   $('.ui.dropdown').dropdown();
 });
+
+const changeLocale = (lang) => {
+  locale.value = lang;  // Mise à jour de la langue courante
+};
 
 const handleLogoClick = () => {
   if (isAdmin.value && route.path !== '/back-office') {
