@@ -101,7 +101,7 @@ controller.get(
  *         description: User not found
  */
 controller.get(
-    "/donorID",
+    "/:id",
     authorize([/*"admin"*/]),
     (req, res, next) => {
         usersService.getOne(Number(req.params.id), {
@@ -117,6 +117,172 @@ controller.get(
             .catch((err) => next(err));
     },
 );
+
+/**
+ * @swagger
+ * /users/verif/{id}:
+ *   post:
+ *     summary: Verify a specific column value for a specific user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The user ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               param:
+ *                 type: string
+ *                 description: The name of the column to verify (e.g., 'Current_Subscription', 'Role').
+ *                 example: role
+ *               value:
+ *                 type: string
+ *                 description: The value to check for in the specified column.
+ *                 example: admin
+ *     responses:
+ *       200:
+ *         description: The user found with the specified column value.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Missing column name or value in the request body.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Column name and value must be provided."
+ *       404:
+ *         description: No user found with the specified column value.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "No user found with role = admin for user ID 1"
+ */
+
+controller.post(
+    "/verif/:id",
+    (req, res, next) => {
+        const { columnName: param, value } = req.body;
+        const userId = Number(req.params.id);
+
+        if (!param || !value) {
+            return res.status(400).json({ error: "Column name and value must be provided." });
+        }
+
+        usersService.getOneVerifBy(param, value, userId)
+            .then((data) => {
+                if (data === null) {
+                    return res.status(404).json({ error: `User ${userId} doesnt have ${param} = ${value}`});
+                }
+                res.json(data);
+            })
+            .catch((err) => next(err));
+    },
+);
+
+/**
+ * @swagger
+ * /users/verif-skill/{id}:
+ *   post:
+ *     summary: Verify if a specific user has a certain skill
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The user ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               skillName:
+ *                 type: string
+ *                 description: The name of the skill to verify.
+ *                 example: Cuisine
+ *     responses:
+ *       200:
+ *         description: The user has the specified skill.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 User_ID:
+ *                   type: integer
+ *                   description: The ID of the user.
+ *                   example: 1
+ *                 Skill_ID:
+ *                   type: integer
+ *                   description: The ID of the skill.
+ *                   example: 2
+ *                 Validation_Date:
+ *                   type: string
+ *                   format: date
+ *                   description: The date when the skill was validated.
+ *                   example: 2023-09-01
+ *       400:
+ *         description: Missing skill name or value in the request body.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Skill name and value must be provided."
+ *       404:
+ *         description: The user does not have the specified skill.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "User 1 doesn't have skill: Cuisine"
+ */
+controller.post(
+    "/verif-skill/:id",
+    (req, res, next) => {
+        const { skillName } = req.body;
+        const userId = Number(req.params.id);
+
+        if (!skillName) {
+            return res.status(400).json({ error: "Skill name must be provided." });
+        }
+        usersService.verifySkill(skillName, userId)
+            .then((data) => {
+                if (data === null) {
+                    return res.status(404).json({ error: `User ${userId} doesn't have skill: ${skillName}` });
+                }
+                res.json(data);
+            })
+            .catch((err) => next(err));
+    },
+);
+
+
 
 /**
  * @swagger
@@ -167,7 +333,7 @@ controller.post(
  *         description: User not found
  */
 controller.delete(
-    "/donorID",
+    "/:id",
     authorize([/*"admin"*/]),
     (req, res, next) => {
         usersService.deleteOne(Number(req.params.id), {
@@ -214,7 +380,7 @@ controller.delete(
  *         description: User not found
  */
 controller.patch(
-    "/donorID",
+    "/:id",
     authorize([/*"admin"*/]),
     (req, res, next) => {
         usersService.updateOne(Number(req.params.id), req.body, {

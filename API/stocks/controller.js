@@ -87,7 +87,7 @@ controller.get(
  *         description: Stock not found
  */
 controller.get(
-    "/donorID",
+    "/;id",
     (req, res, next) => {
         stocksService.getOne(Number(req.params.id))
             .then((data) => {
@@ -188,7 +188,7 @@ controller.post(
  *         description: Stock not found
  */
 controller.delete(
-    "/donorID",
+    "/:id",
     authorize(["admin"]),
     (req, res, next) => {
         stocksService.deleteOne(Number(req.params.id), req.user)
@@ -232,7 +232,7 @@ controller.delete(
  *         description: Stock not found
  */
 controller.patch(
-    "/donorID",
+    "/:id",
     (req, res, next) => {
         const { Quantity, Storage_Date } = req.body;
         stocksService.updateOne(Number(req.params.id), Quantity, Storage_Date)

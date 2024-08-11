@@ -24,8 +24,27 @@ async function getOneBy(attribute, value) {
 // Fonction de récupération de tous les utilisateurs
 async function getAll() {
     const stocks = await stockRepository.getAll();
-    return stocks.map(stock => ({ ...stock}));
+    console.log('Stocks from service:', stocks);
+
+    // Utiliser un objet pour regrouper les produits par Product_ID
+    const groupedStocks = {};
+
+    stocks.forEach(stock => {
+        const { Product_ID, Quantity, ...rest } = stock;
+
+        if (!groupedStocks[Product_ID]) {
+            // Si le produit n'est pas encore dans groupedStocks, on l'ajoute
+            groupedStocks[Product_ID] = { ...rest, Product_ID, Quantity };
+        } else {
+            // Si le produit est déjà dans groupedStocks, on ajoute la quantité
+            groupedStocks[Product_ID].Quantity += Quantity;
+        }
+    });
+
+    // Convertir l'objet en tableau
+    return Object.values(groupedStocks);
 }
+
 
 // Fonction de mise à jour d'un utilisateur en fonction de son ID
 async function updateOne(id, quantity, storageDate) {

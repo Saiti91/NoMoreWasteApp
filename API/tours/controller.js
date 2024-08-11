@@ -110,7 +110,8 @@ const controller = Router();
  *       500:
  *         description: Erreur interne du serveur
  */
-controller.get("/", (req, res, next) => {
+controller.get(
+    "/", (req, res, next) => {
     toursService.getAll()
         .then(data => res.json(data))
         .catch(err => next(err));
@@ -141,7 +142,8 @@ controller.get("/", (req, res, next) => {
  *       500:
  *         description: Erreur interne du serveur
  */
-controller.get("/:id", (req, res, next) => {
+controller.get(
+    "/:id", (req, res, next) => {
     toursService.getOne(Number(req.params.id))
         .then(data => {
             if (!data) {
@@ -176,7 +178,8 @@ controller.get("/:id", (req, res, next) => {
  *       500:
  *         description: Erreur interne du serveur
  */
-controller.post("/", (req, res, next) => {
+controller.post(
+    "/", (req, res, next) => {
     toursService.createOne(req.body)
         .then(data => res.status(201).json(data))
         .catch(err => next(err));
@@ -215,7 +218,8 @@ controller.post("/", (req, res, next) => {
  *       500:
  *         description: Erreur interne du serveur
  */
-controller.put("/:id", (req, res, next) => {
+controller.put(
+    "/:id", (req, res, next) => {
     toursService.updateOne(Number(req.params.id), req.body)
         .then(updated => res.status(200).json(updated))
         .catch(err => next(err));
@@ -242,7 +246,8 @@ controller.put("/:id", (req, res, next) => {
  *       500:
  *         description: Erreur interne du serveur
  */
-controller.delete("/:id", authorize(["admin"]), (req, res, next) => {
+controller.delete(
+    "/:id", authorize(["admin"]), (req, res, next) => {
     toursService.deleteOne(Number(req.params.id))
         .then(deleted => {
             if (!deleted) {
@@ -284,7 +289,8 @@ controller.delete("/:id", authorize(["admin"]), (req, res, next) => {
  *       500:
  *         description: Erreur interne du serveur
  */
-controller.post("/:id/destinations", (req, res, next) => {
+controller.post(
+    "/:id/destinations", (req, res, next) => {
     toursService.addDestination(Number(req.params.id), req.body)
         .then(data => res.status(201).json(data))
         .catch(err => next(err));
@@ -317,7 +323,8 @@ controller.post("/:id/destinations", (req, res, next) => {
  *       500:
  *         description: Erreur interne du serveur
  */
-controller.delete("/:id/destinations/:destinationId", (req, res, next) => {
+controller.delete(
+    "/:id/destinations/:destinationId", (req, res, next) => {
     toursService.removeDestination(Number(req.params.id), Number(req.params.destinationId))
         .then(() => res.status(204).end())
         .catch(err => next(err));
@@ -354,7 +361,8 @@ controller.delete("/:id/destinations/:destinationId", (req, res, next) => {
  *       500:
  *         description: Erreur interne du serveur
  */
-controller.post("/destinations/:id/products", (req, res, next) => {
+controller.post(
+    "/destinations/:id/products", (req, res, next) => {
     toursService.addProductToDestination(Number(req.params.id), req.body)
         .then(data => res.status(201).json(data))
         .catch(err => next(err));
@@ -387,7 +395,8 @@ controller.post("/destinations/:id/products", (req, res, next) => {
  *       500:
  *         description: Erreur interne du serveur
  */
-controller.delete("/destinations/:id/products/:productId", (req, res, next) => {
+controller.delete(
+    "/destinations/:id/products/:productId", (req, res, next) => {
     toursService.removeProductFromDestination(Number(req.params.id), Number(req.params.productId))
         .then(() => res.status(204).end())
         .catch(err => next(err));
