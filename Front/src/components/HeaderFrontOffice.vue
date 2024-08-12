@@ -1,5 +1,5 @@
 <template>
-  <HeaderComponent :logoSrc="logoSrc" :profileSrc="profileSrc" logoAlt="Back Office Logo" logoText="Back Office" profile-alt="Profile icon">
+  <HeaderComponent :logoSrc="logoSrc" :profileSrc="profileSrc" logoAlt="Front Office Logo" logoText="Front Office" profile-alt="Profile icon">
     <template #nav>
       <router-link class="item" to="/">{{ t('home') }}</router-link>
       <router-link class="item" to="/">{{ t('missions') }}</router-link>
@@ -24,7 +24,7 @@ import VueJwtDecode from 'vue-jwt-decode';
 
 const { t } = useI18n();
 
-const logoSrc = new URL('@/assets/logo.svg', import.meta.url).href;
+const logoSrc = new URL('@/assets/logoHeader.svg', import.meta.url).href;
 const profileSrc = new URL('@/assets/user_profile_icon.svg', import.meta.url).href;
 
 const router = useRouter();
