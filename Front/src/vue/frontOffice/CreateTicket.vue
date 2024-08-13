@@ -1,206 +1,242 @@
-<script setup>
-defineProps({
-  msg: {
-    type: String,
-    required: true
-  }
-})
-</script>
-
 <template>
   <div class="ui form">
-
-<!--    titre-->
+    <!-- Titre -->
     <div class="field">
-      <div class="field error">
+      <div :class="{'field error': !title}">
         <label>Titre</label>
-        <input placeholder="Titre" type="text">
+        <input v-model="title" placeholder="Titre" type="text" />
       </div>
     </div>
 
-
+    <!-- Propose ou Demande -->
     <div class="field">
-<!--      ajouter la phrase "Je souhaite" -->
+      <label>Je souhaite</label>
       <div class="ui selection dropdown">
         <div class="default text">Choisir</div>
         <i class="dropdown icon"></i>
-        <input type="hidden" name="Proposer">
+        <input type="hidden" v-model="propose" name="Proposer" />
         <div class="menu">
           <div class="item" data-value="Proposer">Proposer</div>
           <div class="item" data-value="Demander">Demander</div>
         </div>
       </div>
-      <!--      ajouter la phrase "un service" -->
-<!--      tout sur la même ligne-->
+      <span>un service</span>
     </div>
 
-    <div class="ui selection dropdown">
-      <div class="default text">Choisir</div>
-      <i class="dropdown icon"></i>
-      <input type="hidden" name="Categorie">
-      <div class="menu">
-<!--        si Proposer = Proposer récupérer les compétences de l'utilisateur en bdd-->
-<!--        format de la requête :-->
-
-        <!--        si Proposer = Demander récuperer toutes les compétences en bdd-->
-        <!--        format de la requête :-->
-
-<!--        format d'affichage <div class="item" data-value="Demander">Demander</div>-->
-
+    <!-- Catégorie -->
+    <div class="field">
+      <label>Catégorie</label>
+      <div class="ui selection dropdown">
+        <div class="default text">Choisir</div>
+        <i class="dropdown icon"></i>
+        <input type="hidden" v-model="category" name="Categorie" />
+        <div class="menu">
+          <div v-for="cat in categories" :key="cat.id" class="item" :data-value="cat.id">{{ cat.name }}</div>
+        </div>
       </div>
     </div>
 
-
     <div class="three fields">
+      <!-- Date de début -->
       <div class="field">
-        <label>Start date</label>
+        <label>Date de début</label>
         <div class="ui calendar" id="rangestart">
           <div class="ui input left icon">
             <i class="calendar icon"></i>
-            <input type="text" placeholder="Start">
+            <input v-model="startDate" type="text" placeholder="Start" />
           </div>
         </div>
       </div>
+
+      <!-- Durée du service -->
       <div class="field">
-          <label>Durée du service</label>
-          <input type="text" name="Duree" maxlength="3" placeholder="nombres d'heuresdurée">
+        <label>Durée du service</label>
+        <input v-model="duration" type="text" maxlength="3" placeholder="Nombre d'heures" />
       </div>
-      <div class="ui selection dropdown">
-        <div class="default text">Format</div>
-        <i class="dropdown icon"></i>
-        <input type="hidden" name="Format">
-        <div class="menu">
+
+      <!-- Format -->
+      <div class="field">
+        <label>Format</label>
+        <div class="ui selection dropdown">
+          <div class="default text">Choisir</div>
+          <i class="dropdown icon"></i>
+          <input type="hidden" v-model="format" name="Format" />
+          <div class="menu">
             <div class="item" data-value="Jours">Jours</div>
-            <div class="item" data-value="Heures">Heures
+            <div class="item" data-value="Heures">Heures</div>
             <div class="item" data-value="Minutes">Minutes</div>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Nombre de personnes -->
+    <div v-if="propose === 'Proposer'" class="field">
+      <label>Combien de personnes peuvent participer</label>
+      <input v-model="places" type="text" maxlength="3" placeholder="Nombre de places" />
     </div>
-<!--      si jours faire *60*24 pour stocker en minutes-->
-<!--  si heures faire *60 pour stocker en minutes-->
 
-
-<!--      si Propose = Propose alors afficher la div suivante-->
-
-      <div class="field">
-        <label>Combien de Personnes peuvent participer </label>
-        <input type="text" name="Place" maxlength="3" placeholder="nombres de places">
-      </div>
-
-
-<!--      Pour Outil et OutilAutre (les deux div si dessous) les incorporer dans une boucle si outil est diférent de Aucun ajouter une fois les deux div en respectant les comentaires-->
-
-      <!--      si Propose = Propose alors afficher la div suivante-->
+    <!-- Outils -->
+    <div v-if="propose === 'Proposer'" class="field">
+      <label>Outils</label>
       <div class="ui selection dropdown">
         <div class="default text">Aucun</div>
         <i class="dropdown icon"></i>
-        <input type="hidden" name="Outil">
+        <input type="hidden" v-model="tools" name="Outil" />
         <div class="menu">
-          <div class="item" data-value="Aucun">Aucun</div>
-<!--          récupérer les outils de la personne (voiture AA-111-BB,...) et afficher-->
-        <div class="item" data-value="Autre">Autre</div>
-        </div>
-      </div>
-
-
-<!--      si Outil = Autre alors afficher la div suivante-->
-
-      <div class="field">
-        <label>Péciser</label>
-        <input type="text" name="OutilAutre" placeholder="Préciser">
-      </div>
-
-      <div class="inline field">
-        <div class="ui toggle checkbox">
-          <input type="checkbox" tabindex="0" class="hidden">
-          <label>Faut'il des outils suplémentaires</label>
-        </div>
-      </div>
-
-<!--si la checkboxe et coché alors afficher la div qui suit-->
-      <!--      Pour OutilClient et OutilClientAutre (les deux div si dessous) les incorporer dans une boucle si OutilClient est diférent de Aucun ajouter une fois les deux div avec pour name OutilClient1 OutilClient2... limité à 5 en respectant les comentaires-->
-
-      <!--      si Propose = Propose alors afficher la div suivante-->
-      <div class="ui selection dropdown">
-        <div class="default text">Aucun</div>
-        <i class="dropdown icon"></i>
-        <input type="hidden" name="OutilClient">
-        <div class="menu">
-          <div class="item" data-value="Aucun">Aucun</div>
-          <!--          récupérer les outils de la personne (voiture AA-111-BB,...) et afficher-->
+          <div v-for="tool in toolsOptions" :key="tool.id" class="item" :data-value="tool.id">{{ tool.name }}</div>
           <div class="item" data-value="Autre">Autre</div>
         </div>
       </div>
 
-
-      <!--      si Outil = Autre alors afficher la div suivante-->
-
-      <div class="field">
-        <label>Péciser</label>
-        <input type="text" name="OutilClientAutre" placeholder="Préciser">
+      <!-- Préciser l'outil si Autre est sélectionné -->
+      <div v-if="tools === 'Autre'" class="field">
+        <label>Préciser</label>
+        <input v-model="toolsOther" type="text" placeholder="Préciser" />
       </div>
+    </div>
 
-      <div class="ui segment">
-        <div class="field">
-          <div class="ui toggle checkbox">
-            <input type="checkbox" name="BesoinAdresseService" tabindex="0" class="hidden">
-            <label>Quel est l'adresse du service?</label>
-          </div>
+    <!-- Besoin d'outils supplémentaires -->
+    <div class="inline field">
+      <div class="ui toggle checkbox">
+        <input type="checkbox" v-model="needsExtraTools" tabindex="0" class="hidden" />
+        <label>Faut-il des outils supplémentaires</label>
+      </div>
+    </div>
+
+    <!-- Outils supplémentaires -->
+    <div v-if="needsExtraTools">
+      <div v-for="(tool, index) in extraToolsOptions.slice(0, 5)" :key="index" class="ui selection dropdown">
+        <div class="default text">Aucun</div>
+        <i class="dropdown icon"></i>
+        <input type="hidden" name="OutilClient" :value="index + 1" />
+        <div class="menu">
+          <div class="item" data-value="Aucun">Aucun</div>
+          <div v-for="tool in extraToolsOptions" :key="tool.id" class="item" :data-value="tool.id">{{ tool.name }}</div>
+          <div class="item" data-value="Autre">Autre</div>
+        </div>
+        <!-- Préciser l'outil si Autre est sélectionné -->
+        <div v-if="extraTools[index] === 'Autre'" class="field">
+          <label>Préciser</label>
+          <input v-model="extraTools[index]" type="text" placeholder="Préciser" />
         </div>
       </div>
+    </div>
 
-
-
-<!--si Proposer = Proposer alors afficher la div qui suit-->
-
-      <div class="ui segment">
-        <div class="field">
-          <div class="ui toggle checkbox">
-            <input type="checkbox" name="BesoinAdresseClient" tabindex="0" class="hidden">
-            <label>Vous avez besoin de l'adresse des participant/membres</label>
-          </div>
+    <!-- Besoin d'adresse -->
+    <div class="ui segment">
+      <div class="field">
+        <div class="ui toggle checkbox">
+          <input type="checkbox" v-model="needsAddress" tabindex="0" class="hidden" />
+          <label>Quel est l'adresse du service?</label>
         </div>
       </div>
+    </div>
 
-
+    <!-- Besoin d'adresse du client -->
+    <div v-if="propose === 'Proposer'" class="ui segment">
       <div class="field">
-        <label>Description</label>
-        <textarea></textarea>
+        <div class="ui toggle checkbox">
+          <input type="checkbox" v-model="needsCustomerAddress" tabindex="0" class="hidden" />
+          <label>Vous avez besoin de l'adresse des participants/membres</label>
+        </div>
       </div>
+    </div>
 
-<!--      ajouter upload images taille max a définir type autorisé à définir nombre max 5-->
+    <!-- Description -->
+    <div class="field">
+      <label>Description</label>
+      <textarea v-model="description"></textarea>
+    </div>
 
-      <div class="ui buttons">
-        <button class="negative ui button">Anuler</button>
-        <button class="ui button">Prévisualiser</button>
-        <button class="positive ui button">Sauvegarder</button>
+    <!-- Upload image -->
+    <div class="field">
+      <label>Image</label>
+      <input type="file" @change="handleFileUpload" multiple />
+    </div>
 
-      </div>
+    <!-- Boutons -->
+    <div class="ui buttons">
+      <button class="negative ui button">Annuler</button>
+      <button class="ui button">Prévisualiser</button>
+      <button class="positive ui button">Sauvegarder</button>
+    </div>
   </div>
 </template>
 
-<style scoped>
-h1 {
-  font-weight: 500;
-  font-size: 2.6rem;
-  position: relative;
-  top: -10px;
-}
+<script setup>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
-h3 {
-  font-size: 1.2rem;
-}
+// Variables réactives pour les champs du formulaire
+const title = ref('');
+const propose = ref('');
+const category = ref('');
+const startDate = ref('');
+const duration = ref('');
+const format = ref('');
+const places = ref('');
+const tools = ref('Aucun');
+const toolsOther = ref('');
+const needsExtraTools = ref(false);
+const extraTools = ref([]);
+const needsAddress = ref(false);
+const needsCustomerAddress = ref(false);
+const description = ref('');
+const image = ref(null);
 
-.greetings h1,
-.greetings h3 {
-  text-align: center;
-}
+// Variables pour les options de sélection
+const categories = ref([]);
+const toolsOptions = ref([]);
+const extraToolsOptions = ref([]);
 
-@media (min-width: 1024px) {
-  .greetings h1,
-  .greetings h3 {
-    text-align: left;
+// Fonction pour récupérer les catégories
+async function fetchCategories() {
+  try {
+    const response = await axios.get('/api/categories'); // Ajustez l'URL en fonction de votre API
+    categories.value = response.data;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des catégories:', error);
   }
 }
+
+// Fonction pour récupérer les outils
+async function fetchTools() {
+  try {
+    const response = await axios.get('/api/tools'); // Ajustez l'URL en fonction de votre API
+    toolsOptions.value = response.data;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des outils:', error);
+  }
+}
+
+// Fonction pour récupérer les outils supplémentaires
+async function fetchExtraTools() {
+  try {
+    const response = await axios.get('/api/extra-tools'); // Ajustez l'URL en fonction de votre API
+    extraToolsOptions.value = response.data;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des outils supplémentaires:', error);
+  }
+}
+
+// Fonction pour configurer les données initiales
+onMounted(() => {
+  fetchCategories();
+  fetchTools();
+  fetchExtraTools();
+});
+
+// Fonction pour gérer l'upload des fichiers
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (file) {
+    // Implémentez la logique d'upload ici
+    console.log('Fichier sélectionné:', file);
+  }
+}
+</script>
+
+<style scoped>
+/* Ajoutez ici les styles spécifiques à votre composant */
 </style>
