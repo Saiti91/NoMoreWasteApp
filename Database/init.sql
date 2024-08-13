@@ -1,13 +1,3 @@
-CREATE TABLE IF NOT EXISTS Address
-(
-    Address_ID  INT AUTO_INCREMENT PRIMARY KEY,
-    Street      VARCHAR(255),
-    City        VARCHAR(100),
-    State       VARCHAR(100),
-    Postal_Code VARCHAR(20),
-    Country     VARCHAR(100)
-);
-
 CREATE TABLE IF NOT EXISTS Products
 (
     Product_ID      INT AUTO_INCREMENT PRIMARY KEY,
@@ -16,6 +6,16 @@ CREATE TABLE IF NOT EXISTS Products
     Storage_Type    VARCHAR(100),
     Expiration_Date DATE
 );
+
+CREATE TABLE IF NOT EXISTS Address
+(
+    Address_ID  INT AUTO_INCREMENT PRIMARY KEY,
+    Street      VARCHAR(255),
+    City        VARCHAR(100),
+    State       VARCHAR(100),
+    Postal_Code VARCHAR(20),
+    Country     VARCHAR(100)
+    );
 
 CREATE TABLE IF NOT EXISTS Users
 (
@@ -156,7 +156,52 @@ CREATE TABLE IF NOT EXISTS Donations
     FOREIGN KEY (Recipient_User_ID) REFERENCES Users (User_ID)
 );
 
+--Pour les tickets
+CREATE TABLE IF NOT EXISTS Tickets
+(
+    Ticket_ID          INT AUTO_INCREMENT PRIMARY KEY,
+    Title             VARCHAR(50),
+    Direction         BOOLEAN,
+    Category_ID       INT,
+    Start_Date        DATE,
+    Duration          INT,
+    Places            INT,
+    Tools             VARCHAR(50),
+    Address_ID        INT,
+    Address_needs     BOOLEAN,
+    Customers_Address VARCHAR(100),
+    Description       TEXT,
+    Image             VARCHAR(50),
+    Status_ID         INT,
+    Owner_User_ID     INT,
+    FOREIGN KEY (Category_ID) REFERENCES Categories (Category_ID),
+    FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID),
+    FOREIGN KEY (Status_ID) REFERENCES Statuses (Status_ID),
+    FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID)
+    );
 
+CREATE TABLE IF NOT EXISTS Categories
+(
+    Category_ID       INT AUTO_INCREMENT PRIMARY KEY,
+    Name              VARCHAR(100),
+    Diploma_ID        INT,
+    FOREIGN KEY (Diploma_ID) REFERENCES Diplomas (Diploma_ID)
+    );
+
+CREATE TABLE IF NOT EXISTS Statuses
+(
+    Status_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Name      VARCHAR(50)
+    );
+
+CREATE TABLE IF NOT EXISTS Diplomas
+(
+    Diploma_ID  INT AUTO_INCREMENT PRIMARY KEY,
+    Name        VARCHAR(100),
+    Attestation VARCHAR(255) -- Le chemin du fichier d'attestation
+    );
+
+--Fin des tickes
 
 ## 2.2.2. Insertion of data
 
