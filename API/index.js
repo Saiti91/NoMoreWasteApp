@@ -14,6 +14,7 @@ const authController = require("./auth/controller");
 const stockController= require ("./stocks/controller");
 const donationController= require ("./donations/controller");
 const tourController= require ("./tours/controller");
+const ticketsController = require("./tickets/controller");
 
 const app = express();
 const port = 3000;
@@ -47,6 +48,7 @@ app.use("/stocks", stockController);
 app.use("/users", usersController);
 app.use("/donations", donationController);
 app.use("/tours", tourController);
+app.use("/tickets", ticketsController);
 
 // Application du middleware `idParamGuard` aux routes avec paramètre `id`
 app.use("/users/:id", idParamGuard);
@@ -54,6 +56,7 @@ app.use("/stocks/:id", idParamGuard);
 app.use("/auth/:id", idParamGuard);
 app.use("/donations/:id", idParamGuard);
 app.use("/tours/:id", idParamGuard);
+app.use("/tickets/:id", idParamGuard);
 
 // Middleware de gestion des erreurs
 app.use(errorHandlingMiddleware);
