@@ -8,11 +8,13 @@ const { t } = useI18n();
   <Header/>
   <div class="spacer"></div>
   <div class="ui container">
+    <!-- Info sur l'entreprise -->
     <section class="ui segment vertical">
       <h1 class="ui teal header center aligned">{{ t('assos_name') }}</h1>
       <p class="ui text container">{{ t('home_txt_1') }}</p>
     </section>
 
+    <!-- Info sur les services -->
     <section class="ui segment vertical">
       <h2 class="ui teal header center aligned">{{ t('our_services') }}</h2>
       <div class="ui three column stackable grid">
@@ -37,27 +39,38 @@ const { t } = useI18n();
       </div>
     </section>
 
+    <!-- Info sur nous rejoindre -->
     <section class="ui segment vertical">
+      <router-link to="/join-us">
       <h2 class="ui teal header center aligned">{{ t('join_us') }}</h2>
+      </router-link>
       <div class="ui two column stackable grid">
+        <router-link to="/donation">
         <div class="column">
           <div class="ui icon header">
             <i class="heart icon"></i>{{ t('home_title_volunteer') }}
           </div>
           <p>{{ t('home_txt_volunteer') }}</p>
         </div>
+        </router-link>
+        <router-link to="/donation">
         <div class="column">
           <div class="ui icon header">
             <i class="donate icon"></i>{{ t('home_title_donation') }}
           </div>
           <p>{{ t('home_txt_donation') }}</p>
         </div>
+        </router-link>
       </div>
     </section>
+
   </div>
 </template>
 
 <style scoped>
+div{
+  color : black;
+}
 .ui.container {
   padding: 20px;
 }
