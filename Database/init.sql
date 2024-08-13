@@ -355,3 +355,19 @@ VALUES ('Inscription_Ouverte'),
        ('Terminé');
 
 
+INSERT INTO Diplomas (Name)
+VALUES
+                                ('Permis Période B1'),
+                                ('Permis Poids Lourd');
+
+
+INSERT INTO Categories (Name, Diploma_ID)
+VALUES
+                                              ('Catégorie 1', 1),
+                                              ('Catégorie 2', 1),
+                                              ('Catégorie 3', 1),
+                                              ('Catégorie 4', 1),
+                                              ('Catégorie 5', 1);
+
+
+
