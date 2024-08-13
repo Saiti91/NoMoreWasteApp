@@ -10,6 +10,7 @@ import Donation from "@/vue/frontOffice/Don/Donation.vue";
 import MyAccount from "@/vue/frontOffice/Compte/MyAccount.vue";
 import CreateTicket from "@/vue/frontOffice/CreateTicket.vue";
 import Test from "@/vue/frontOffice/test.vue";
+import JoinUs from "@/vue/frontOffice/Join/JoinUs.vue";
 
 //***** BACK OFFICE
 import BackOfficeHome from '../vue/backOffice/Home.vue';
@@ -36,6 +37,7 @@ import PickupTourAdmin from "@/vue/backOffice/Tournee/PickUpTourAdmin.vue";
 
 
 
+
 const routes = [
     { path: '/login', name: 'Login', component: LoginPage },
     { path: '/', name: 'Home', component: Home },
@@ -43,6 +45,7 @@ const routes = [
     //***** FRONT OFFICE
     { path: '/sign-up', name: 'SignUp', component: SignUpPage },
     { path: '/create-ticket', name: 'CreateTicket', component: CreateTicket },
+    { path: '/join-us', name: 'JoinUs', component: JoinUs },
     { path: '/test', name: 'Test', component: Test },
     {
         path: '/catalogue',
