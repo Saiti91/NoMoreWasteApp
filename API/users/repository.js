@@ -2,6 +2,7 @@ const getConnection = require("../common/db_handler");
 
 // Création d'un utilisateur classique
 async function createOne(user) {
+    console.log('User in repository : ',user)
     const {
         name = null,
         firstname = null,

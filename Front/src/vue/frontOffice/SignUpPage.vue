@@ -29,11 +29,10 @@ const submitForm = async () => {
     const payload = {
       email: email.value,
       password: password.value,
-      first_name: first_name.value,
-      last_name: last_name.value,
-      role: "customer"
+      firstname: first_name.value,
+      name: last_name.value
     };
-
+    console.log("payload", payload)
     const response = await axios.post('auth/register/', payload, {
       headers: {
         'Content-Type': 'application/json'

@@ -11,12 +11,22 @@ import MyAccount from "@/vue/frontOffice/Compte/MyAccount.vue";
 
 //***** BACK OFFICE
 import BackOfficeHome from '../vue/backOffice/Home.vue';
+
+//***** Users
 import UsersAdmin from '../vue/backOffice/Users/UserAdmin.vue';
 import UserDetails from '@/vue/backOffice/Users/UserDetails.vue';
+import UserDetailsDonations from "@/vue/backOffice/Users/UserDetailsDonations.vue";
+import UserDetailsRecievedProduct from "@/vue/backOffice/Users/UserDetailsRecievedProduct.vue";
+
+//***** Stocks
 import StocksAdmin from '@/vue/backOffice/Stocks/StocksAdmin.vue';
 import StocksDetails from '@/vue/backOffice/Stocks/StocksDetails.vue';
+
+//***** Donations
 import DonationAdmin from '@/vue/backOffice/Don/DonationsAdmin.vue';
 import DonationDetails from '@/vue/backOffice/Don/DonationsDetails.vue';
+
+//***** Tounrée
 import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
 import TourDetails from "@/vue/backOffice/Tournee/TourDetails.vue";
 import DistributionTourAdmin from "@/vue/backOffice/Tournee/DistributionTourAdmin.vue";
@@ -68,6 +78,31 @@ const routes = [
         component: UserDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
+    //TODO: Ajouter les routes pour les détails des services coté admin
+    // {
+    //     path: '/user-services-proposed/:id',
+    //     name: 'TourDetails',
+    //     component: TourDetails,
+    //     /*beforeEnter: useAuthGuard(['admin'])*/
+    // },
+    // {
+    //     path: '/user-services-participated/:id',
+    //     name: 'TourDetails',
+    //     component: TourDetails,
+    //     /*beforeEnter: useAuthGuard(['admin'])*/
+    // },
+    {
+        path: '/user-donations/:id',
+        name: 'UserDetailsDonations',
+        component: UserDetailsDonations,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/user-products-received/:id',
+        name: 'UserDetailsRecievedProduct',
+        component: UserDetailsRecievedProduct,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
     {
         path: '/stocks-admin',
         name: 'StocksAdmin',
@@ -116,6 +151,7 @@ const routes = [
         component: TourDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
+
 ];
 
 const router = createRouter({

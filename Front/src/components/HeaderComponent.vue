@@ -1,11 +1,11 @@
 <script setup>
 import {onMounted, ref} from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import Cookies from 'js-cookie';
 import VueJwtDecode from 'vue-jwt-decode';
-import { useI18n } from 'vue-i18n';
+import {useI18n} from 'vue-i18n';
 
-const { t } = useI18n();
+const {t} = useI18n();
 
 const props = defineProps({
   logoSrc: {
@@ -36,7 +36,7 @@ const props = defineProps({
   },
 });
 
-const { locale, availableLocales, currentLocale } = useI18n();
+const {locale, availableLocales, currentLocale} = useI18n();
 
 const router = useRouter();
 const route = useRoute();
@@ -66,7 +66,7 @@ onMounted(() => {
 });
 
 const changeLocale = (lang) => {
-  locale.value = lang;  // Mise à jour de la langue courante
+  locale.value = lang;
 };
 
 const handleLogoClick = () => {
