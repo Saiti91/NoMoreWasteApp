@@ -348,5 +348,10 @@ VALUES (1, 5, 1, 2),
        (1, 20, 2, null),
        (5, 25, 5, 1);
 
+-- Données de test pour la table Statuses
+INSERT INTO Statuses (Name)
+VALUES ('Inscription_Ouverte'),
+       ('Inscription_fermée'),
+       ('Terminé');
 
 
