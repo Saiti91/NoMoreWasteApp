@@ -1,6 +1,7 @@
 const { createUserSchema, updateUserSchema } = require("./model");
 const Repository = require("./repository");
 const { InvalidArgumentError, UnauthorizedError } = require("../common/service_errors");
+const {as} = require("pg-promise");
 
 // Fonction de création d'utilisateur
 async function createOne(user) {
@@ -25,6 +26,33 @@ async function getOne(id, issuer) {
 
     const user = await Repository.getOne(id);
     return user ? { ...user, password: "[redacted]" } : null;
+}
+
+async function getOneBy(attribute, value) {
+    if (attribute === undefined || value === undefined) {
+        throw new Error("getOneBy: Both attribute and value must be defined");
+    }
+
+    const user = await Repository.getOneBy(attribute, value);
+    return user ? { ...user} : null;
+}
+
+async function getOneVerifBy(attribute, value, id) {
+    if (attribute === undefined || value === undefined) {
+        throw new Error("getOneBy: Both attribute and value must be defined");
+    }
+
+    const user = await Repository.getOneVerifBy(attribute, value, id);
+    return user ? { ...user} : null;
+}
+
+async function verifySkill(skillName, userId) {
+    if (skillName === undefined || userId === undefined) {
+        throw new Error("verifySkill: Skill name and userId must be defined");
+    }
+
+    const userSkill = await Repository.verifySkill(userId, skillName);
+    return userSkill ? { ...userSkill } : null;
 }
 
 // Fonction de récupération de tous les utilisateurs
@@ -67,4 +95,4 @@ async function deleteOne(id, issuer) {
     return await Repository.deleteOne(id);
 }
 
-module.exports = { createOne, getOne, getAll, updateOne, deleteOne };
+module.exports = { createOne, getOne, getOneBy, verifySkill , getOneVerifBy,getAll, updateOne, deleteOne };

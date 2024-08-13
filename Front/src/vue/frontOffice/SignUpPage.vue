@@ -1,7 +1,8 @@
 <script setup>
-import {ref} from 'vue';
-import {useRouter} from 'vue-router';
-import {useI18n} from 'vue-i18n'; // Importation de useI18n
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import axios from '@/utils/Axios.js';
 
 const email = ref('');
 const password = ref('');
@@ -13,41 +14,52 @@ const message = ref(false);
 const error = ref(null);
 const success = ref(null);
 
-const {t} = useI18n();
-
+const { t } = useI18n();
 
 const submitForm = async () => {
-
   error.value = null;
   success.value = null;
 
   if (password.value !== confirmPassword.value) {
-    error.value = t('pwd-dont-match');
+    error.value = t('pwdDontMatch');
     return;
   }
+
   try {
     const payload = {
       email: email.value,
-      password: password.value, // Assurez-vous de générer un mot de passe sécurisé en production
-      first_name: first_name.value,
-      last_name: last_name.value,
-      role: "customer"
-    }
-
-    const response = await fetch('http://localhost:80/auth/register/', {
-      method: 'POST',
+      password: password.value,
+      firstname: first_name.value,
+      name: last_name.value
+    };
+    console.log("payload", payload)
+    const response = await axios.post('auth/register/', payload, {
       headers: {
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
+      }
     });
 
-    if (response.status !== 200 && response.status !== 201) {
+    if (response.status === 200 || response.status === 201) {
+      success.value = t('accountCreatedSuccessfully');
+      router.push('/login');
+    } else {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    router.push('/login');
-  } catch (error) {
-    console.log("error");
+  } catch (err) {
+    if (err.response) {
+      // Erreur de l'API
+      if (err.response.status === 400) {
+        error.value = t('emailalreadyused');
+      } else if (err.response.status === 401) {
+        error.value = t('unauthorizedAccess');
+      } else {
+        error.value = err.response.data?.message || t('something_went_wrong');
+      }
+    } else {
+      // Autre erreur
+      error.value = t('networkError');
+    }
+    console.log("Error:", err);
   }
 }
 </script>

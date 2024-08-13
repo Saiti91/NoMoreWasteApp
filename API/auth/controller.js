@@ -44,21 +44,17 @@ const controller = Router();
  *         password:
  *           type: string
  *           description: The user's password.
- *         first_name:
+ *         firstname:
  *           type: string
  *           description: The user's first name.
- *         last_name:
+ *         name:
  *           type: string
  *           description: The user's last name.
- *         role:
- *           type: string
- *           description: The user's role.
  *       example:
  *         email: user@example.com
  *         password: secret
- *         first_name: John
- *         last_name: Doe
- *         role: user
+ *         firstname: John
+ *         name: Doe
  */
 
 /**

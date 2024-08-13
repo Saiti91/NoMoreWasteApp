@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router';
 import Cookies from 'js-cookie';
 import VueJwtDecode from 'vue-jwt-decode';
 import axiosInstance from "../utils/Axios.js";
-
 import { useI18n } from 'vue-i18n';
 
 const email = ref('');
@@ -22,8 +21,8 @@ const submitForm = async () => {
   errorMessage.value = '';
 
   if (!validateEmail(email.value)) {
-    errorMessage.value = 'Invalid email format';
-    console.log('Error Message:', errorMessage.value); // Debugging
+    errorMessage.value = t('$invalidEmailFormat');
+    console.log('Error Message:', errorMessage.value);
     return;
   }
 
@@ -36,7 +35,7 @@ const submitForm = async () => {
     const response = await axiosInstance.post('auth/login/', data);
     if (response.status !== 200) {
       errorMessage.value = `Error: ${response.status}`;
-      console.log('Error Message:', errorMessage.value); // Debugging
+      console.log('Error Message:', errorMessage.value);
       return;
     }
 
@@ -44,35 +43,33 @@ const submitForm = async () => {
     const token = authHeader ? authHeader.split(' ')[1] : null;
     if (token) {
       Cookies.set('token', token);
-      console.log('Token stored in cookies:', token);
-
       const decodedToken = VueJwtDecode.decode(token);
-      console.log('decodedToken:', decodedToken);
-      console.log('decodedToken.urole:', decodedToken.urole);
       if (decodedToken.urole === 'admin') {
         router.push('/back-office');
       } else {
         router.push('/');
       }
     } else {
-      errorMessage.value = 'Token not found in response headers';
+      errorMessage.value = t('tokenNotFound');
       console.log('Error Message:', errorMessage.value);
     }
   } catch (error) {
     if (error.response) {
       if (error.response.status === 401) {
-        errorMessage.value = 'Password or email is incorrect';
+        errorMessage.value = t('incorrectPasswordOrEmail');
+        // Redirect to login page if needed
+        router.push('/login');
       } else if (error.response.status === 400) {
-        errorMessage.value = 'Bad request: Invalid email or password format';
+        errorMessage.value = t('badRequest');
       } else if (error.response.data && error.response.data.message) {
         errorMessage.value = error.response.data.message;
       } else {
-        errorMessage.value = 'An error occurred';
+        errorMessage.value = t('an_error_occurred');
       }
     } else {
-      errorMessage.value = 'An error occurred';
+      errorMessage.value = 'Network error, please try again later';
     }
-    console.log('Error Message:', errorMessage.value); // Debugging
+    console.log('Error Message:', errorMessage.value);
   }
 };
 </script>

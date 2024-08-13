@@ -1,19 +1,3 @@
-<template>
-  <HeaderComponent :logoSrc="logoSrc" logoAlt="Back Office Logo" logoText="Back Office" :profileSrc="profileSrc" profile-alt="icon profile">
-    <template #nav>
-      <router-link class="item" to="/users">{{ t('users') }}</router-link>
-      <router-link class="item" to="/stocks-admin">{{ t('stocks') }}</router-link>
-      <router-link class="item" to="/donation-admin">{{ t('don') }}</router-link>
-      <router-link class="item" to="/tours">{{ t('tours') }}</router-link>
-      <router-link class="item" to="/service-requests">{{ t('services') }}</router-link>
-    </template>
-    <template #profile-dropdown>
-      <router-link class="item" to="/profile">{{ t('monCompte') }}</router-link>
-      <div class="item" @click="logout">{{ t('logout') }}</div>
-    </template>
-  </HeaderComponent>
-</template>
-
 <script setup>
 import HeaderComponent from './HeaderComponent.vue';
 import { useI18n } from 'vue-i18n';
@@ -33,6 +17,22 @@ function logout() {
 }
 </script>
 
+<template>
+  <HeaderComponent :logoSrc="logoSrc" logoAlt="Back Office Logo" logoText="Back Office" :profileSrc="profileSrc" profile-alt="icon profile">
+    <template #nav>
+      <router-link class="item" to="/users">{{ t('users') }}</router-link>
+      <router-link class="item" to="/stocks-admin">{{ t('stocks') }}</router-link>
+      <router-link class="item" to="/donation-admin">{{ t('don') }}</router-link>
+      <router-link class="item" to="/tour-admin">{{ t('tours') }}</router-link>
+<!--      //TODO: Ajouter la Gestion des services-->
+      <router-link class="item" to="/service-admin">{{ t('services') }}</router-link>
+    </template>
+    <template #profile-dropdown>
+<!--      <router-link class="item" to="/profile">{{ t('monCompte') }}</router-link>-->
+      <div class="item" @click="logout">{{ t('logout') }}</div>
+    </template>
+  </HeaderComponent>
+</template>
+
 <style scoped>
-/* Ajoutez ici des styles spécifiques si nécessaire */
 </style>

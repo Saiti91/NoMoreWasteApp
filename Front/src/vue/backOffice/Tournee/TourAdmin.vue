@@ -1,97 +1,90 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-import axios from '@/utils/Axios.js';
+import {onMounted} from 'vue';
+import {useRouter} from 'vue-router';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import {useI18n} from 'vue-i18n';
 
-const { t } = useI18n();
-const donnations = ref([]);
-const distinctDonations = ref([]);
+const {t} = useI18n();
 const router = useRouter();
 
-const fetchDonations = async () => {
-  try {
-    const response = await axios.get('/donations');
-    donnations.value = response.data;
-    console.log(donnations.value);
-  } catch (error) {
-    console.error('Error fetching stocks:', error);
-  }
+const navigateToPickup = () => {
+  router.push('/pickup-tours');
 };
 
-const goToDetails = (donationId) => {
-  router.push({ name: 'DonationDetails', params: { id: donationId } });
+const navigateToDistribution = () => {
+  router.push('/distribution-tours');
 };
-const goToUserDetails = (user_id) => {
-  router.push({ name: 'UserDetails', params: { id: user_id } });
-};
-
 
 onMounted(() => {
-  fetchDonations();
 });
 </script>
 
 <template>
-  <HeaderBackOffice />
+  <HeaderBackOffice/>
   <div class="spacer"></div>
-  <div class="ui container full-width no-center">
-    <h1>Admin Donations</h1>
-    <table class="ui celled table full-width-table">
-      <thead>
-      <tr>
-        <th>Nom du produit</th>
-        <th>Quantité</th>
-        <th>Type de stockage</th>
-        <th>Email du donneur</th>
-        <th>Email du receveur</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="donation in donnations" :key="donation.Donation_ID" class="clickable-row" >
-        <td @click="goToDetails(donation.Donation_ID)">
-          {{ donation.Product.Name }}
-        </td>
-        <td @click="goToDetails(donation.Donation_ID)">
-          {{ donation.Quantity }}
-        </td>
-        <td @click="goToDetails(donation.Donation_ID)">
-          {{ donation.Product.Storage_Type }}
-        </td>
-        <td @click="goToUserDetails(donation.Donor_User.User_ID)">
-          {{ donation.Donor_User.Email }}
-        </td>
-        <td @click="goToUserDetails(donation.Recipient_User?.User_ID)">
-          {{ donation.Recipient_User ? donation.Recipient_User.Email : 'En attente' }}
-        </td>
-      </tr>
-      </tbody>
-    </table>
+  <div class="dashboard-container">
+    <div class="ui two cards">
+      <div class="ui huge card" @click="navigateToPickup">
+        <div class="image">
+          <img src="https://via.placeholder.com/400x200" alt="Pickup Image"> <!-- Placeholder image -->
+        </div>
+        <div class="content">
+          <div class="header">{{ t('pickupTours') }}</div>
+          <div class="meta">
+            <span class="category">{{ t('category') }}</span>
+          </div>
+          <div class="description">
+            {{ t('navigateToPickupTours') }}
+          </div>
+        </div>
+      </div>
+      <div class="ui huge card" @click="navigateToDistribution">
+        <div class="image">
+          <img src="https://via.placeholder.com/400x200" alt="Distribution Image"> <!-- Placeholder image -->
+        </div>
+        <div class="content">
+          <div class="header">{{ t('distributionTours') }}</div>
+          <div class="meta">
+            <span class="category">{{ t('category') }}</span>
+          </div>
+          <div class="description">
+            {{ t('navigateToDistributionTours') }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-
 <style scoped>
-.spacer {
-  margin: 20px 0;
+.dashboard-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
-.ui.container.full-width {
-  width: 100%;
-  margin-top: 20px;
-  padding: 0 20px;
+.ui.two.cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* Espacement entre les cartes */
 }
 
-.ui.celled.table.full-width-table {
-  width: 100%;
-}
-
-.ui.celled.table tr.clickable-row {
+.ui.huge.card {
   cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  width: 600px; /* Taille personnalisée pour la carte */
 }
 
-.ui.celled.table tr.clickable-row:hover {
-  background-color: #f1f1f1;
+.ui.huge.card:hover {
+  transform: translateY(-5px);
+}
+
+.ui.huge.card .image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover; /* Assure que l'image occupe tout l'espace de son conteneur sans être déformée */
 }
 </style>

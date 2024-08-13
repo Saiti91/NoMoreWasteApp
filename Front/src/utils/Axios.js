@@ -1,6 +1,5 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { useRouter } from 'vue-router';
 
 const axiosInstance = axios.create({
     baseURL: 'http://localhost:3000',
@@ -19,11 +18,6 @@ axiosInstance.interceptors.request.use(config => {
 axiosInstance.interceptors.response.use(
     response => response,
     error => {
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-            // Utilisez useRouter pour rediriger vers la page de connexion
-            const router = useRouter();
-            router.push('/login');
-        }
         return Promise.reject(error);
     }
 );

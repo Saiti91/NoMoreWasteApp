@@ -11,9 +11,8 @@ const loginSchema = Joi.object({
 const registerSchema = Joi.object({
     email: Joi.string().email().required(),      // L'email doit être valide et est requis
     password: Joi.string().required(),           // Le mot de passe est requis
-    first_name: Joi.string().required(),         // Le prénom est requis
-    last_name: Joi.string().required(),
-    role: Joi.string().required()
+    firstname: Joi.string().required(),         // Le prénom est requis
+    name: Joi.string().required(),
 });
 
 // Exportation des schémas pour utilisation dans d'autres parties de l'application

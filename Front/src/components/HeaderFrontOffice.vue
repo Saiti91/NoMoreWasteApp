@@ -1,13 +1,13 @@
 <template>
-  <HeaderComponent :logoSrc="logoSrc" :profileSrc="profileSrc" logoAlt="Back Office Logo" logoText="Back Office" profile-alt="Profile icon">
+  <HeaderComponent :logoSrc="logoSrc" :profileSrc="profileSrc" logoAlt="Front Office Logo" logoText="Front Office" profile-alt="Profile icon">
     <template #nav>
       <router-link class="item" to="/">{{ t('home') }}</router-link>
       <router-link class="item" to="/">{{ t('missions') }}</router-link>
-      <router-link class="item" to="/">{{ t('recevoirDesDons') }}</router-link>
-      <router-link class="item" to="/">{{ t('faireUnDon') }}</router-link>
+      <router-link class="item" to="/catalogue">{{ t('recevoirDesDons') }}</router-link>
+      <router-link class="item" to="/donation">{{ t('faireUnDon') }}</router-link>
     </template>
     <template #profile-dropdown>
-      <router-link v-if="isAuthenticated" class="item" to="/profile">{{ t('monCompte') }}</router-link>
+      <router-link v-if="isAuthenticated" class="item" to="/my-account">{{ t('monCompte') }}</router-link>
       <div v-if="isAuthenticated" class="item" @click="logout">{{ t('logout') }}</div>
       <router-link v-else class="item" to="/login">{{ t('login') }}</router-link>
     </template>
@@ -24,7 +24,7 @@ import VueJwtDecode from 'vue-jwt-decode';
 
 const { t } = useI18n();
 
-const logoSrc = new URL('@/assets/logo.svg', import.meta.url).href;
+const logoSrc = new URL('@/assets/logoHeader.svg', import.meta.url).href;
 const profileSrc = new URL('@/assets/user_profile_icon.svg', import.meta.url).href;
 
 const router = useRouter();
