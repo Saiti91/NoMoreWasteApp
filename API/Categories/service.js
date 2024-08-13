@@ -1,6 +1,6 @@
 const { createCategorySchema, updateCategorySchema } = require("./model");
-const CategoryRepository = require("../repositories/CategoryRepository");
-const { InvalidArgumentError, UnauthorizedError } = require("../common/service_errors");
+const CategoryRepository = require("./repository");
+const { InvalidArgumentError } = require("../common/service_errors");
 
 // Fonction de création d'une catégorie
 async function createOne(category) {

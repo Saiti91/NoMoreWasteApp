@@ -1,8 +1,8 @@
 const { Router } = require('express');
-const categoryService = require('../services/CategoryService');
+const categoryService = require('./service');
 const NotFoundError = require('../common/http_errors').NotFoundError;
 const authorize = require('../common/middlewares/authorize_middleware');
-const { createCategorySchema, updateCategorySchema } = require('../models/validation/categoryValidation');
+const { createCategorySchema, updateCategorySchema } = require('./model');
 
 const controller = Router();
 
