@@ -5,7 +5,6 @@ import useAuthGuard from '../components/Auth/AuthGuard.js';
 //***** FRONT OFFICE
 import SignUpPage from "../vue/frontOffice/SignUpPage.vue";
 import Home from "../vue/frontOffice/Home.vue";
-import CreateTicket from "@/vue/frontOffice/CreateTicket.vue";
 
 //***** BACK OFFICE
 import BackOfficeHome from '../vue/backOffice/Home.vue';
@@ -17,10 +16,8 @@ import DonationAdmin from '@/vue/backOffice/Don/DonationsAdmin.vue';
 import DonationDetails from '@/vue/backOffice/Don/DonationsDetails.vue';
 import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
 import TourDetails from "@/vue/backOffice/Tournee/TourDetails.vue";
-import CategoriesAdmin from "@/vue/backOffice/Categories/CategoriesAdmin.vue";
-import CategoryDetails from "@/vue/backOffice/Categories/CategoryDetails.vue";
-import DiplomasAdmin from "@/vue/backOffice/Diplomas/DiplomasAdmin.vue";
-import DiplomaDetails from "@/vue/backOffice/Diplomas/DiplomaDetails.vue";
+import CreateTicket from "@/vue/frontOffice/CreateTicket.vue";
+import Test from "@/vue/frontOffice/test.vue";
 
 
 const routes = [
@@ -30,6 +27,8 @@ const routes = [
     //***** FRONT OFFICE
     { path: '/sign-up', name: 'SignUp', component: SignUpPage },
     { path: '/create-ticket', name: 'CreateTicket', component: CreateTicket },
+    { path: '/test', name: 'Test', component: Test },
+
 
     //***** BACK OFFICE
     {
@@ -84,30 +83,6 @@ const routes = [
         path: '/tour-admin/:id',
         name: 'TourDetails',
         component: TourDetails,
-        /*beforeEnter: useAuthGuard(['admin'])*/
-    },
-    {
-        path: '/categories',
-        name: 'CategoriesAdmin',
-        component: CategoriesAdmin,
-        /*beforeEnter: useAuthGuard(['admin'])*/
-    },
-    {
-        path: '/categories/:id',
-        name: 'CategoryDetails',
-        component: CategoryDetails,
-        /*beforeEnter: useAuthGuard(['admin'])*/
-    },
-    {
-        path: '/diplomas',
-        name: 'DiplomasAdmin',
-        component: DiplomasAdmin,
-        /*beforeEnter: useAuthGuard(['admin'])*/
-    },
-    {
-        path: '/diplomas/:id',
-        name: 'DiplomaDetails',
-        component: DiplomaDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
 ];
