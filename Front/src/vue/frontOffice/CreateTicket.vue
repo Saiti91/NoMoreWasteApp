@@ -2,70 +2,75 @@
   <div class="ui form">
     <!-- Titre -->
     <div class="field">
-      <div :class="{'field error': !title}">
-        <label>Titre</label>
-        <input v-model="title" placeholder="Titre" type="text" />
-      </div>
+      <label>Titre</label>
+      <input v-model="title" placeholder="Titre" type="text" />
+      <div v-if="!title" class="ui pointing red basic label">Le titre est requis</div>
     </div>
 
     <!-- Propose ou Demande -->
     <div class="field">
-      <label>Je souhaite</label>
-      <div class="ui selection dropdown">
-        <div class="default text">Choisir</div>
-        <i class="dropdown icon"></i>
-        <input type="hidden" v-model="propose" name="Proposer" />
-        <div class="menu">
-          <div class="item" data-value="Proposer">Proposer</div>
-          <div class="item" data-value="Demander">Demander</div>
+      <div class="ui grid">
+        <div class="two wide column">
+          <label>Je souhaite</label>
+        </div>
+        <div class="two wide column">
+          <div class="ui compact selection dropdown" ref="proposeDropdown">
+            <input type="hidden" v-model="propose" />
+            <i class="dropdown icon"></i>
+            <div class="text">Choisir</div>
+            <div class="menu">
+              <div class="item" data-value="Proposer">Proposer</div>
+              <div class="item" data-value="Demander">Demander</div>
+            </div>
+          </div>
+        </div>
+        <div class="two wide column">
+          <label>un service</label>
         </div>
       </div>
-      <span>un service</span>
     </div>
 
     <!-- Catégorie -->
     <div class="field">
       <label>Catégorie</label>
-      <div class="ui selection dropdown">
-        <div class="default text">Choisir</div>
+      <div class="ui compact selection dropdown" ref="categoryDropdown">
+        <input type="hidden" v-model="category" />
         <i class="dropdown icon"></i>
-        <input type="hidden" v-model="category" name="Categorie" />
+        <div class="text">Choisir</div>
         <div class="menu">
           <div v-for="cat in categories" :key="cat.id" class="item" :data-value="cat.id">{{ cat.name }}</div>
         </div>
       </div>
     </div>
 
-    <div class="three fields">
-      <!-- Date de début -->
-      <div class="field">
-        <label>Date de début</label>
-        <div class="ui calendar" id="rangestart">
-          <div class="ui input left icon">
-            <i class="calendar icon"></i>
-            <input v-model="startDate" type="text" placeholder="Start" />
-          </div>
+    <!-- Date de début -->
+    <div class="field">
+      <label>Date de début</label>
+      <div class="ui calendar" id="rangestart">
+        <div class="ui input left icon">
+          <i class="calendar icon"></i>
+          <input v-model="startDate" type="text" placeholder="Start" />
         </div>
       </div>
+    </div>
 
-      <!-- Durée du service -->
-      <div class="field">
-        <label>Durée du service</label>
-        <input v-model="duration" type="text" maxlength="3" placeholder="Nombre d'heures" />
-      </div>
+    <!-- Durée du service -->
+    <div class="field">
+      <label>Durée du service</label>
+      <input v-model="duration" type="text" maxlength="3" placeholder="Nombre d'heures" />
+    </div>
 
-      <!-- Format -->
-      <div class="field">
-        <label>Format</label>
-        <div class="ui selection dropdown">
-          <div class="default text">Choisir</div>
-          <i class="dropdown icon"></i>
-          <input type="hidden" v-model="format" name="Format" />
-          <div class="menu">
-            <div class="item" data-value="Jours">Jours</div>
-            <div class="item" data-value="Heures">Heures</div>
-            <div class="item" data-value="Minutes">Minutes</div>
-          </div>
+    <!-- Format -->
+    <div class="field">
+      <label>Format</label>
+      <div class="ui compact selection dropdown" ref="formatDropdown">
+        <input type="hidden" v-model="format" />
+        <i class="dropdown icon"></i>
+        <div class="text">Choisir</div>
+        <div class="menu">
+          <div class="item" data-value="Jours">Jours</div>
+          <div class="item" data-value="Heures">Heures</div>
+          <div class="item" data-value="Minutes">Minutes</div>
         </div>
       </div>
     </div>
@@ -79,10 +84,10 @@
     <!-- Outils -->
     <div v-if="propose === 'Proposer'" class="field">
       <label>Outils</label>
-      <div class="ui selection dropdown">
-        <div class="default text">Aucun</div>
+      <div class="ui compact selection dropdown" ref="toolsDropdown">
+        <input type="hidden" v-model="tools" />
         <i class="dropdown icon"></i>
-        <input type="hidden" v-model="tools" name="Outil" />
+        <div class="text">Aucun</div>
         <div class="menu">
           <div v-for="tool in toolsOptions" :key="tool.id" class="item" :data-value="tool.id">{{ tool.name }}</div>
           <div class="item" data-value="Autre">Autre</div>
@@ -106,10 +111,10 @@
 
     <!-- Outils supplémentaires -->
     <div v-if="needsExtraTools">
-      <div v-for="(tool, index) in extraToolsOptions.slice(0, 5)" :key="index" class="ui selection dropdown">
-        <div class="default text">Aucun</div>
+      <div v-for="(tool, index) in extraToolsOptions.slice(0, 5)" :key="index" class="ui compact selection dropdown" ref="extraToolsDropdown">
+        <input type="hidden" :name="'OutilClient_' + index" />
         <i class="dropdown icon"></i>
-        <input type="hidden" name="OutilClient" :value="index + 1" />
+        <div class="text">Aucun</div>
         <div class="menu">
           <div class="item" data-value="Aucun">Aucun</div>
           <div v-for="tool in extraToolsOptions" :key="tool.id" class="item" :data-value="tool.id">{{ tool.name }}</div>
@@ -165,10 +170,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import axios from 'axios';
 
-// Variables réactives pour les champs du formulaire
 const title = ref('');
 const propose = ref('');
 const category = ref('');
@@ -185,53 +189,53 @@ const needsCustomerAddress = ref(false);
 const description = ref('');
 const image = ref(null);
 
-// Variables pour les options de sélection
 const categories = ref([]);
 const toolsOptions = ref([]);
 const extraToolsOptions = ref([]);
 
-// Fonction pour récupérer les catégories
 async function fetchCategories() {
   try {
-    const response = await axios.get('/api/categories'); // Ajustez l'URL en fonction de votre API
+    const response = await axios.get('/api/categories');
     categories.value = response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories:', error);
   }
 }
 
-// Fonction pour récupérer les outils
 async function fetchTools() {
   try {
-    const response = await axios.get('/api/tools'); // Ajustez l'URL en fonction de votre API
+    const response = await axios.get('/api/tools');
     toolsOptions.value = response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des outils:', error);
   }
 }
 
-// Fonction pour récupérer les outils supplémentaires
 async function fetchExtraTools() {
   try {
-    const response = await axios.get('/api/extra-tools'); // Ajustez l'URL en fonction de votre API
+    const response = await axios.get('/api/extra-tools');
     extraToolsOptions.value = response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des outils supplémentaires:', error);
   }
 }
 
-// Fonction pour configurer les données initiales
-onMounted(() => {
-  fetchCategories();
-  fetchTools();
-  fetchExtraTools();
+onMounted(async () => {
+  await fetchCategories();
+  await fetchTools();
+  await fetchExtraTools();
+  await nextTick(() => {
+    initializeDropdowns();
+  });
 });
 
-// Fonction pour gérer l'upload des fichiers
+function initializeDropdowns() {
+  $('.ui.dropdown').dropdown();
+}
+
 function handleFileUpload(event) {
   const file = event.target.files[0];
   if (file) {
-    // Implémentez la logique d'upload ici
     console.log('Fichier sélectionné:', file);
   }
 }
