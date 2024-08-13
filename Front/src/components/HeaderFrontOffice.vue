@@ -1,7 +1,7 @@
 <template>
   <HeaderComponent :logoSrc="logoSrc" :profileSrc="profileSrc" logoAlt="Front Office Logo" logoText="Front Office" profile-alt="Profile icon">
     <template #nav>
-      <router-link class="item" to="/">{{ t('home') }}</router-link>
+     <!-- <router-link class="item" to="/">{{ t('home') }}</router-link> -->
       <router-link class="item" to="/">{{ t('missions') }}</router-link>
       <router-link class="item" to="/catalogue">{{ t('recevoirDesDons') }}</router-link>
       <router-link class="item" to="/donation">{{ t('faireUnDon') }}</router-link>
