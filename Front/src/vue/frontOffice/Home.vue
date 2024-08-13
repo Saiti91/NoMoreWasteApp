@@ -71,6 +71,7 @@ const { t } = useI18n();
 div{
   color : black;
 }
+
 .ui.container {
   padding: 20px;
 }
