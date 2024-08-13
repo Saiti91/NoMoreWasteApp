@@ -156,7 +156,15 @@ CREATE TABLE IF NOT EXISTS Donations
     FOREIGN KEY (Recipient_User_ID) REFERENCES Users (User_ID)
 );
 
---Pour les tickets
+CREATE TABLE IF NOT EXISTS Categories
+(
+    Category_ID       INT AUTO_INCREMENT PRIMARY KEY,
+    Name              VARCHAR(100),
+    Diploma_ID        INT,
+    FOREIGN KEY (Diploma_ID) REFERENCES Diplomas (Diploma_ID)
+);
+
+-- Pour les tickets
 CREATE TABLE IF NOT EXISTS Tickets
 (
     Ticket_ID          INT AUTO_INCREMENT PRIMARY KEY,
@@ -180,13 +188,7 @@ CREATE TABLE IF NOT EXISTS Tickets
     FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID)
     );
 
-CREATE TABLE IF NOT EXISTS Categories
-(
-    Category_ID       INT AUTO_INCREMENT PRIMARY KEY,
-    Name              VARCHAR(100),
-    Diploma_ID        INT,
-    FOREIGN KEY (Diploma_ID) REFERENCES Diplomas (Diploma_ID)
-    );
+
 
 CREATE TABLE IF NOT EXISTS Statuses
 (
@@ -201,7 +203,7 @@ CREATE TABLE IF NOT EXISTS Diplomas
     Attestation VARCHAR(255) -- Le chemin du fichier d'attestation
     );
 
---Fin des tickes
+-- Fin des tickets
 
 ## 2.2.2. Insertion of data
 
