@@ -156,10 +156,10 @@ CREATE TABLE IF NOT EXISTS Donations
     FOREIGN KEY (Recipient_User_ID) REFERENCES Users (User_ID)
 );
 
---Pour les tickets
+-- Pour les tickets
 CREATE TABLE IF NOT EXISTS Tickets
 (
-    Ticket_ID          INT AUTO_INCREMENT PRIMARY KEY,
+    Ticket_ID         INT AUTO_INCREMENT PRIMARY KEY,
     Title             VARCHAR(50),
     Direction         BOOLEAN,
     Category_ID       INT,
