@@ -201,12 +201,6 @@ CREATE TABLE IF NOT EXISTS Tickets
     FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID)
     );
 
-
-
-
-
-
-
 -- Fin des tickets
 
 ## 2.2.2. Insertion of data
