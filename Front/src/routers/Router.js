@@ -16,6 +16,8 @@ import DonationAdmin from '@/vue/backOffice/Don/DonationsAdmin.vue';
 import DonationDetails from '@/vue/backOffice/Don/DonationsDetails.vue';
 import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
 import TourDetails from "@/vue/backOffice/Tournee/TourDetails.vue";
+import CreateTicket from "@/vue/frontOffice/CreateTicket.vue";
+
 
 const routes = [
     { path: '/login', name: 'Login', component: LoginPage },
@@ -23,6 +25,7 @@ const routes = [
 
     //***** FRONT OFFICE
     { path: '/sign-up', name: 'SignUp', component: SignUpPage },
+    { path: '/create-ticket', name: 'CreateTicket', component: CreateTicket },
 
     //***** BACK OFFICE
     {
