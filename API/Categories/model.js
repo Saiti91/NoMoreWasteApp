@@ -8,6 +8,7 @@ const createCategorySchema = Joi.object({
 
 // Schéma de validation pour mettre à jour une catégorie
 const updateCategorySchema = Joi.object({
+    Categoriy_ID: Joi.number().required(),
     name: Joi.string().max(100).optional(),
     diploma_id: Joi.number().integer().optional()
 }).min(1);

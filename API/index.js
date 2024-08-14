@@ -50,7 +50,7 @@ app.use("/users", usersController);
 app.use("/donations", donationController);
 app.use("/tours", tourController);
 app.use("/tickets", ticketsController);
-app.use("/tickets", categoriesController);
+app.use("/categories", categoriesController);
 
 // Application du middleware `idParamGuard` aux routes avec paramètre `id`
 app.use("/users/:id", idParamGuard);
@@ -59,6 +59,7 @@ app.use("/auth/:id", idParamGuard);
 app.use("/donations/:id", idParamGuard);
 app.use("/tours/:id", idParamGuard);
 app.use("/tickets/:id", idParamGuard);
+app.use("/categorie/:id", idParamGuard);
 
 // Middleware de gestion des erreurs
 app.use(errorHandlingMiddleware);

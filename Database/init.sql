@@ -156,6 +156,7 @@ CREATE TABLE IF NOT EXISTS Donations
     FOREIGN KEY (Recipient_User_ID) REFERENCES Users (User_ID)
 );
 
+-- Pour les tickets
 CREATE TABLE IF NOT EXISTS Diplomas
 (
     Diploma_ID  INT AUTO_INCREMENT PRIMARY KEY,
@@ -177,7 +178,6 @@ CREATE TABLE IF NOT EXISTS Statuses
     Name      VARCHAR(50)
 );
 
--- Pour les tickets
 CREATE TABLE IF NOT EXISTS Tickets
 (
     Ticket_ID         INT AUTO_INCREMENT PRIMARY KEY,
@@ -363,7 +363,7 @@ VALUES
 
 INSERT INTO Categories (Name, Diploma_ID)
 VALUES
-                                              ('Catégorie 1', 1),
+                                              ('Plomberie', 1),
                                               ('Catégorie 2', 1),
                                               ('Catégorie 3', 1),
                                               ('Catégorie 4', 1),
