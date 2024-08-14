@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const ticketsService = require("./service");
-const NotFoundError = require("../common/http_errors").NotFoundError;
+const NotFoundError = require("../common/http_errors");
 const authorize = require("../common/middlewares/authorize_middleware");
 
 const controller = Router();
@@ -74,7 +74,7 @@ const controller = Router();
 /**
  * @swagger
  * tags:
- *   name: Tickets
+ *   name: tickets
  *   description: Ticket management
  */
 
@@ -83,7 +83,7 @@ const controller = Router();
  * /tickets:
  *   get:
  *     summary: Retrieve a list of tickets
- *     tags: [Tickets]
+ *     tags: [tickets]
  *     responses:
  *       200:
  *         description: A list of tickets.
@@ -108,7 +108,7 @@ controller.get(
  * /tickets/{id}:
  *   get:
  *     summary: Get a ticket by ID
- *     tags: [Tickets]
+ *     tags: [tickets]
  *     parameters:
  *       - in: path
  *         name: id
@@ -140,7 +140,7 @@ controller.get(
  * /tickets:
  *   post:
  *     summary: Create a new ticket
- *     tags: [Tickets]
+ *     tags: [tickets]
  *     requestBody:
  *       required: true
  *       content:
@@ -170,7 +170,7 @@ controller.post(
  * /tickets/{id}:
  *   put:
  *     summary: Update a ticket by ID
- *     tags: [Tickets]
+ *     tags: [tickets]
  *     parameters:
  *       - in: path
  *         name: id
@@ -205,7 +205,7 @@ controller.put(
  * /tickets/{id}:
  *   delete:
  *     summary: Delete a ticket by ID
- *     tags: [Tickets]
+ *     tags: [tickets]
  *     parameters:
  *       - in: path
  *         name: id

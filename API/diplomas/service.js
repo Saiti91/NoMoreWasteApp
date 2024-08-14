@@ -1,5 +1,5 @@
 const { createDiplomaSchema, updateDiplomaSchema } = require("./model");
-const DiplomaRepository = require("../repositories/DiplomaRepository");
+const DiplomaRepository = require("./repository");
 const { InvalidArgumentError } = require("../common/service_errors");
 
 // Fonction de création d'un diplôme
@@ -8,6 +8,7 @@ async function createOne(diploma) {
     if (error) {
         throw error;
     }
+    //TODO: PAS DE FONCTION getOneBy DANS Repository
 
     // Vérifier si le diplôme existe déjà avec le même nom
     if (await DiplomaRepository.getOneBy("Name", value.name)) {

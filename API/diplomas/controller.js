@@ -1,7 +1,7 @@
 const { Router } = require('express');
-const diplomaService = require('../services/DiplomaService');
-const NotFoundError = require('../common/http_errors').NotFoundError;
-const { createDiplomaSchema, updateDiplomaSchema } = require('../models/validation/diplomaValidation');
+const diplomaService = require('./service');
+const NotFoundError = require('../common/http_errors');
+const { createDiplomaSchema, updateDiplomaSchema } = require('./model');
 
 const controller = Router();
 

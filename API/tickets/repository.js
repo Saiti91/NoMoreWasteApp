@@ -1,4 +1,3 @@
-
 const getConnection = require("../common/db_handler");
 
 // Création d'un ticket
@@ -6,7 +5,7 @@ async function createOne(ticket) {
     const connection = await getConnection();
     const [result] = await connection.execute(
         `INSERT INTO Tickets 
-        (Title, Direction, Category_ID, Start_Date, Duration, Places, Tools, Address_ID, Address_Needs, Customers_Address, Description, Image, Status_ID, Owner_ID)
+        (Title, Direction, Category_ID, Start_Date, Duration, Places, Tools, Address_ID, Address_Needs, Customers_Address, Description, Image, Status_ID, Owner_User_ID)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             ticket.title, ticket.direction, ticket.category_id, ticket.start_date, ticket.duration, ticket.places,
@@ -21,7 +20,7 @@ async function createOne(ticket) {
 // Récupère un ticket par son ID
 async function getOne(id) {
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT * FROM Tickets WHERE Ticket_ID = ?', [id]);
+    const [rows] = await connection.execute('SELECT * FROM tickets WHERE Ticket_ID = ?', [id]);
     await connection.end();
     return rows[0] || null;
 }
@@ -29,7 +28,7 @@ async function getOne(id) {
 // Récupère tous les tickets
 async function getAll() {
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT * FROM Tickets');
+    const [rows] = await connection.execute('SELECT * FROM tickets');
     await connection.end();
     return rows;
 }
@@ -53,7 +52,7 @@ async function updateOne(id, ticket) {
 // Suppression d'un ticket par son ID
 async function deleteOne(id) {
     const connection = await getConnection();
-    const [result] = await connection.execute('DELETE FROM Tickets WHERE Ticket_ID = ?', [id]);
+    const [result] = await connection.execute('DELETE FROM tickets WHERE Ticket_ID = ?', [id]);
     await connection.end();
     return result.affectedRows > 0;
 }
