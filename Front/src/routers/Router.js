@@ -8,12 +8,13 @@ import Home from "../vue/frontOffice/Home.vue";
 import CatalogueProduct from "@/vue/frontOffice/Recevoir/CatalogueProduct.vue";
 import Donation from "@/vue/frontOffice/Don/Donation.vue";
 import MyAccount from "@/vue/frontOffice/Compte/MyAccount.vue";
-import CreateTicket from "@/vue/frontOffice/CreateTicket.vue";
+import CreateTicket from "@/vue/frontOffice/Tickets/CreateTicket.vue";
 import Test from "@/vue/frontOffice/test.vue";
 import JoinUs from "@/vue/frontOffice/Join/JoinUs.vue";
 
 //***** BACK OFFICE
 import BackOfficeHome from '../vue/backOffice/Home.vue';
+import Categories from "@/vue/backOffice/Categorie/categories.vue";
 
 //***** Users
 import UsersAdmin from '../vue/backOffice/Users/UserAdmin.vue';
@@ -159,6 +160,7 @@ const routes = [
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
 
+    { path: '/categories', name: 'Categories', component: Categories },
 ];
 
 const router = createRouter({

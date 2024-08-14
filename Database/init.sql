@@ -157,20 +157,22 @@ CREATE TABLE IF NOT EXISTS Donations
 );
 
 -- Pour les tickets
-CREATE TABLE IF NOT EXISTS Diplomas
-(
-    Diploma_ID  INT AUTO_INCREMENT PRIMARY KEY,
-    Name        VARCHAR(100),
-    Attestation VARCHAR(255) -- Le chemin du fichier d'attestation
-);
-
 CREATE TABLE IF NOT EXISTS Categories
 (
     Category_ID       INT AUTO_INCREMENT PRIMARY KEY,
     Name              VARCHAR(100),
-    Diploma_ID        INT,
-    FOREIGN KEY (Diploma_ID) REFERENCES Diplomas (Diploma_ID)
+    Skill_ID    INT,
+    FOREIGN KEY (Skill_ID) REFERENCES Skills(Skill_ID)
 );
+
+CREATE TABLE IF NOT EXISTS Category_Skills (
+    Category_ID INT,
+    Skill_ID INT,
+    FOREIGN KEY (Category_ID) REFERENCES Categories (Category_ID),
+    FOREIGN KEY (Skill_ID) REFERENCES Skills (Skill_ID),
+    PRIMARY KEY (Category_ID, Skill_ID)
+    );
+
 
 CREATE TABLE IF NOT EXISTS Statuses
 (
@@ -354,20 +356,25 @@ VALUES ('Inscription_Ouverte'),
        ('Inscription_fermée'),
        ('Terminé');
 
-
-INSERT INTO Diplomas (Name)
+INSERT INTO Categories (Name, Skill_ID)
 VALUES
-                                ('Permis Période B1'),
-                                ('Permis Poids Lourd');
+    ('Plomberie', 1),
+    ('Électricité', 2),
+    ('Maçonnerie', 3),
+    ('Peinture', 4),
+    ('Jardinage', 5);
 
 
-INSERT INTO Categories (Name, Diploma_ID)
+
+-- Associer des compétences aux catégories
+INSERT INTO Category_Skills (Category_ID, Skill_ID)
 VALUES
-                                              ('Plomberie', 1),
-                                              ('Catégorie 2', 1),
-                                              ('Catégorie 3', 1),
-                                              ('Catégorie 4', 1),
-                                              ('Catégorie 5', 1);
-
-
+    (1, 8), -- Plomberie avec Plomberie
+    (1, 7), -- Plomberie avec Electricité
+    (1, 3), -- Plomberie avec Bricolage
+    (2, 7), -- Électricité avec Electricité
+    (2, 6), -- Électricité avec Services de réparation
+    (3, 3), -- Maçonnerie avec Bricolage
+    (4, 4), -- Peinture avec Conseils anti-gaspi
+    (5, 9); -- Jardinage avec Jardinage
 
