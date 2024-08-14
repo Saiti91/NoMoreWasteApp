@@ -34,7 +34,7 @@ const controller = Router();
 /**
  * @swagger
  * tags:
- *   name: Categories
+ *   name: categories
  *   description: Category management
  */
 
@@ -43,7 +43,7 @@ const controller = Router();
  * /categories:
  *   get:
  *     summary: Retrieve a list of categories
- *     tags: [Categories]
+ *     tags: [categories]
  *     responses:
  *       200:
  *         description: A list of categories.
@@ -65,7 +65,7 @@ controller.get('/', (req, res, next) => {
  * /categories/{id}:
  *   get:
  *     summary: Get a category by ID
- *     tags: [Categories]
+ *     tags: [categories]
  *     parameters:
  *       - in: path
  *         name: id
@@ -100,7 +100,7 @@ controller.get('/:id', (req, res, next) => {
  * /categories:
  *   post:
  *     summary: Create a new category
- *     tags: [Categories]
+ *     tags: [categories]
  *     requestBody:
  *       required: true
  *       content:
@@ -129,7 +129,7 @@ controller.post('/', (req, res, next) => {
  * /categories/{id}:
  *   delete:
  *     summary: Delete a category by ID
- *     tags: [Categories]
+ *     tags: [categories]
  *     parameters:
  *       - in: path
  *         name: id
@@ -160,7 +160,7 @@ controller.delete('/:id', (req, res, next) => {
  * /categories/{id}:
  *   patch:
  *     summary: Update a category by ID
- *     tags: [Categories]
+ *     tags: [categories]
  *     parameters:
  *       - in: path
  *         name: id
@@ -186,6 +186,7 @@ controller.delete('/:id', (req, res, next) => {
  */
 controller.patch('/:id', (req, res, next) => {
     const id = Number(req.params.id);
+    //TODO: Pourquoi faire la validation dans le controller et dans le service ?
     const { error } = updateCategorySchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
