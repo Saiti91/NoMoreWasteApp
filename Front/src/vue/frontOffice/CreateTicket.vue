@@ -49,34 +49,51 @@
         </div>
       </div>
 
-      <!-- Date de début -->
-      <div class="field">
-        <label>Date de début</label>
-        <div class="ui calendar" id="rangestart">
-          <div class="ui input left icon">
-            <i class="calendar icon"></i>
-            <input v-model="startDate" type="text" placeholder="Start" />
+      <!-- Date et Heure de début -->
+      <div class="two fields">
+        <!-- Date de début -->
+        <div class="field">
+          <label>Date de début</label>
+          <div class="ui calendar" id="startdate">
+            <div class="ui input left icon">
+              <i class="calendar icon"></i>
+              <input v-model="startDate" type="date" placeholder="Date de début" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Heure de début -->
+        <div class="field">
+          <label>Heure de début</label>
+          <div class="ui calendar" id="starttime">
+            <div class="ui input left icon">
+              <i class="clock icon"></i>
+              <input v-model="startTime" type="time" placeholder="Heure de début" />
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Durée du service -->
+      <!-- Durée et Format -->
       <div class="field">
-        <label>Durée du service</label>
-        <input v-model="duration" type="text" maxlength="3" placeholder="Nombre d'heures" />
-      </div>
-
-      <!-- Format -->
-      <div class="field">
-        <label>Format</label>
-        <div class="ui compact selection dropdown" ref="formatDropdown">
-          <input type="hidden" v-model="format" />
-          <i class="dropdown icon"></i>
-          <div class="text">Choisir</div>
-          <div class="menu">
-            <div class="item" data-value="Jours">Jours</div>
-            <div class="item" data-value="Heures">Heures</div>
-            <div class="item" data-value="Minutes">Minutes</div>
+        <div class="ui grid">
+          <div class="three wide column">
+            <label>Le service dure</label>
+          </div>
+          <div class="two wide column">
+            <input v-model="duration" type="text" maxlength="3" placeholder="Durée" />
+          </div>
+          <div class="four wide column">
+            <div class="ui compact selection dropdown" ref="formatDropdown">
+              <input type="hidden" v-model="format" />
+              <i class="dropdown icon"></i>
+              <div class="text">Format</div>
+              <div class="menu">
+                <div class="item" data-value="Minutes">Minutes</div>
+                <div class="item" data-value="Heures">Heures</div>
+                <div class="item" data-value="Jours">Jours</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -107,16 +124,8 @@
         </div>
       </div>
 
-      <!-- Besoin d'outils supplémentaires -->
-      <div class="inline field">
-        <div class="ui toggle checkbox">
-          <input type="checkbox" v-model="needsExtraTools" tabindex="0" class="hidden" />
-          <label>Faut-il des outils supplémentaires</label>
-        </div>
-      </div>
-
       <!-- Outils supplémentaires -->
-      <div v-if="needsExtraTools">
+      <div v-if="extraToolsOptions.length > 0">
         <div v-for="(tool, index) in extraToolsOptions.slice(0, 5)" :key="index" class="ui compact selection dropdown" ref="extraToolsDropdown">
           <input type="hidden" :name="'OutilClient_' + index" />
           <i class="dropdown icon"></i>
@@ -134,14 +143,10 @@
         </div>
       </div>
 
-      <!-- Besoin d'adresse -->
-      <div class="ui segment">
-        <div class="field">
-          <div class="ui toggle checkbox">
-            <input type="checkbox" v-model="needsAddress" tabindex="0" class="hidden" />
-            <label>Quel est l'adresse du service?</label>
-          </div>
-        </div>
+      <!-- Adresse du service -->
+      <div class="field">
+        <label>Adresse du service</label>
+        <input v-model="address" type="text" placeholder="Adresse" />
       </div>
 
       <!-- Besoin d'adresse du client -->
@@ -188,14 +193,14 @@ const title = ref('');
 const propose = ref('');
 const category = ref('');
 const startDate = ref('');
+const startTime = ref('');
 const duration = ref('');
 const format = ref('');
 const places = ref('');
 const tools = ref('Aucun');
 const toolsOther = ref('');
-const needsExtraTools = ref(false);
 const extraTools = ref([]);
-const needsAddress = ref(false);
+const address = ref('');
 const needsCustomerAddress = ref(false);
 const description = ref('');
 const image = ref(null);
@@ -203,34 +208,33 @@ const image = ref(null);
 const categories = ref([]);
 const toolsOptions = ref([]);
 const extraToolsOptions = ref([]);
-const router = useRouter();
 
-async function fetchCategories() {
+const fetchCategories = async () => {
   try {
     const response = await axios.get('/categories');
     categories.value = response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories:', error);
   }
-}
+};
 
-async function fetchTools() {
+const fetchTools = async () => {
   try {
-    const response = await axios.get('/tools');
+    const response = await axios.get('/api/tools');
     toolsOptions.value = response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des outils:', error);
   }
-}
+};
 
-async function fetchExtraTools() {
+const fetchExtraTools = async () => {
   try {
-    const response = await axios.get('/extra-tools');
+    const response = await axios.get('/api/extra-tools');
     extraToolsOptions.value = response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des outils supplémentaires:', error);
   }
-}
+};
 
 onMounted(async () => {
   await fetchCategories();
