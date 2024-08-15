@@ -3,8 +3,7 @@ CREATE TABLE IF NOT EXISTS Products
     Product_ID      INT AUTO_INCREMENT PRIMARY KEY,
     Barcode         VARCHAR(50),
     Name            VARCHAR(100),
-    Storage_Type    VARCHAR(100),
-    Expiration_Date DATE
+    Storage_Type    VARCHAR(100)
 );
 
 CREATE TABLE IF NOT EXISTS Address
@@ -129,7 +128,7 @@ CREATE TABLE IF NOT EXISTS Stocks
     Stock_ID     INT AUTO_INCREMENT PRIMARY KEY,
     Product_ID   INT,
     Quantity     INT,
-    Storage_Date DATE,
+    Zone         VARCHAR(100),
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
 );
 
@@ -215,12 +214,12 @@ VALUES ('123 Rue de la Paix', 'Paris', 'Île-de-France', '75001', 'France'),
        ('1213 Rue du Bac', 'Paris', 'Île-de-France', '75007', 'France');
 
 -- Données de test pour la table Products
-INSERT INTO Products (Barcode, Name, Storage_Type, Expiration_Date)
-VALUES ('1234567890123', 'Pomme', 'Frais', '2025-12-31'),
-       ('2345678901234', 'Pomme de terre', 'Frais', '2024-06-30'),
-       ('3456789012345', 'Courgette', 'Frais', '2025-03-15'),
-       ('4567890123456', 'Farine', 'Sec', '2023-09-10'),
-       ('5678901234567', 'Lait', 'Frais', '2024-11-20');
+INSERT INTO Products (Barcode, Name, Storage_Type)
+VALUES ('1234567890123', 'Pomme', 'Frais'),
+       ('2345678901234', 'Pomme de terre', 'Frais'),
+       ('3456789012345', 'Courgette', 'Frais'),
+       ('4567890123456', 'Farine', 'Sec'),
+       ('5678901234567', 'Lait', 'Frais');
 
 -- Données de test pour la table Users
 INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, Current_Subscription, Role)
@@ -322,13 +321,13 @@ VALUES (1, 1, 100),
        (5, 5, 500);
 
 -- Données de test pour la table Stocks
-INSERT INTO Stocks (Product_ID, Quantity, Storage_Date)
-VALUES (1, 1000, '2023-09-01'),
-       (1, 2000, '2024-06-01'),
-       (2, 2000, '2023-09-02'),
-       (3, 3000, '2023-09-03'),
-       (4, 4000, '2023-09-04'),
-       (5, 5000, '2023-09-05');
+INSERT INTO Stocks (Product_ID, Quantity, Zone)
+VALUES (1, 1000, 'A1'),
+       (1, 2000, 'A2'),
+       (2, 2000, 'B2'),
+       (3, 3000, 'C3'),
+       (4, 4000, 'D1'),
+       (5, 5000, 'A3');
 
 -- Données de test pour la table Requests
 INSERT INTO Requests (Product_ID, Quantity, Date, User_ID)
