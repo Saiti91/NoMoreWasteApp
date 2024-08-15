@@ -12,6 +12,7 @@ import CreateTicket from "@/vue/frontOffice/Tickets/CreateTicket.vue";
 import Test from "@/vue/frontOffice/test.vue";
 import JoinUs from "@/vue/frontOffice/Join/JoinUs.vue";
 import PaymentCotisation from "@/vue/frontOffice/Join/PaymentCotisation.vue";
+import PaymentSuccess from "@/vue/frontOffice/Join/PaymentSuccess.vue";
 
 
 
@@ -37,6 +38,7 @@ import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
 import TourDetails from "@/vue/backOffice/Tournee/TourDetails.vue";
 import DistributionTourAdmin from "@/vue/backOffice/Tournee/DistributionTourAdmin.vue";
 import PickupTourAdmin from "@/vue/backOffice/Tournee/PickUpTourAdmin.vue";
+
 
 
 
@@ -73,6 +75,12 @@ const routes = [
         path: '/payment-cotisation',
         name: 'PaymentCotisation',
         component: PaymentCotisation,
+        //beforeEnter: useAuthGuard(['client'])
+    },
+    {
+        path: '/payment-success',
+        name: 'PaymentSuccess',
+        component: PaymentSuccess,
         //beforeEnter: useAuthGuard(['client'])
     },
 

@@ -16,6 +16,7 @@ const donationController= require ("./donations/controller");
 const tourController= require ("./tours/controller");
 const ticketsController = require("./tickets/controller");
 const categoriesController = require("./Categories/controller");
+const stripeRoutes = require('./stripe/stripeRoutes');
 
 const app = express();
 const port = 3000;
@@ -60,6 +61,9 @@ app.use("/donations/:id", idParamGuard);
 app.use("/tours/:id", idParamGuard);
 app.use("/tickets/:id", idParamGuard);
 app.use("/categorie/:id", idParamGuard);
+
+//Stripe
+app.use('/stripe', stripeRoutes);
 
 // Middleware de gestion des erreurs
 app.use(errorHandlingMiddleware);
