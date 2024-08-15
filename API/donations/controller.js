@@ -67,7 +67,7 @@ controller.get("/", (req, res, next) => {
  * @swagger
  * /donations/{donorID}:
  *   get:
- *     summary: Retrieve a donation by donor ID
+ *     summary: Retrieve the donations by donor ID
  *     tags: [Donation]
  *     parameters:
  *       - in: path

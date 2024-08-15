@@ -1,35 +1,35 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import {useRouter} from 'vue-router';
+import {useI18n} from 'vue-i18n';
 
-const { t } = useI18n();
-const donnations = ref([]);
+const {t} = useI18n();
+const donations = ref([]);
 const distinctDonations = ref([]);
 const router = useRouter();
 
 const fetchDonations = async () => {
   try {
     const response = await axios.get('/donations');
-    donnations.value = response.data;
-    console.log(donnations.value);
+    donations.value = response.data;
+    console.log(donations.value);
   } catch (error) {
     console.error('Error fetching stocks:', error);
   }
 };
 
 const formatDate = (dateString) => {
-  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  const options = {day: '2-digit', month: '2-digit', year: 'numeric'};
   return new Date(dateString).toLocaleDateString('fr-FR', options);
 };
 
 const goToDetails = (donationId) => {
-  router.push({ name: 'DonationDetails', params: { id: donationId } });
+  router.push({name: 'DonationDetails', params: {id: donationId}});
 };
 const goToUserDetails = (user_id) => {
-  router.push({ name: 'UserDetails', params: { id: user_id } });
+  router.push({name: 'UserDetails', params: {id: user_id}});
 };
 
 
@@ -39,7 +39,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <HeaderBackOffice />
+  <HeaderBackOffice/>
   <div class="spacer"></div>
   <div class="ui container full-width no-center">
     <h1>Donations Admin</h1>
@@ -55,7 +55,7 @@ onMounted(() => {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="donation in donnations" :key="donation.Donation_ID" class="clickable-row" >
+      <tr v-for="donation in donations" :key="donation.Donation_ID" class="clickable-row">
         <td>
           {{ donation.Product.Name }}
         </td>
