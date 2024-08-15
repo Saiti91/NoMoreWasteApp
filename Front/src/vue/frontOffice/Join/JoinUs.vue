@@ -1,11 +1,31 @@
 <script setup>
 import axios from '@/utils/Axios.js';
 import Header from "@/components/HeaderFrontOffice.vue";
+import Cookies from 'js-cookie';
+import VueJwtDecode from 'vue-jwt-decode';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import {ref} from "vue";
 
 
 const { t } = useI18n();
+const token = Cookies.get('token');
+const isAuthenticated = ref(false);
+
+if (token) {
+  try {
+    const decodedToken = VueJwtDecode.decode(token);
+    const expirationTime = decodedToken.exp * 1000;
+    if (Date.now() < expirationTime) {
+      isAuthenticated.value = true;
+    } else {
+      Cookies.remove('token');
+    }
+  } catch (error) {
+    console.error('Invalid token', error);
+    Cookies.remove('token');
+  }
+}
 
 const navigateTo = (routeName) => {
   router.push({name: routeName});
@@ -33,7 +53,7 @@ const navigateTo = (routeName) => {
         <div class="ui segment">
           <h2>{{ t('create-account') }}</h2>
           <p>{{ t('join-us-txt') }}</p>
-          <button class="ui primary button" @click="navigateTo('sign_up')">{{ t('login') }}</button>
+          <button class="ui primary button" @click="navigateTo('sign-up')">{{ t('login') }}</button>
         </div>
       </div>
       <!-- Bloc de droite -->
@@ -41,7 +61,7 @@ const navigateTo = (routeName) => {
         <div class="ui segment">
           <h2>{{ t('access-additional-services') }}</h2>
           <p>{{ t('additional-services-txt') }}</p>
-          <button class="ui primary button" @click="navigateTo('PaymentCotisation')">{{ t('payment-cotisation') }}</button>
+          <button class="ui primary button" @click="navigateTo('payment-cotisation')">{{ t('payment-cotisation') }}</button>
         </div>
       </div>
       <div v-if="!isAuthenticated" class="eight wide column">

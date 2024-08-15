@@ -42,22 +42,12 @@ const router = useRouter();
 const route = useRoute();
 
 const isAdmin = ref(false);
-const isAuthenticated = ref(false); // savoir si la personne est connectée
 
 onMounted(() => {
   const token = Cookies.get('token');
   if (token) {
     try {
       const decodedToken = VueJwtDecode.decode(token);
-      /*
-      //pour savoir si l'utilisateur est connecté
-      const expirationTime = decodedToken.exp * 1000;
-      if (Date.now() < expirationTime) {
-        isAuthenticated.value = true;
-      } else {
-        Cookies.remove('token');
-      }
-       */
       if (decodedToken.urole) {
         if (decodedToken.urole === 'admin') {
           isAdmin.value = true;
