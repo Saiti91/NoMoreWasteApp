@@ -46,14 +46,14 @@ const navigateTo = (routeName) => {
         <div class="ui segment">
           <h2>{{ t('update-account') }}</h2>
           <p>{{ t('update-txt') }}</p>
-          <button class="ui primary button" @click="navigateTo('my-account')">{{ t('update') }}</button>
+          <button class="ui primary button" @click="navigateTo('MyAccount')">{{ t('update') }}</button>
         </div>
       </div>
       <div v-if="!isAuthenticated" class="eight wide column">
         <div class="ui segment">
           <h2>{{ t('create-account') }}</h2>
           <p>{{ t('join-us-txt') }}</p>
-          <button class="ui primary button" @click="navigateTo('sign-up')">{{ t('login') }}</button>
+          <button class="ui primary button" @click="navigateTo('SignUp')">{{ t('login') }}</button>
         </div>
       </div>
       <!-- Bloc de droite -->
@@ -61,14 +61,14 @@ const navigateTo = (routeName) => {
         <div class="ui segment">
           <h2>{{ t('access-additional-services') }}</h2>
           <p>{{ t('additional-services-txt') }}</p>
-          <button class="ui primary button" @click="navigateTo('payment-cotisation')">{{ t('payment-cotisation') }}</button>
+          <button class="ui primary button" @click="navigateTo('PaymentCotisation')">{{ t('payment-cotisation') }}</button>
         </div>
       </div>
       <div v-if="!isAuthenticated" class="eight wide column">
         <div class="ui segment">
           <h2>{{ t('access-additional-services') }}</h2>
           <p>{{ t('additional-services-txt') }}</p>
-          <button class="ui primary button" @click="navigateTo('Login')">{{ $t('login') }}</button>
+          <button class="ui primary button" @click="navigateTo('Login')">{{ t('login') }}</button>
         </div>
       </div>
     </div>
