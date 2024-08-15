@@ -45,11 +45,9 @@ const handleSubmit = async () => {
 
     const response = await axiosInstance.post('/stripe/charge', {
       paymentMethodId: paymentMethod.id,
-      amount: reservationDetails.value.totalPrice * 100, // Le montant en centimes
     });
 
     if (response.data.success) {
-      localStorage.setItem('reservationDetails', JSON.stringify(reservationDetails.value));
       router.push('/payment-success');
     } else {
       paymentError.value = 'Erreur lors du traitement du paiement';
