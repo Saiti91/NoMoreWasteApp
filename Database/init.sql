@@ -149,11 +149,10 @@ CREATE TABLE IF NOT EXISTS Donations
     Donation_ID       INT AUTO_INCREMENT PRIMARY KEY,
     Product_ID        INT,
     Quantity          INT,
+    Date              DATE,
     Donor_User_ID     INT,
-    Recipient_User_ID INT,
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID),
-    FOREIGN KEY (Donor_User_ID) REFERENCES Users (User_ID),
-    FOREIGN KEY (Recipient_User_ID) REFERENCES Users (User_ID)
+    FOREIGN KEY (Donor_User_ID) REFERENCES Users (User_ID)
 );
 
 -- Pour les tickets
@@ -340,15 +339,16 @@ VALUES (1, 10, '2023-10-01', 1),
        (5, 50, '2023-10-05', 5);
 
 -- Données de test pour la table Donations
-INSERT INTO Donations (Product_ID, Quantity, Donor_User_ID, Recipient_User_ID)
-VALUES (1, 5, 1, 2),
-       (2, 10, 2, 3),
-       (3, 15, 3, 4),
-       (4, 20, 4, 5),
-       (4, 20, 2, null),
-       (3, 20, 3, null),
-       (1, 20, 2, null),
-       (5, 25, 5, 1);
+INSERT INTO Donations (Product_ID, Quantity, Donor_User_ID , Date)
+VALUES (1, 5, 1, '2024-01-01'),
+       (2, 10, 2, '2024-01-02'),
+       (3, 15, 3, '2024-01-03'),
+       (4, 20, 4, '2024-01-04'),
+       (4, 20, 2, '2024-01-05'),
+       (3, 20, 3, '2024-01-06'),
+       (1, 20, 2, '2024-01-07'),
+       (5, 25, 5, '2024-01-08');
+
 
 -- Données de test pour la table Statuses
 INSERT INTO Statuses (Name)
