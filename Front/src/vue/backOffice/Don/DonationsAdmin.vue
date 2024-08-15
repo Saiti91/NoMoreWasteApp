@@ -20,6 +20,11 @@ const fetchDonations = async () => {
   }
 };
 
+const formatDate = (dateString) => {
+  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  return new Date(dateString).toLocaleDateString('fr-FR', options);
+};
+
 const goToDetails = (donationId) => {
   router.push({ name: 'DonationDetails', params: { id: donationId } });
 };
@@ -43,6 +48,7 @@ onMounted(() => {
       <tr>
         <th>Nom du produit</th>
         <th>Quantité</th>
+        <th>Date</th>
         <th>Type de stockage</th>
         <th>Email du donneur</th>
         <th>Email du receveur</th>
@@ -50,13 +56,16 @@ onMounted(() => {
       </thead>
       <tbody>
       <tr v-for="donation in donnations" :key="donation.Donation_ID" class="clickable-row" >
-        <td @click="goToDetails(donation.Donation_ID)">
+        <td>
           {{ donation.Product.Name }}
         </td>
-        <td @click="goToDetails(donation.Donation_ID)">
+        <td>
           {{ donation.Quantity }}
         </td>
-        <td @click="goToDetails(donation.Donation_ID)">
+        <td>
+          {{ formatDate(donation.Donation_Date) }}
+        </td>
+        <td>
           {{ donation.Product.Storage_Type }}
         </td>
         <td @click="goToUserDetails(donation.Donor_User.User_ID)">
