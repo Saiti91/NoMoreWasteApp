@@ -127,6 +127,7 @@ controller.get(
 controller.get(
     "/product/:id",
     (req, res, next) => {
+        console.log("Id produits demandé dans le controller : ", req.params.id)
         stocksService.getOneBy('Product_ID',Number(req.params.id))
             .then((data) => {
                 if (data === null) {

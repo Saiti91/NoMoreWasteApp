@@ -56,11 +56,9 @@ const controller = Router();
 controller.get("/", (req, res, next) => {
     donationsService.getAll()
         .then((data) => {
-            console.log("Data returned to controller:", data);
             res.json(data);
         })
         .catch((err) => {
-            console.error("Error caught in controller:", err);
             next(err);
         });
 });
@@ -95,6 +93,7 @@ controller.get("/:donorID", (req, res, next) => {
                 throw new NotFoundError(`Donation with donorID ${req.params.donorID} not found`);
             }
             res.json(data);
+            console.log('Retour du controlleur : ', data);
         })
         .catch((err) => next(err));
 });

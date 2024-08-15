@@ -48,10 +48,8 @@ onMounted(() => {
   if (token) {
     try {
       const decodedToken = VueJwtDecode.decode(token);
-      console.log('decodedToken:', decodedToken);
 
       if (decodedToken.urole) {
-        console.log('decodedToken urole:', decodedToken.urole);
         if (decodedToken.urole === 'admin') {
           isAdmin.value = true;
         }

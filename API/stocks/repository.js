@@ -23,6 +23,7 @@ async function getOneBy(attribute, value) {
         WHERE s.${attribute} = ?
     `;
     const [rows] = await connection.execute(query, [value]);
+    console.log("Produit trouvé: ",rows);
     await connection.end();
     return rows || null;
 }

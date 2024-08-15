@@ -14,6 +14,7 @@ async function getOne(id) {
         throw new Error("getOne: ID must be defined");
     }
     const stock = await donationRepository.getOne(id);
+    return stock ? { ...stock } : null;
 }
 //TODO:
 async function getOneBy(attribute, value) {

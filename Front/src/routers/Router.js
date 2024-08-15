@@ -28,7 +28,6 @@ import StocksDetails from '@/vue/backOffice/Stocks/StocksDetails.vue';
 
 //***** Donations
 import DonationAdmin from '@/vue/backOffice/Don/DonationsAdmin.vue';
-import DonationDetails from '@/vue/backOffice/Don/DonationsDetails.vue';
 
 //***** Tounrée
 import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
@@ -127,12 +126,6 @@ const routes = [
         path: '/donation-admin',
         name: 'DonationAdmin',
         component: DonationAdmin,
-        /*beforeEnter: useAuthGuard(['admin'])*/
-    },
-    {
-        path: '/donation-admin/:id',
-        name: 'DonationDetails',
-        component: DonationDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {

@@ -11,6 +11,7 @@ async function getOne(donorUserId) {
     }
     const connection = await getConnection();
     console.log(`Searching for donations by Donor_User_ID: ${donorUserId}`);
+
     const query = `
         SELECT d.*,
                u_donor.User_ID       AS Donor_User_ID,
@@ -23,14 +24,16 @@ async function getOne(donorUserId) {
                u_recipient.Email     AS Recipient_Email,
                p.*
         FROM Donations d
-                 JOIN Users u_donor ON d.Donor_User_ID = u_donor.User_ID
-                 JOIN Users u_recipient ON d.Recipient_User_ID = u_recipient.User_ID
-                 JOIN Products p ON d.Product_ID = p.Product_ID
+                 LEFT JOIN Users u_donor ON d.Donor_User_ID = u_donor.User_ID
+                 LEFT JOIN Users u_recipient ON d.Recipient_User_ID = u_recipient.User_ID
+                 LEFT JOIN Products p ON d.Product_ID = p.Product_ID
         WHERE d.Donor_User_ID = ?
     `;
+
     const [rows] = await connection.execute(query, [donorUserId]);
+    console.log("Donations found: ", rows);
     await connection.end();
-    return rows || null;
+    return rows.length > 0 ? rows : [];
 }
 
 // Récupère un ou plusieurs utilisateurs en fonction d'un attribut
@@ -63,12 +66,13 @@ async function getOneBy(attribute, value) {
 }
 
 
-// Récupère tous les utilisateurs
+// Récupère tous les utilisateurs avec la date de la donation
 async function getAll() {
     const connection = await getConnection();
     const query = `
         SELECT d.Donation_ID,
                d.Quantity,
+               d.Date AS Donation_Date,
                d.Donor_User_ID,
                d.Recipient_User_ID,
                JSON_OBJECT(
@@ -91,18 +95,17 @@ async function getAll() {
         WHERE d.Recipient_User_ID IS NULL
            OR u_recipient.User_ID IS NOT NULL
     `;
-    console.log("Executing query:", query);
     const [rows] = await connection.execute(query);
     await connection.end();
     return rows.map(row => ({
         Donation_ID: row.Donation_ID,
         Quantity: row.Quantity,
+        Donation_Date: row.Donation_Date,
         Donor_User: typeof row.Donor_User === 'string' ? JSON.parse(row.Donor_User) : row.Donor_User,
         Recipient_User: row.Recipient_User ? (typeof row.Recipient_User === 'string' ? JSON.parse(row.Recipient_User) : row.Recipient_User) : null,
         Product: typeof row.Product === 'string' ? JSON.parse(row.Product) : row.Product
     }));
 }
-
 
 // Update un utilisateur
 async function updateOne(id, data) {
