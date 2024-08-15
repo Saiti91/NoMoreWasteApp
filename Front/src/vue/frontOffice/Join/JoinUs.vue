@@ -19,31 +19,35 @@ const navigateTo = (routeName) => {
     <div class="spacer"></div>
     <div class="ui stackable grid" style="text-align: center;">
       <div class="sixteen wide column">
-        <h1>{{ $t('join-us') }}</h1>
+        <h1>{{ t('join_us') }}</h1>
       </div>
+      <!-- Bloc de gauche -->
       <div v-if="isAuthenticated" class="eight wide column">
         <div class="ui segment">
-          <h2>{{ $t('wish-trust-property') }}</h2>
-          <button class="ui primary button" @click="navigateTo('Join-Housing')">{{ $t('join-us-btn') }}</button>
+          <h2>{{ t('update-account') }}</h2>
+          <p>{{ t('update-txt') }}</p>
+          <button class="ui primary button" @click="navigateTo('my-account')">{{ t('update') }}</button>
         </div>
       </div>
       <div v-if="!isAuthenticated" class="eight wide column">
         <div class="ui segment">
-          <h2>{{ $t('wish-trust-property') }}</h2>
-          <p>{{ $t('join-housing-txt') }}</p>
-          <button class="ui primary button" @click="navigateTo('Login')">{{ $t('login') }}</button>
+          <h2>{{ t('create-account') }}</h2>
+          <p>{{ t('join-us-txt') }}</p>
+          <button class="ui primary button" @click="navigateTo('sign_up')">{{ t('login') }}</button>
         </div>
       </div>
+      <!-- Bloc de droite -->
       <div v-if="isAuthenticated" class="eight wide column">
         <div class="ui segment">
-          <h2>{{ $t('wish-work-us') }}</h2>
-          <button class="ui primary button" @click="navigateTo('Join-Provider')">{{ $t('join-us-btn') }}</button>
+          <h2>{{ t('access-additional-services') }}</h2>
+          <p>{{ t('additional-services-txt') }}</p>
+          <button class="ui primary button" @click="navigateTo('PaymentCotisation')">{{ t('payment-cotisation') }}</button>
         </div>
       </div>
       <div v-if="!isAuthenticated" class="eight wide column">
         <div class="ui segment">
-          <h2>{{ $t('wish-work-us') }}</h2>
-          <p>{{ $t('join-provider-txt') }}</p>
+          <h2>{{ t('access-additional-services') }}</h2>
+          <p>{{ t('additional-services-txt') }}</p>
           <button class="ui primary button" @click="navigateTo('Login')">{{ $t('login') }}</button>
         </div>
       </div>
@@ -54,7 +58,7 @@ const navigateTo = (routeName) => {
 
 <style scoped>
 .spacer {
-  margin-top: 20%;
+  margin-top: 10%;
 }
 
 .ui.segment {
