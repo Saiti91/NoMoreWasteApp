@@ -6,21 +6,23 @@ import {useRoute, useRouter} from 'vue-router';
 import {useI18n} from 'vue-i18n';
 
 const {t} = useI18n();
-const stocks = ref([]);
+const donations = ref([]);
 const productName = ref('');
 const router = useRouter();
 const route = useRoute();
 
-const fetchStocks = async () => {
+const fetchDonations = async () => {
   try {
     const productId = route.params.id; // Récupérer le paramètre de l'URL
-    const response = await axios.get(`/stocks/product/${productId}`);
-    stocks.value = response.data;
-    productName.value = stocks.value[0].Name;
-    console.log('Stocks:', stocks.value);
+    const response = await axios.get(`/donations/product/${productId}`);
+    donations.value = response.data;
+    if (donations.value.length > 0) {
+      productName.value = donations.value[0].Name;
+    }
+    console.log('Donations:', donations.value);
     console.log('Product Name:', productName.value);
   } catch (error) {
-    console.error('Error fetching stocks:', error);
+    console.error('Error fetching donations:', error);
   }
 };
 
@@ -29,12 +31,8 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
-const goToDetails = (stockId) => {
-  router.push({name: 'StocksDetails', params: {id: stockId}});
-};
-
 onMounted(() => {
-  fetchStocks();
+  fetchDonations();
 });
 </script>
 
@@ -42,24 +40,24 @@ onMounted(() => {
   <HeaderBackOffice/>
   <div class="spacer"></div>
   <div class="ui container full-width no-center">
-    <h1>{{ t('stocksDe\.\.\.') }}</h1>
+    <h1>{{ t('différenteDonationsDe') }} {{ productName }}</h1>
     <table class="ui celled table full-width-table">
       <thead>
       <tr>
-        <th>{{ t('stockId') }}</th>
-        <th>{{ t('nom') }}</th>
-        <th>{{ t('categorie') }}</th>
+        <th>{{ t('donationid') }}</th>
+        <th>{{ t('donorname') }}</th>
+        <th>{{ t('donoremail')}}</th>
         <th>{{ t('quantité') }}</th>
-        <th>{{ t("dateD'arrivée") }}</th>
+        <th>{{ t('date') }}</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="stock in stocks" :key="stock.Stock_ID">
-        <td>{{ stock.Stock_ID }}</td>
-        <td>{{ stock.Name }}</td>
-        <td>{{ stock.Storage_Type }}</td>
-        <td>{{ stock.Quantity }}</td>
-        <td>{{ formatDate(stock.Storage_Date) }}</td>
+      <tr v-for="donation in donations" :key="donation.Donation_ID">
+        <td>{{ donation.Donation_ID }}</td>
+        <td>{{ donation.Donor_Name }} {{ donation.Donor_Firstname }}</td>
+        <td>{{ donation.Donor_Email }}</td>
+        <td>{{ donation.Quantity }}</td>
+        <td>{{ formatDate(donation.Date) }}</td>
       </tr>
       </tbody>
     </table>
@@ -80,5 +78,4 @@ onMounted(() => {
 .ui.celled.table.full-width-table {
   width: 100%;
 }
-
 </style>

@@ -65,9 +65,9 @@ controller.get("/", (req, res, next) => {
 
 /**
  * @swagger
- * /donations/{donorID}:
+ * /donations/donor/{donorID}:
  *   get:
- *     summary: Retrieve the donations by donor ID
+ *     summary: Retrieve the donations by Donor ID
  *     tags: [Donation]
  *     parameters:
  *       - in: path
@@ -78,6 +78,80 @@ controller.get("/", (req, res, next) => {
  *         description: The ID of the donor
  *     responses:
  *       200:
+ *         description: A list of donations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Donation'
+ *       404:
+ *         description: Donation not found
+ */
+controller.get("/donor/:donorID", (req, res, next) => {
+    donationsService.getOneDonor(Number(req.params.donorID))
+        .then((data) => {
+            if (data === null) {
+                throw new NotFoundError(`Donation with donorID ${req.params.donorID} not found`);
+            }
+            res.json(data);
+            console.log('Retour du controlleur : ', data);
+        })
+        .catch((err) => next(err));
+});
+
+/**
+ * @swagger
+ * /donations/product/{productID}:
+ *   get:
+ *     summary: Retrieve the donations by Product ID
+ *     tags: [Donation]
+ *     parameters:
+ *       - in: path
+ *         name: productID
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The ID of the product
+ *     responses:
+ *       200:
+ *         description: A list of donations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Donation'
+ *       404:
+ *         description: Donation not found
+ */
+controller.get("/product/:productID", (req, res, next) => {
+    donationsService.getOneProduct(Number(req.params.productID))
+        .then((data) => {
+            if (data === null) {
+                throw new NotFoundError(`Donation with productID ${req.params.productID} not found`);
+            }
+            res.json(data);
+            console.log('Retour du controlleur : ', data);
+        })
+        .catch((err) => next(err));
+});
+
+/**
+ * @swagger
+ * /donations/{id}:
+ *   get:
+ *     summary: Retrieve a donation by ID
+ *     tags: [Donation]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The ID of the donation
+ *     responses:
+ *       200:
  *         description: A donation
  *         content:
  *           application/json:
@@ -86,11 +160,11 @@ controller.get("/", (req, res, next) => {
  *       404:
  *         description: Donation not found
  */
-controller.get("/:donorID", (req, res, next) => {
-    donationsService.getOne(Number(req.params.donorID))
+controller.get("/:id", (req, res, next) => {
+    donationsService.getOneDonation(Number(req.params.id))
         .then((data) => {
             if (data === null) {
-                throw new NotFoundError(`Donation with donorID ${req.params.donorID} not found`);
+                throw new NotFoundError(`Donation with ID ${req.params.id} not found`);
             }
             res.json(data);
             console.log('Retour du controlleur : ', data);

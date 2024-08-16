@@ -21,7 +21,7 @@ function logout() {
   <HeaderComponent :logoSrc="logoSrc" logoAlt="Back Office Logo" logoText="Back Office" :profileSrc="profileSrc" profile-alt="icon profile">
     <template #nav>
       <router-link class="item" to="/users">{{ t('users') }}</router-link>
-      <router-link class="item" to="/stocks-admin">{{ t('stocks') }}</router-link>
+      <router-link class="item" to="/stocks">{{ t('stocks') }}</router-link>
       <router-link class="item" to="/donation-admin">{{ t('don') }}</router-link>
       <router-link class="item" to="/tour-admin">{{ t('tours') }}</router-link>
 <!--      //TODO: Ajouter la Gestion des services-->

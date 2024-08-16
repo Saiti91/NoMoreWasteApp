@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS Address
     State       VARCHAR(100),
     Postal_Code VARCHAR(20),
     Country     VARCHAR(100)
-    );
+);
 
 CREATE TABLE IF NOT EXISTS Users
 (
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS Users
     Birthdate            DATE,
     Current_Subscription BOOLEAN,
     Role                 ENUM ('admin', 'volunteer') NOT NULL DEFAULT 'volunteer',
-    FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID)
+    FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS Skills
@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS User_Skills
     Skill_ID        INT,
     Validation_Date DATE,
     PRIMARY KEY (User_ID, Skill_ID),
-    FOREIGN KEY (User_ID) REFERENCES Users (User_ID),
-    FOREIGN KEY (Skill_ID) REFERENCES Skills (Skill_ID)
+    FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Skill_ID) REFERENCES Skills (Skill_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Trucks
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS Trucks
     Registration VARCHAR(50),
     Capacity     INT,
     Model        VARCHAR(100),
-    Conditions   int
+    Conditions   INT
 );
 
 CREATE TABLE IF NOT EXISTS Subscriptions
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS Subscriptions
     Amount       DECIMAL(10, 2),
     Status       BOOLEAN, -- true for 'paid', false for 'pending'
     PRIMARY KEY (User_ID, Payment_Date),
-    FOREIGN KEY (User_ID) REFERENCES Users (User_ID)
+    FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Schedules
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS Schedules
     User_ID     INT,
     Date        DATE,
     Type        BOOLEAN, -- true for 'collect', false for 'distribute'
-    FOREIGN KEY (User_ID) REFERENCES Users (User_ID)
+    FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Routes
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS Routes
     User_ID  INT,
     Truck_ID INT,
     Type     BOOLEAN, -- true for 'collect', false for 'distribute'
-    FOREIGN KEY (User_ID) REFERENCES Users (User_ID),
+    FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE,
     FOREIGN KEY (Truck_ID) REFERENCES Trucks (Truck_ID)
 );
 
@@ -91,8 +91,8 @@ CREATE TABLE IF NOT EXISTS Schedule_Routes
     Schedule_ID INT,
     Route_ID    INT,
     PRIMARY KEY (Schedule_ID, Route_ID),
-    FOREIGN KEY (Schedule_ID) REFERENCES Schedules (Schedule_ID),
-    FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID)
+    FOREIGN KEY (Schedule_ID) REFERENCES Schedules (Schedule_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Route_Donations
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS Route_Donations
     Route_ID INT,
     Date     DATE,
     PRIMARY KEY (Route_ID),
-    FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID)
+    FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Destinations
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS Destinations
     Route_ID       INT,
     Address_ID     INT,
     Type           BOOLEAN, -- true for 'collect', false for 'distribute'
-    FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID),
+    FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID) ON DELETE CASCADE,
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID)
 );
 
@@ -119,7 +119,7 @@ CREATE TABLE IF NOT EXISTS Destination_Products
     Destination_ID INT,
     Product_ID     INT,
     Quantity       INT,
-    FOREIGN KEY (Destination_ID) REFERENCES Destinations (Destination_ID),
+    FOREIGN KEY (Destination_ID) REFERENCES Destinations (Destination_ID) ON DELETE CASCADE,
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
 );
 
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS Stocks
     Product_ID   INT,
     Quantity     INT,
     Zone         VARCHAR(100),
-    FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
+    FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Requests
@@ -139,8 +139,8 @@ CREATE TABLE IF NOT EXISTS Requests
     Quantity   INT,
     Date       DATE,
     User_ID    INT,
-    FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID),
-    FOREIGN KEY (User_ID) REFERENCES Users (User_ID)
+    FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID) ON DELETE CASCADE,
+    FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Donations
@@ -150,8 +150,8 @@ CREATE TABLE IF NOT EXISTS Donations
     Quantity          INT,
     Date              DATE,
     Donor_User_ID     INT,
-    FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID),
-    FOREIGN KEY (Donor_User_ID) REFERENCES Users (User_ID)
+    FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Donor_User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
 );
 
 -- Pour les tickets
@@ -160,17 +160,17 @@ CREATE TABLE IF NOT EXISTS Categories
     Category_ID       INT AUTO_INCREMENT PRIMARY KEY,
     Name              VARCHAR(100),
     Skill_ID    INT,
-    FOREIGN KEY (Skill_ID) REFERENCES Skills(Skill_ID)
+    FOREIGN KEY (Skill_ID) REFERENCES Skills(Skill_ID) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Category_Skills (
+CREATE TABLE IF NOT EXISTS Category_Skills
+(
     Category_ID INT,
     Skill_ID INT,
-    FOREIGN KEY (Category_ID) REFERENCES Categories (Category_ID),
-    FOREIGN KEY (Skill_ID) REFERENCES Skills (Skill_ID),
+    FOREIGN KEY (Category_ID) REFERENCES Categories (Category_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Skill_ID) REFERENCES Skills (Skill_ID) ON DELETE CASCADE,
     PRIMARY KEY (Category_ID, Skill_ID)
-    );
-
+);
 
 CREATE TABLE IF NOT EXISTS Statuses
 (
@@ -195,11 +195,11 @@ CREATE TABLE IF NOT EXISTS Tickets
     Image             VARCHAR(50),
     Status_ID         INT,
     Owner_User_ID     INT,
-    FOREIGN KEY (Category_ID) REFERENCES Categories (Category_ID),
+    FOREIGN KEY (Category_ID) REFERENCES Categories (Category_ID) ON DELETE CASCADE,
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID),
     FOREIGN KEY (Status_ID) REFERENCES Statuses (Status_ID),
-    FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID)
-    );
+    FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
+);
 
 -- Fin des tickets
 

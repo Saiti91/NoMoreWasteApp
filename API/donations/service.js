@@ -9,13 +9,31 @@ async function createOne(stock) {
 }
 
 // Fonction de récupération d'un utilisateur en fonction de son ID
-async function getOne(id) {
+async function getOneDonor(id) {
     if (id === undefined) {
         throw new Error("getOne: ID must be defined");
     }
-    const stock = await donationRepository.getOne(id);
+    const stock = await donationRepository.getDonationsBy('Donor_User_ID',id);
     return stock ? { ...stock } : null;
 }
+
+async function getOneDonation(id) {
+    if (id === undefined) {
+        throw new Error("getOne: ID must be defined");
+    }
+    const stock = await donationRepository.getDonationsBy('Donation_ID',id);
+    return stock ? { ...stock } : null;
+}
+
+async function getOneProduct(id) {
+    if (id === undefined) {
+        throw new Error("getOne: ID must be defined");
+    }
+    const stock = await donationRepository.getDonationsBy('Product_ID',id);
+    return stock ? { ...stock } : null;
+}
+
+
 //TODO:
 async function getOneBy(attribute, value) {
     if (attribute === undefined || value === undefined) {
@@ -61,4 +79,4 @@ async function deleteOne(id, issuer) {
 }
 
 
-module.exports = { createOne, getOne,getOneBy, getAll, updateOne, deleteOne };
+module.exports = { createOne, getOneDonation, getOneDonor, getOneProduct, getOneBy, getAll, updateOne, deleteOne };

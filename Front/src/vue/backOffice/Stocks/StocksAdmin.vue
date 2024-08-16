@@ -14,7 +14,7 @@ const fetchStocks = async () => {
   try {
     const response = await axios.get('/stocks');
     stocks.value = response.data;
-
+    console.log(stocks.value);
   } catch (error) {
     console.error('Error fetching stocks:', error);
   }
@@ -37,18 +37,18 @@ onMounted(() => {
     <table class="ui celled table full-width-table">
       <thead>
       <tr>
-        <th>{{ t('idProduit') }}</th>
         <th>{{ t('nom') }}</th>
         <th>{{ t('categorie') }}</th>
         <th>{{ t('quantité') }}</th>
+        <th>{{t('zoneDeStockage')}}</th>
       </tr>
       </thead>
       <tbody>
       <tr v-for="product in stocks" :key="product.Product_ID" class="clickable-row" @click="goToDetails(product.Product_ID)">
-        <td>{{ product.Product_ID }}</td>
         <td>{{ product.Name }}</td>
         <td>{{ product.Storage_Type }}</td>
         <td>{{ product.Quantity }}</td>
+        <td>{{ product.Zone }}</td>
       </tr>
       </tbody>
     </table>

@@ -11,9 +11,8 @@ const route = useRoute();
 const fetchUserDonations = async () => {
   try {
     const response = await axios.get(`/donations/${route.params.id}`);
-    // Convertir en tableau si la réponse est un objet avec des clés numérotées
-    donations.value = response.data
-    console.log('Donations value =', donations.value);
+    donations.value = response.data;
+    console.log('User donations:', donations.value); // Debugging output
   } catch (error) {
     console.error('Error fetching user donations:', error);
   }
@@ -21,7 +20,7 @@ const fetchUserDonations = async () => {
 
 const formatDate = (date) => {
   if (!date) return 'Non renseigné';
-  const options = {year: 'numeric', month: 'long', day: 'numeric'};
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
@@ -38,39 +37,31 @@ onMounted(() => {
       <UserMenu/>
       <div class="content-area">
         <h2>Détails des donations de l'utilisateur</h2>
-        <div v-if="donations.value && donations.value.length > 0" class="user-donations">
-          <table class="ui celled table">
+        <div v-if="Object.keys(donations).length > 0" class="user-details">
+          <table class="ui celled table full-width-table">
             <thead>
             <tr>
               <th>Nom du produit</th>
+              <th>Code-barres</th>
               <th>Quantité</th>
-              <th>Date de donation</th>
+              <th>Date</th>
               <th>Type de stockage</th>
-              <th>Donneur</th>
-              <th>Récipiendaire</th>
             </tr>
             </thead>
             <tbody>
-            <tr v-for="donation in donations.value" :key="donation.Donation_ID">
-              <td>{{ donation.Name || 'Non renseigné' }}</td>
+            <tr v-for="donation in donations" :key="donation.Donation_ID">
+              <td>{{ donation.Name }}</td>
+              <td>{{ donation.Barcode }}</td>
               <td>{{ donation.Quantity }}</td>
               <td>{{ formatDate(donation.Date) }}</td>
-              <td>{{ donation.Storage_Type || 'Non renseigné' }}</td>
-              <td>{{ donation.Donor_Name }} {{ donation.Donor_Firstname }} ({{ donation.Donor_Email }})</td>
-              <td>
-                  <span v-if="donation.Recipient_User_ID">
-                    {{ donation.Recipient_Name }} {{ donation.Recipient_Firstname }} ({{ donation.Recipient_Email }})
-                  </span>
-                <span v-else>
-                    Non assigné
-                  </span>
-              </td>
+              <td>{{ donation.Storage_Type }}</td>
             </tr>
             </tbody>
           </table>
         </div>
         <div v-else>
           <p>Aucune donation trouvée pour cet utilisateur.</p>
+          <p>Debug Info: {{ donations }}</p> <!-- Add debugging info to the template -->
         </div>
       </div>
     </div>
@@ -82,7 +73,6 @@ onMounted(() => {
   margin: 20px 0;
 }
 
-/* Adjustments to ensure the content area does not overlap with the menu */
 .content-area {
   padding: 20px;
   margin-left: 50px; /* Match this with the actual width of the menu */
@@ -97,29 +87,24 @@ onMounted(() => {
   font-size: 1.1em;
 }
 
-.user-details p {
-  margin: 10px 0;
-}
-
-.user-details strong {
-  display: inline-block;
-  width: 150px;
-  color: #333;
-}
-
-.status-active {
-  color: green;
-  font-weight: bold;
-}
-
-.status-inactive {
-  color: red;
-  font-weight: bold;
-}
-
 h2 {
   font-size: 2em;
   margin-bottom: 20px;
   color: #4a4a4a;
+}
+
+.ui.celled.table.full-width-table {
+  width: 100%;
+}
+
+.ui.celled.table.full-width-table th,
+.ui.celled.table.full-width-table td {
+  text-align: center;
+  padding: 10px;
+}
+
+p {
+  font-size: 1.2em;
+  color: #666;
 }
 </style>

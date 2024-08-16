@@ -20,7 +20,8 @@ const options = {
         path.join(basePath, "stocks", "*.js"),
         path.join(basePath, "donations", "*.js"),
         path.join(basePath, "tours", "*.js"),
-        path.join(basePath, "Destination", "*.js"),],
+        path.join(basePath, "Destination", "*.js"),
+        path.join(basePath, "Requests", "*.js"),],
 };
 
 const specs = swaggerJsdoc(options);

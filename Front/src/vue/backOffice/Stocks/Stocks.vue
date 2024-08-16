@@ -3,16 +3,17 @@ import {onMounted} from 'vue';
 import {useRouter} from 'vue-router';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import {useI18n} from 'vue-i18n';
+import Stocks from "./Stocks.vue";
 
 const {t} = useI18n();
 const router = useRouter();
 
-const navigateToDonation = () => {
-  router.push('/donations');
+const navigateToStocks = () => {
+  router.push('/stocks-admin');
 };
 
-const navigateToRequest = () => {
-  router.push('/request');
+const navigateToCatalogue = () => {
+  router.push('/catalogue-admin');
 };
 
 onMounted(() => {
@@ -24,31 +25,31 @@ onMounted(() => {
   <div class="spacer"></div>
   <div class="dashboard-container">
     <div class="ui two cards">
-      <div class="ui huge card" @click="navigateToDonation">
+      <div class="ui huge card" @click="navigateToStocks">
         <div class="image">
           <img src="https://via.placeholder.com/400x200" alt="Pickup Image"> <!-- Placeholder image -->
         </div>
         <div class="content">
-          <div class="header">{{ t('donations') }}</div>
+          <div class="header">{{ t('stocks') }}</div>
           <div class="meta">
             <span class="category">{{ t('category') }}</span>
           </div>
           <div class="description">
-            {{ t('navigationVersLesDons') }}
+            {{ t('navigationverslesstocks') }}
           </div>
         </div>
       </div>
-      <div class="ui huge card" @click="navigateToRequest">
+      <div class="ui huge card" @click="navigateToCatalogue">
         <div class="image">
           <img src="https://via.placeholder.com/400x200" alt="Distribution Image"> <!-- Placeholder image -->
         </div>
         <div class="content">
-          <div class="header">{{ t('demandesDeDon') }}</div>
+          <div class="header">{{ t('catalogue') }}</div>
           <div class="meta">
             <span class="category">{{ t('category') }}</span>
           </div>
           <div class="description">
-            {{ t('navigerverslesdemandesdedon') }}
+            {{ t('navigationverslecatalogue') }}
           </div>
         </div>
       </div>

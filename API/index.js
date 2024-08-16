@@ -17,6 +17,7 @@ const tourController= require ("./tours/controller");
 const ticketsController = require("./tickets/controller");
 const categoriesController = require("./Categories/controller");
 const stripeRoutes = require('./stripe/stripeRoutes');
+const requestController = require("./requests/controller");
 
 const app = express();
 const port = 3000;
@@ -37,7 +38,8 @@ app.use(authMiddleware);
 app.get("/", (_req, res) => {
     res.json({
         message: "Welcome to PCS API!",
-        routes: ["/users", "/auth","/stocks", "/api-docs", "/donations","/tours"],
+        routes: ["/users", "/auth","/stocks", "/api-docs", "/donations","/tours",
+            "/tickets","/categories","/stripe","/requests"],
     });
 });
 
@@ -52,6 +54,7 @@ app.use("/donations", donationController);
 app.use("/tours", tourController);
 app.use("/tickets", ticketsController);
 app.use("/categories", categoriesController);
+app.use("/requests", requestController);
 
 // Application du middleware `idParamGuard` aux routes avec paramètre `id`
 app.use("/users/:id", idParamGuard);
@@ -61,6 +64,7 @@ app.use("/donations/:id", idParamGuard);
 app.use("/tours/:id", idParamGuard);
 app.use("/tickets/:id", idParamGuard);
 app.use("/categorie/:id", idParamGuard);
+app.use("/requests/:id", idParamGuard);
 
 //Stripe
 app.use('/stripe', stripeRoutes);

@@ -28,10 +28,14 @@ import UserDetailsRecievedProduct from "@/vue/backOffice/Users/UserDetailsReciev
 
 //***** Stocks
 import StocksAdmin from '@/vue/backOffice/Stocks/StocksAdmin.vue';
+import Stocks from "@/vue/backOffice/Stocks/Stocks.vue";
+import CatalogueAdmin from "@/vue/backOffice/Stocks/Catalogue.vue";
 import StocksDetails from '@/vue/backOffice/Stocks/StocksDetails.vue';
 
 //***** Donations
 import DonationAdmin from '@/vue/backOffice/Don/DonationsAdmin.vue';
+import Donations from "@/vue/backOffice/Don/DonationsDetails.vue";
+import Request from "@/vue/backOffice/Don/RequestDetails.vue";
 
 //***** Tounrée
 import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
@@ -63,6 +67,18 @@ const routes = [
         path: '/donation',
         name: 'Donation',
         component: Donation,
+        //beforeEnter: useAuthGuard(['client'])
+    },
+    {
+        path: '/donations',
+        name: 'Donations',
+        component: Donations,
+        //beforeEnter: useAuthGuard(['client'])
+    },
+    {
+        path: '/request',
+        name: 'Request',
+        component: Request,
         //beforeEnter: useAuthGuard(['client'])
     },
     {
@@ -132,6 +148,18 @@ const routes = [
         path: '/stocks-admin',
         name: 'StocksAdmin',
         component: StocksAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/catalogue-admin',
+        name: 'CatalogueAdmin',
+        component: CatalogueAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/stocks',
+        name: 'Stocks',
+        component: Stocks,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {

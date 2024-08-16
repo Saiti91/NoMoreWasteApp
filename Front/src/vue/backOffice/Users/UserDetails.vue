@@ -1,12 +1,13 @@
 <script setup>
-import {onMounted, ref} from 'vue';
+import { onMounted, ref } from 'vue';
 import axios from '@/utils/Axios.js';
-import {useRoute} from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import UserMenu from "@/components/UserDetailsLeftMenu.vue";
 
 const user = ref(null);
 const route = useRoute();
+const router = useRouter();
 
 const fetchUserDetails = async () => {
   try {
@@ -18,9 +19,22 @@ const fetchUserDetails = async () => {
   }
 };
 
+const deleteUser = async () => {
+  if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+    try {
+      await axios.delete(`/users/${route.params.id}`);
+      alert('Utilisateur supprimé avec succès');
+      router.push('/users'); // Redirect to users list after deletion
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Erreur lors de la suppression de l\'utilisateur');
+    }
+  }
+};
+
 const formatDate = (date) => {
   if (!date) return 'Non renseigné';
-  const options = {year: 'numeric', month: 'long', day: 'numeric'};
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
@@ -36,7 +50,10 @@ onMounted(() => {
     <div class="ui grid">
       <UserMenu/>
       <div class="content-area">
-        <h2>Détails de l'utilisateur</h2>
+        <div class="header-section">
+          <h2>Détails de l'utilisateur</h2>
+          <button @click="deleteUser" class="ui red button">Supprimer</button>
+        </div>
         <div v-if="user" class="user-details">
           <p><strong>Nom :</strong> {{ user.Name || 'Non renseigné' }}</p>
           <p><strong>Prénom :</strong> {{ user.Firstname || 'Non renseigné' }}</p>
@@ -67,6 +84,12 @@ onMounted(() => {
   padding: 20px;
   margin-left: 50px; /* Match this with the actual width of the menu */
   width: calc(70% - 50px); /* Ensure this calculation takes into account the menu's width */
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .user-details {
@@ -101,5 +124,10 @@ h2 {
   font-size: 2em;
   margin-bottom: 20px;
   color: #4a4a4a;
+}
+
+.ui.red.button {
+  background-color: #db2828;
+  color: white;
 }
 </style>
