@@ -14,6 +14,17 @@ async function getOne(id) {
     return tour;
 }
 
+async function getAllRoutesForUser(id) {
+    if (id === undefined) {
+        throw new Error("getOneProduct: Product_ID must be defined");
+    }
+    const tour = await tourRepository.getAllRoutesForUser(id);
+    if (!tour) {
+        throw new InvalidArgumentError(`Tour with ID ${id} not found`);
+    }
+    return tour;
+}
+
 async function getAll() {
     const tours = await tourRepository.getAll();
     return tours;
@@ -55,5 +66,6 @@ module.exports = {
     addDestination,
     removeDestination,
     addProductToDestination,
-    removeProductFromDestination
+    removeProductFromDestination,
+    getAllRoutesForUser
 };

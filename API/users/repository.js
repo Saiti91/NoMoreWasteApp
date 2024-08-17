@@ -29,7 +29,15 @@ async function getOne(id) {
         throw new Error("getOne: id must be defined");
     }
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT * FROM Users WHERE User_ID = ?', [id]);
+
+    const query = `
+        SELECT u.*, a.Street, a.City, a.State, a.Postal_Code, a.Country
+        FROM Users u
+        LEFT JOIN Address a ON u.Address_ID = a.Address_ID
+        WHERE u.User_ID = ?
+    `;
+
+    const [rows] = await connection.execute(query, [id]);
     await connection.end();
     return rows[0] || null;
 }

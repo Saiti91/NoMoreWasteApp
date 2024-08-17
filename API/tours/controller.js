@@ -1,4 +1,4 @@
-const { Router } = require("express");
+const {Router} = require("express");
 const toursService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
 const authorize = require("../common/middlewares/authorize_middleware");
@@ -112,10 +112,10 @@ const controller = Router();
  */
 controller.get(
     "/", (req, res, next) => {
-    toursService.getAll()
-        .then(data => res.json(data))
-        .catch(err => next(err));
-});
+        toursService.getAll()
+            .then(data => res.json(data))
+            .catch(err => next(err));
+    });
 
 /**
  * @swagger
@@ -144,15 +144,54 @@ controller.get(
  */
 controller.get(
     "/:id", (req, res, next) => {
-    toursService.getOne(Number(req.params.id))
-        .then(data => {
-            if (!data) {
-                throw new NotFoundError(`Tour with ID ${req.params.id} not found`);
-            }
-            res.json(data);
-        })
-        .catch(err => next(err));
-});
+        toursService.getOne(Number(req.params.id))
+            .then(data => {
+                if (!data) {
+                    throw new NotFoundError(`Tour with ID ${req.params.id} not found`);
+                }
+                res.json(data);
+            })
+            .catch(err => next(err));
+    });
+
+/**
+ * @swagger
+ * /tours/users/{userId}:
+ *   get:
+ *     summary: Récupère toutes les tournées associées à un utilisateur spécifique
+ *     tags: [Tours]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Liste de toutes les tournées pour l'utilisateur spécifié
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Tour'
+ *       404:
+ *         description: Utilisateur non trouvé ou aucun tour associé
+ *       500:
+ *         description: Erreur interne du serveur
+ */
+controller.get(
+    "/users/:userId", (req, res, next) => {
+        toursService.getAllRoutesForUser(Number(req.params.userId))
+            .then(data => {
+                if (!data) {
+                    throw new NotFoundError(`No tours found for user ID ${req.params.userId}`);
+                }
+                res.json(data);
+            })
+            .catch(err => next(err));
+    });
 
 /**
  * @swagger
@@ -180,10 +219,10 @@ controller.get(
  */
 controller.post(
     "/", (req, res, next) => {
-    toursService.createOne(req.body)
-        .then(data => res.status(201).json(data))
-        .catch(err => next(err));
-});
+        toursService.createOne(req.body)
+            .then(data => res.status(201).json(data))
+            .catch(err => next(err));
+    });
 
 /**
  * @swagger
@@ -220,10 +259,10 @@ controller.post(
  */
 controller.put(
     "/:id", (req, res, next) => {
-    toursService.updateOne(Number(req.params.id), req.body)
-        .then(updated => res.status(200).json(updated))
-        .catch(err => next(err));
-});
+        toursService.updateOne(Number(req.params.id), req.body)
+            .then(updated => res.status(200).json(updated))
+            .catch(err => next(err));
+    });
 
 /**
  * @swagger
@@ -248,15 +287,15 @@ controller.put(
  */
 controller.delete(
     "/:id", authorize(["admin"]), (req, res, next) => {
-    toursService.deleteOne(Number(req.params.id))
-        .then(deleted => {
-            if (!deleted) {
-                throw new NotFoundError(`Tour with ID ${req.params.id} not found`);
-            }
-            res.status(204).end();
-        })
-        .catch(err => next(err));
-});
+        toursService.deleteOne(Number(req.params.id))
+            .then(deleted => {
+                if (!deleted) {
+                    throw new NotFoundError(`Tour with ID ${req.params.id} not found`);
+                }
+                res.status(204).end();
+            })
+            .catch(err => next(err));
+    });
 
 /**
  * @swagger
@@ -291,10 +330,10 @@ controller.delete(
  */
 controller.post(
     "/:id/destinations", (req, res, next) => {
-    toursService.addDestination(Number(req.params.id), req.body)
-        .then(data => res.status(201).json(data))
-        .catch(err => next(err));
-});
+        toursService.addDestination(Number(req.params.id), req.body)
+            .then(data => res.status(201).json(data))
+            .catch(err => next(err));
+    });
 
 /**
  * @swagger
@@ -325,10 +364,10 @@ controller.post(
  */
 controller.delete(
     "/:id/destinations/:destinationId", (req, res, next) => {
-    toursService.removeDestination(Number(req.params.id), Number(req.params.destinationId))
-        .then(() => res.status(204).end())
-        .catch(err => next(err));
-});
+        toursService.removeDestination(Number(req.params.id), Number(req.params.destinationId))
+            .then(() => res.status(204).end())
+            .catch(err => next(err));
+    });
 
 /**
  * @swagger
@@ -363,10 +402,10 @@ controller.delete(
  */
 controller.post(
     "/destinations/:id/products", (req, res, next) => {
-    toursService.addProductToDestination(Number(req.params.id), req.body)
-        .then(data => res.status(201).json(data))
-        .catch(err => next(err));
-});
+        toursService.addProductToDestination(Number(req.params.id), req.body)
+            .then(data => res.status(201).json(data))
+            .catch(err => next(err));
+    });
 
 /**
  * @swagger
@@ -397,9 +436,9 @@ controller.post(
  */
 controller.delete(
     "/destinations/:id/products/:productId", (req, res, next) => {
-    toursService.removeProductFromDestination(Number(req.params.id), Number(req.params.productId))
-        .then(() => res.status(204).end())
-        .catch(err => next(err));
-});
+        toursService.removeProductFromDestination(Number(req.params.id), Number(req.params.productId))
+            .then(() => res.status(204).end())
+            .catch(err => next(err));
+    });
 
 module.exports = controller;

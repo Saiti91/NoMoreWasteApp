@@ -262,6 +262,118 @@ async function getAll() {
 }
 
 /**
+ * Récupère toutes les routes associées à un utilisateur spécifique.
+ * @param {Number} userId - L'ID de l'utilisateur.
+ * @returns {Array} - Un tableau d'objets représentant les routes de l'utilisateur.
+ */
+async function getAllRoutesForUser(userId) {
+    const connection = await getConnection();
+
+    try {
+        const [rows] = await connection.execute(`
+            SELECT 
+                r.Route_ID,
+                r.Date AS Route_Date,
+                r.Type AS Route_Type,
+                u.User_ID AS Driver_ID,
+                CONCAT(u.Firstname, ' ', u.Name) AS Driver_Name,
+                t.Truck_ID,
+                t.Registration AS Truck_Registration,
+                t.Model AS Truck_Model,
+                t.Capacity AS Truck_Capacity,
+                d.Destination_ID,
+                d.Type AS Destination_Type,
+                a.Street,
+                a.City,
+                a.State,
+                a.Postal_Code,
+                a.Country,
+                dp.Destination_Product_ID,
+                p.Product_ID,
+                p.Name AS Product_Name,
+                p.Barcode,
+                dp.Quantity AS Product_Quantity
+            FROM 
+                Routes r
+            JOIN 
+                Users u ON r.User_ID = u.User_ID
+            JOIN 
+                Trucks t ON r.Truck_ID = t.Truck_ID
+            LEFT JOIN 
+                Destinations d ON r.Route_ID = d.Route_ID
+            LEFT JOIN 
+                Address a ON d.Address_ID = a.Address_ID
+            LEFT JOIN 
+                Destination_Products dp ON d.Destination_ID = dp.Destination_ID
+            LEFT JOIN 
+                Products p ON dp.Product_ID = p.Product_ID
+            WHERE 
+                r.User_ID = ?
+        `, [userId]);
+
+        const routes = {};
+
+        rows.forEach(row => {
+            // Si la route n'existe pas encore dans l'objet routes, on la crée
+            if (!routes[row.Route_ID]) {
+                routes[row.Route_ID] = {
+                    Route_ID: row.Route_ID,
+                    Route_Date: row.Route_Date,
+                    Route_Type: row.Route_Type,
+                    Driver: {
+                        Driver_ID: row.Driver_ID,
+                        Driver_Name: row.Driver_Name
+                    },
+                    Truck: {
+                        Truck_ID: row.Truck_ID,
+                        Truck_Registration: row.Truck_Registration,
+                        Truck_Model: row.Truck_Model,
+                        Truck_Capacity: row.Truck_Capacity
+                    },
+                    Destinations: []
+                };
+            }
+
+            // Si la destination existe, on la met à jour, sinon, on la crée
+            const route = routes[row.Route_ID];
+            let destination = route.Destinations.find(d => d.Destination_ID === row.Destination_ID);
+
+            if (!destination) {
+                destination = {
+                    Destination_ID: row.Destination_ID,
+                    Destination_Type: row.Destination_Type,
+                    Address: {
+                        Street: row.Street,
+                        City: row.City,
+                        State: row.State,
+                        Postal_Code: row.Postal_Code,
+                        Country: row.Country
+                    },
+                    Products: []
+                };
+                route.Destinations.push(destination);
+            }
+
+            // On ajoute les produits à la destination
+            if (row.Product_ID) {
+                destination.Products.push({
+                    Destination_Product_ID: row.Destination_Product_ID,
+                    Product_ID: row.Product_ID,
+                    Product_Name: row.Product_Name,
+                    Barcode: row.Barcode,
+                    Quantity: row.Product_Quantity
+                });
+            }
+        });
+
+        // Conversion des routes en tableau pour le retour
+        return Object.values(routes);
+    } finally {
+        await connection.end();
+    }
+}
+
+/**
  * Met à jour les informations de base d'une route (Date, User_ID, Truck_ID, Type).
  * @param {Number} id - L'ID de la route à mettre à jour.
  * @param {Object} data - Les données à mettre à jour.
@@ -410,5 +522,6 @@ module.exports = {
     addDestination,
     removeDestination,
     addProductToDestination,
-    removeProductFromDestination
+    removeProductFromDestination,
+    getAllRoutesForUser
 };

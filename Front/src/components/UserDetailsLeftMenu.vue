@@ -23,7 +23,7 @@ const isRouteActive = (route) => activeRoute.value === route;
         class="item"
         :class="{ active: isRouteActive(`/users/${route.params.id}`) }">
       <i class="user icon"></i>
-      Détails de l'utilisateur
+      {{ t('détailsDeL\'utilisateur') }}
     </router-link>
 
     <router-link
@@ -31,7 +31,7 @@ const isRouteActive = (route) => activeRoute.value === route;
         class="item"
         :class="{ active: isRouteActive(`/user-services-proposed/${route.params.id}`) }">
       <i class="briefcase icon"></i>
-      Services proposés
+      {{ t('servicesProposés') }}
     </router-link>
 
     <router-link
@@ -39,7 +39,7 @@ const isRouteActive = (route) => activeRoute.value === route;
         class="item"
         :class="{ active: isRouteActive(`/user-services-participated/${route.params.id}`) }">
       <i class="handshake icon"></i>
-      Services participés
+      {{ t('servicesParticipés') }}
     </router-link>
 
     <router-link
@@ -47,7 +47,7 @@ const isRouteActive = (route) => activeRoute.value === route;
         class="item"
         :class="{ active: isRouteActive(`/user-donations/${route.params.id}`) }">
       <i class="gift icon"></i>
-      Donations faites
+      {{ t('donationsFaites') }}
     </router-link>
 
     <router-link
@@ -55,7 +55,15 @@ const isRouteActive = (route) => activeRoute.value === route;
         class="item"
         :class="{ active: isRouteActive(`/user-products-received/${route.params.id}`) }">
       <i class="box icon"></i>
-      Produits reçus
+      {{ t('produitsReçus') }}
+    </router-link>
+
+    <router-link
+        :to="`/user-routes/${route.params.id}`"
+        class="item"
+        :class="{ active: isRouteActive(`/user-routes/${route.params.id}`) }">
+      <i class="box icon"></i>
+      {{ t('tournee') }}
     </router-link>
   </div>
 </template>

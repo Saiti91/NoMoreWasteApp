@@ -1,6 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import {createRouter, createWebHistory} from 'vue-router';
 import LoginPage from '../vue/LoginPage.vue';
-import useAuthGuard from '../components/Auth/AuthGuard.js';
 
 //***** FRONT OFFICE
 import SignUpPage from "../vue/frontOffice/SignUpPage.vue";
@@ -15,16 +14,17 @@ import PaymentCotisation from "@/vue/frontOffice/Join/PaymentCotisation.vue";
 import PaymentSuccess from "@/vue/frontOffice/Join/PaymentSuccess.vue";
 
 
-
 //***** BACK OFFICE
 import BackOfficeHome from '../vue/backOffice/Home.vue';
-import Categories from "@/vue/backOffice/Categorie/categories.vue";
+import Categories from "@/vue/backOffice/Categorie/CategoriesAdmin.vue";
 
 //***** Users
 import UsersAdmin from '../vue/backOffice/Users/UserAdmin.vue';
 import UserDetails from '@/vue/backOffice/Users/UserDetails.vue';
 import UserDetailsDonations from "@/vue/backOffice/Users/UserDetailsDonations.vue";
 import UserDetailsRecievedProduct from "@/vue/backOffice/Users/UserDetailsRecievedProduct.vue";
+import UserDetailsRoutes from "@/vue/backOffice/Users/UserDetailsRoutes.vue";
+import UserDetailsRoutesDetails from "@/vue/backOffice/Users/UserDetailsRoutesDetails.vue";
 
 //***** Stocks
 import StocksAdmin from '@/vue/backOffice/Stocks/StocksAdmin.vue';
@@ -34,8 +34,8 @@ import StocksDetails from '@/vue/backOffice/Stocks/StocksDetails.vue';
 
 //***** Donations
 import DonationAdmin from '@/vue/backOffice/Don/DonationsAdmin.vue';
-import Donations from "@/vue/backOffice/Don/DonationsDetails.vue";
-import Request from "@/vue/backOffice/Don/RequestDetails.vue";
+import DonationsAdmin from "@/vue/backOffice/Don/DonationsDetails.vue";
+import RequestsAdmin from "@/vue/backOffice/Don/RequestDetails.vue";
 
 //***** Tounrée
 import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
@@ -43,20 +43,15 @@ import TourDetails from "@/vue/backOffice/Tournee/TourDetails.vue";
 import DistributionTourAdmin from "@/vue/backOffice/Tournee/DistributionTourAdmin.vue";
 import PickupTourAdmin from "@/vue/backOffice/Tournee/PickUpTourAdmin.vue";
 
-
-
-
-
-
 const routes = [
-    { path: '/login', name: 'Login', component: LoginPage },
-    { path: '/', name: 'Home', component: Home },
+    {path: '/login', name: 'Login', component: LoginPage},
+    {path: '/', name: 'Home', component: Home},
 
     //***** FRONT OFFICE
-    { path: '/sign-up', name: 'SignUp', component: SignUpPage },
-    { path: '/create-ticket', name: 'CreateTicket', component: CreateTicket },
-    { path: '/join-us', name: 'JoinUs', component: JoinUs },
-    { path: '/test', name: 'Test', component: Test },
+    {path: '/sign-up', name: 'SignUp', component: SignUpPage},
+    {path: '/create-ticket', name: 'CreateTicket', component: CreateTicket},
+    {path: '/join-us', name: 'JoinUs', component: JoinUs},
+    {path: '/test', name: 'Test', component: Test},
     {
         path: '/catalogue',
         name: 'Catalogue',
@@ -72,7 +67,7 @@ const routes = [
     {
         path: '/donations',
         name: 'Donations',
-        component: Donations,
+        component: Donation,
         //beforeEnter: useAuthGuard(['client'])
     },
     {
@@ -100,13 +95,14 @@ const routes = [
         //beforeEnter: useAuthGuard(['client'])
     },
 
-    //***** BACK OFFICE
+//***** BACK OFFICE
     {
         path: '/back-office',
         name: 'BackOfficeHome',
         component: BackOfficeHome,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
+    //Users
     {
         path: '/users',
         name: 'UsersAdmin',
@@ -145,6 +141,19 @@ const routes = [
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {
+        path: '/user-routes/:id',
+        name: 'UserDetailsRoutes',
+        component: UserDetailsRoutes,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/user-routes/details/:id',
+        name: 'UserDetailsRoutesDetails',
+        component: UserDetailsRoutesDetails,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    //Stocks
+    {
         path: '/stocks-admin',
         name: 'StocksAdmin',
         component: StocksAdmin,
@@ -168,12 +177,26 @@ const routes = [
         component: StocksDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
+    //Donations
     {
         path: '/donation-admin',
         name: 'DonationAdmin',
         component: DonationAdmin,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
+    {
+        path: '/donations-admin',
+        name: 'DonationsAdmin',
+        component: DonationsAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/requests-admin',
+        name: 'RequestsAdmin',
+        component: RequestsAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    //Tournée
     {
         path: '/tour-admin',
         name: 'TourAdmin',
@@ -198,8 +221,7 @@ const routes = [
         component: TourDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
-
-    { path: '/categories', name: 'Categories', component: Categories },
+    {path: '/categories', name: 'Categories', component: Categories, /*beforeEnter: useAuthGuard(['admin'])*/},
 ];
 
 const router = createRouter({

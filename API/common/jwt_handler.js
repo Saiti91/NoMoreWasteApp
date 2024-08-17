@@ -11,7 +11,7 @@ function generateJWT(userId, role) {
         },
         "secret",
         {
-            expiresIn: "1h"  // Durée de validité du JWT
+            expiresIn: "24h"  // Durée de validité du JWT
 
         } // Clé secrète utilisée pour signer le JWT
     );

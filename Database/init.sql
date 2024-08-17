@@ -207,11 +207,11 @@ CREATE TABLE IF NOT EXISTS Tickets
 
 -- Données de test pour la table Address
 INSERT INTO Address (Street, City, State, Postal_Code, Country)
-VALUES ('123 Rue de la Paix', 'Paris', 'Île-de-France', '75001', 'France'),
-       ('456 Avenue des Champs-Élysées', 'Paris', 'Île-de-France', '75008', 'France'),
-       ('789 Boulevard Saint-Germain', 'Paris', 'Île-de-France', '75006', 'France'),
-       ('1011 Rue de Rivoli', 'Paris', 'Île-de-France', '75004', 'France'),
-       ('1213 Rue du Bac', 'Paris', 'Île-de-France', '75007', 'France');
+VALUES ('123 Rue de la Paix', 'Paris', 'Ile-de-France', '75001', 'France'),
+       ('456 Avenue des Champs-Elysées', 'Paris', 'Ile-de-France', '75008', 'France'),
+       ('789 Boulevard Saint-Germain', 'Paris', 'Ile-de-France', '75006', 'France'),
+       ('1011 Rue de Rivoli', 'Paris', 'Ile-de-France', '75004', 'France'),
+       ('1213 Rue du Bac', 'Paris', 'Ile-de-France', '75007', 'France');
 
 -- Données de test pour la table Products
 INSERT INTO Products (Barcode, Name, Storage_Type)

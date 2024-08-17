@@ -8,11 +8,11 @@ const {t} = useI18n();
 const router = useRouter();
 
 const navigateToDonation = () => {
-  router.push('/donations');
+  router.push('/donations-admin');
 };
 
 const navigateToRequest = () => {
-  router.push('/request');
+  router.push('/requests-admin');
 };
 
 onMounted(() => {

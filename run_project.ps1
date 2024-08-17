@@ -16,7 +16,8 @@ npm install
 
 # Kill the API process if it's already running
 $process = Get-Process -Name "node" -ErrorAction SilentlyContinue
-if ($process) {
+if ($process)
+{
     Write-Output "Killing existing API process..."
     $process | Stop-Process -Force
 }
