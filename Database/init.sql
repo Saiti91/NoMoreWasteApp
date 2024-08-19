@@ -1,3 +1,9 @@
+CREATE DATABASE IF NOT EXISTS `database` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE `database`;
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
 CREATE TABLE IF NOT EXISTS ProductsCategories
 (
     Category_ID   INT AUTO_INCREMENT PRIMARY KEY,
@@ -217,28 +223,28 @@ CREATE TABLE IF NOT EXISTS Tickets
 
 -- Données de test pour la table Address
 INSERT INTO Address (Street, City, State, Postal_Code, Country)
-VALUES ('123 Rue de la Paix', 'Paris', 'Ile-de-France', '75001', 'France'),
-       ('456 Avenue des Champs-Elysées', 'Paris', 'Ile-de-France', '75008', 'France'),
-       ('789 Boulevard Saint-Germain', 'Paris', 'Ile-de-France', '75006', 'France'),
-       ('1011 Rue de Rivoli', 'Paris', 'Ile-de-France', '75004', 'France'),
-       ('1213 Rue du Bac', 'Paris', 'Ile-de-France', '75007', 'France');
+VALUES ('123 Rue de la Paix', 'Paris', 'Île-de-France', '75001', 'France'),
+       ('456 Avenue des Champs-Élysées', 'Paris', 'Île-de-France', '75008', 'France'),
+       ('789 Boulevard Saint-Germain', 'Paris', 'Île-de-France', '75006', 'France'),
+       ('1011 Rue de Rivoli', 'Paris', 'Île-de-France', '75004', 'France'),
+       ('1213 Rue du Bac', 'Paris', 'Île-de-France', '75007', 'France');
 
 -- Données de test pour la table ProductCategories
 INSERT INTO ProductsCategories (Name, StorageSector)
-VALUES ('Fruits et Legumes', 'A1'),
+VALUES ('Fruits et Légumes', 'A1'),
        ('Viandes et Poissons', 'A2'),
        ('Pains et Pâtisseries', 'A3'),
-       ('Cremerie et Produits laitiers', 'A4'),
+       ('Crèmerie et Produits laitiers', 'A4'),
        ('Charcuterie et Traiteur', 'A5'),
-       ('Surgeles', 'B1'),
+       ('Surgelés', 'B1'),
        ('Boissons', 'B2'),
-       ('Epicerie salée', 'B3'),
-       ('Epicerie sucrée', 'B4'),
+       ('Épicerie salée', 'B3'),
+       ('Épicerie sucrée', 'B4'),
        ('Produits du monde', 'B5'),
-       ('Nutrition et Vegetale', 'C1'),
-       ('Bebe', 'C2'),
+       ('Nutrition et Végétale', 'C1'),
+       ('Bébé', 'C2'),
        ('Entretien et Nettoyage', 'C3'),
-       ('Hygiene et Beaute', 'C4'),
+       ('Hygiène et Beauté', 'C4'),
        ('Parapharmacie', 'D1');
 
 -- Données de test pour la table Products
@@ -293,14 +299,14 @@ VALUES
 ('7234567890126', 'Vin rouge', 7),
 ('7234567890127', 'Bière', 7),
 
--- Epicerie salée (Category_ID = 8)
+-- Épicerie salée (Category_ID = 8)
 ('8234567890123', 'Pâtes', 8),
 ('8234567890124', 'Riz', 8),
 ('8234567890125', 'Conserve de tomates', 8),
 ('8234567890126', 'Huile d\'olive', 8),
 ('8234567890127', 'Sel', 8),
 
--- Epicerie sucrée (Category_ID = 9)
+-- Épicerie sucrée (Category_ID = 9)
 ('9234567890123', 'Chocolat noir', 9),
 ('9234567890124', 'Biscuits', 9),
 ('9234567890125', 'Confiture de fraises', 9),
@@ -353,7 +359,7 @@ VALUES
 INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, Current_Subscription, Role)
 VALUES ('admin', 'admin', 1, '0102030405', 'admin@user.com', 'password', '1985-05-15', true, 'admin'),
        ('Martin', 'Lucie', 2, '0607080910', 'l.martin@user.com', 'password', '1990-07-22', false, 'volunteer'),
-       ('Lefevre', 'Pierre', 3, '0708091011', 'p.lefevre@user.com', 'password', '1980-02-17', true, 'volunteer'),
+       ('Lefèvre', 'Pierre', 3, '0708091011', 'p.lefevre@user.com', 'password', '1980-02-17', true, 'volunteer'),
        ('Moreau', 'Sophie', 4, '0809101112', 's.moreau@user.com', 'password', '1995-12-25', false, 'volunteer'),
        ('Dubois', 'Louis', 5, '0910111213', 'l.dubois@user.com', 'password', '1978-09-30', true, 'volunteer');
 
@@ -365,7 +371,7 @@ VALUES ('Permis de conduire'),
        ('Conseils anti-gaspi'),
        ('Gardiennage'),
        ('Services de réparation'),
-       ('Electricité'),
+       ('Électricité'),
        ('Plomberie'),
        ('Jardinage'),
        ('Informatique');
@@ -500,14 +506,14 @@ VALUES
 (34, 2900),
 (35, 3000),
 
--- Epicerie salée (Category_ID = 8)
+-- Épicerie salée (Category_ID = 8)
 (36, 3100),
 (37, 3200),
 (38, 3300),
 (39, 3400),
 (40, 3500),
 
--- Epicerie sucrée (Category_ID = 9)
+-- Épicerie sucrée (Category_ID = 9)
 (41, 3600),
 (42, 3700),
 (43, 3800),
@@ -575,29 +581,27 @@ VALUES (1, 5, 1, '2024-01-01', 1, true, '2024-01-02'),
        (1, 20, 2, '2024-01-07', 5, false, NULL),
        (5, 25, 5, '2024-01-08', 1, true, '2024-01-09');
 
-
 -- Données de test pour la table Statuses
 INSERT INTO Statuses (Name)
-VALUES ('Inscription_Ouverte'),
-       ('Inscription_fermée'),
+VALUES ('Inscription Ouverte'),
+       ('Inscription Fermée'),
        ('Terminé');
 
+-- Données de test pour la table SkillsCategories
 INSERT INTO SkillsCategories (Name, Skill_ID)
 VALUES ('Plomberie', 1),
-       ('Electricite', 2),
+       ('Électricité', 2),
        ('Maçonnerie', 3),
        ('Peinture', 4),
        ('Jardinage', 5);
 
-
 -- Associer des compétences aux catégories
 INSERT INTO Category_Skills (Category_ID, Skill_ID)
 VALUES (1, 8), -- Plomberie avec Plomberie
-       (1, 7), -- Plomberie avec Electricité
+       (1, 7), -- Plomberie avec Électricité
        (1, 3), -- Plomberie avec Bricolage
-       (2, 7), -- Électricité avec Electricité
+       (2, 7), -- Électricité avec Électricité
        (2, 6), -- Électricité avec Services de réparation
        (3, 3), -- Maçonnerie avec Bricolage
        (4, 4), -- Peinture avec Conseils anti-gaspi
        (5, 9); -- Jardinage avec Jardinage
-
