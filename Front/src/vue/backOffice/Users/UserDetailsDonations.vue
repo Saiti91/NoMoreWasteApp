@@ -10,7 +10,7 @@ const route = useRoute();
 
 const fetchUserDonations = async () => {
   try {
-    const response = await axios.get(`/donations/${route.params.id}`);
+    const response = await axios.get(`/donations/donor/${route.params.id}`);
     donations.value = response.data;
     console.log('User donations:', donations.value); // Debugging output
   } catch (error) {
