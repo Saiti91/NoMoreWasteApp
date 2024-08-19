@@ -10,19 +10,27 @@ const selectedCategory = ref('all');
 const searchQuery = ref('');
 const products = ref([]);
 const donationList = ref([]);
-const categories = ref([]); // Catégories extraites des produits
+const categories = ref([]); // Catégories extraites via /productsCategories
+
+// Récupération des catégories depuis /productsCategories
+const fetchCategories = async () => {
+  try {
+    const response = await axios.get('/productsCategories');
+    categories.value = response.data.map(category => category.Name);
+
+    console.log('Catégories:', categories.value);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des catégories :', error);
+  }
+};
 
 // Récupération des produits disponibles pour le don
 const fetchProducts = async () => {
   try {
-    const response = await axios.get('/stocks'); // Remplacez par l'URL appropriée
+    const response = await axios.get('/products');
     products.value = response.data;
 
-    // Extraction des catégories uniques à partir des produits
-    categories.value = [...new Set(products.value.map(product => product.Storage_Type))];
-
     console.log('Produits:', products.value);
-    console.log('Catégories:', categories.value);
   } catch (error) {
     console.error('Erreur lors de la récupération des produits :', error);
   }
@@ -32,7 +40,7 @@ const fetchProducts = async () => {
 const filteredProducts = computed(() => {
   let filtered = products.value;
   if (selectedCategory.value !== 'all') {
-    filtered = filtered.filter(product => product.Storage_Type === selectedCategory.value);
+    filtered = filtered.filter(product => product.Category_Name === selectedCategory.value);
   }
   if (searchQuery.value) {
     filtered = filtered.filter(product => product.Name.toLowerCase().includes(searchQuery.value.toLowerCase()));
@@ -62,6 +70,7 @@ const addOtherProduct = () => {
     Name: '',
     isOther: true, // Marquer ce produit comme étant "autre"
     quantity: 1,
+    Category_Name: '',
   };
   donationList.value.push(newProduct);
 };
@@ -80,20 +89,35 @@ const removeFromDonationList = (item) => {
 
 // Valider la liste des dons
 const validateDonation = () => {
-  // Vérifier si un produit "autre" n'a pas de nom
-  const invalidOtherProduct = donationList.value.find(item => item.isOther && !item.Name.trim());
+  // Vérifier si un produit "autre" n'a pas de nom ou de catégorie
+  const invalidOtherProduct = donationList.value.find(item => item.isOther && (!item.Name.trim() || !item.Category_Name));
 
   if (invalidOtherProduct) {
     // Afficher une pop-up d'erreur
     Swal.fire({
       icon: 'error',
       title: t('error_title'),
-      text: t('error_other_product_name'),
+      text: t('error_other_product_name_category'),
     });
   } else {
     try {
+      // Envoie de la liste de dons au serveur
+      axios.post('/donations', donationList.value)
+          .then(() => {
+            Swal.fire({
+              icon: 'success',
+              title: t('success_title'),
+              text: t('donation_success'),
+            });
+          })
+          .catch(() => {
+            Swal.fire({
+              icon: 'error',
+              title: t('error_title'),
+              text: t('donation_error'),
+            });
+          });
       console.log('Liste des dons validée:', donationList.value);
-      // Vous pouvez aussi envoyer la liste des dons validée à votre serveur ici
     } catch (error) {
       console.error('Erreur lors de la validation de la liste des dons :', error);
     }
@@ -101,27 +125,34 @@ const validateDonation = () => {
 };
 
 onMounted(() => {
-  fetchProducts();
+  fetchCategories();  // Charger les catégories lors du montage
+  fetchProducts();    // Charger les produits lors du montage
 });
 </script>
 
-
 <template>
   <Header />
-  <div class="spacer"></div>
+  <div class="spacer_perso"></div>
   <div class="ui grid">
     <!-- Menu des catégories -->
-    <div class="two wide column">
+    <div class="three wide column">
       <div class="ui vertical fluid tabular menu">
-        <a class="item" :class="{ active: selectedCategory === 'all' }" @click="selectCategory('all')">{{ t('all_products') }}</a>
-        <a v-for="category in categories" :key="category" class="item" :class="{ active: selectedCategory === category }" @click="selectCategory(category)">
+        <a class="item"
+           :class="{ active: selectedCategory === 'all' }"
+           @click="selectCategory('all')">
+          {{ t('all_products') }}
+        </a>
+        <a v-for="category in categories"
+           :key="category" class="item"
+           :class="{ active: selectedCategory === category }"
+           @click="selectCategory(category)">
           {{ category }}
         </a>
       </div>
     </div>
 
     <!-- Catalogue de produits -->
-    <div class="nine wide column">
+    <div class="eight wide column">
       <div class="ui input right floated">
         <input type="text" :placeholder="t('search')" v-model="searchQuery" />
       </div>
@@ -129,6 +160,7 @@ onMounted(() => {
         <div v-for="product in filteredProducts" :key="product.Product_ID" class="card product-card">
           <div class="content">
             <div class="header">{{ product.Name }}</div>
+            <div class="meta">{{ t('category') }}: {{ product.Category_Name }}</div>
             <div class="description">
               <button class="ui button" @click="addToDonationList(product)">{{ t('add_donation_list') }}</button>
             </div>
@@ -152,10 +184,17 @@ onMounted(() => {
         <div class="ui grid">
           <div class="seven wide column">
             <div v-if="item.isOther">
-              <input type="text" v-model="item.Name" :placeholder="t('other_product_name')" />
+              <input type="text" v-model="item.Name" :placeholder="t('other_product_name')" style="margin-bottom: 5px;" />
+              <select v-model="item.Category_Name" class="ui dropdown" style="width: 100%;">
+                <option value="">{{ t('select_category') }}</option>
+                <option v-for="category in categories" :key="category" :value="category">
+                  {{ category }}
+                </option>
+              </select>
             </div>
             <div v-else>
               <strong>{{ item.Name }}</strong>
+              <p>{{ t('category') }}: {{ item.Category_Name }}</p>
             </div>
           </div>
           <div class="nine wide column right aligned">
@@ -176,8 +215,8 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.spacer {
-  margin-top: 1%;
+.spacer_perso {
+  margin-top: 4.5%;
 }
 
 .ui.grid {
@@ -185,7 +224,7 @@ onMounted(() => {
 }
 
 .product-card {
-  width: calc(45% - 10px); /* Réduire la largeur des cartes */
+  width: calc(40% - 10px); /* Réduire la largeur des cartes */
   margin-bottom: 20px;
   margin-right: 2.5%;
   float: left;
