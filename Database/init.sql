@@ -136,7 +136,6 @@ CREATE TABLE IF NOT EXISTS Stocks
     Stock_ID   INT AUTO_INCREMENT PRIMARY KEY,
     Product_ID INT,
     Quantity   INT,
-    Zone       VARCHAR(100),
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID) ON DELETE CASCADE
 );
 
@@ -450,13 +449,112 @@ VALUES (1, 1, 100),
        (5, 5, 500);
 
 -- Données de test pour la table Stocks
-INSERT INTO Stocks (Product_ID, Quantity, Zone)
-VALUES (1, 1000, 'A1'),
-       (1, 2000, 'A2'),
-       (2, 2000, 'B2'),
-       (3, 3000, 'C3'),
-       (4, 4000, 'D1'),
-       (5, 5000, 'A3');
+INSERT INTO Stocks (Product_ID, Quantity)
+VALUES
+-- Fruits et Légumes (Category_ID = 1)
+(1, 100),
+(2, 200),
+(3, 300),
+(4, 400),
+(5, 500),
+
+-- Viandes et Poissons (Category_ID = 2)
+(6, 150),
+(7, 250),
+(8, 350),
+(9, 450),
+(10, 550),
+
+-- Pains et Pâtisseries (Category_ID = 3)
+(11, 600),
+(12, 700),
+(13, 800),
+(14, 900),
+(15, 1000),
+
+-- Crèmerie et Produits laitiers (Category_ID = 4)
+(16, 1100),
+(17, 1200),
+(18, 1300),
+(19, 1400),
+(20, 1500),
+
+-- Charcuterie et Traiteur (Category_ID = 5)
+(21, 1600),
+(22, 1700),
+(23, 1800),
+(24, 1900),
+(25, 2000),
+
+-- Surgelés (Category_ID = 6)
+(26, 2100),
+(27, 2200),
+(28, 2300),
+(29, 2400),
+(30, 2500),
+
+-- Boissons (Category_ID = 7)
+(31, 2600),
+(32, 2700),
+(33, 2800),
+(34, 2900),
+(35, 3000),
+
+-- Epicerie salée (Category_ID = 8)
+(36, 3100),
+(37, 3200),
+(38, 3300),
+(39, 3400),
+(40, 3500),
+
+-- Epicerie sucrée (Category_ID = 9)
+(41, 3600),
+(42, 3700),
+(43, 3800),
+(44, 3900),
+(45, 4000),
+
+-- Produits du monde (Category_ID = 10)
+(46, 4100),
+(47, 4200),
+(48, 4300),
+(49, 4400),
+(50, 4500),
+
+-- Nutrition et Végétale (Category_ID = 11)
+(51, 4600),
+(52, 4700),
+(53, 4800),
+(54, 4900),
+(55, 5000),
+
+-- Bébé (Category_ID = 12)
+(56, 5100),
+(57, 5200),
+(58, 5300),
+(59, 5400),
+(60, 5500),
+
+-- Entretien et Nettoyage (Category_ID = 13)
+(61, 5600),
+(62, 5700),
+(63, 5800),
+(64, 5900),
+(65, 6000),
+
+-- Hygiène et Beauté (Category_ID = 14)
+(66, 6100),
+(67, 6200),
+(68, 6300),
+(69, 6400),
+(70, 6500),
+
+-- Parapharmacie (Category_ID = 15)
+(71, 6600),
+(72, 6700),
+(73, 6800),
+(74, 6900),
+(75, 7000);
 
 -- Données de test pour la table Requests
 INSERT INTO Requests (Product_ID, Quantity, Date, User_ID)
