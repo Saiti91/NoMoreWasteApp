@@ -1,7 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import axios from '@/utils/Axios.js';
-import { useRoute } from 'vue-router';
+import {useRoute} from 'vue-router';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import UserMenu from "@/components/UserDetailsLeftMenu.vue";
 
@@ -20,7 +20,7 @@ const fetchTourDetails = async () => {
 
 const formatDate = (date) => {
   if (!date) return 'Non renseigné';
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const options = {year: 'numeric', month: 'long', day: 'numeric'};
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
@@ -52,14 +52,16 @@ onMounted(() => {
             <tbody>
             <tr v-for="destination in tour.Destinations" :key="destination.Destination_ID">
               <td>
-                {{ destination.Address.Street }}, {{ destination.Address.City }}, {{ destination.Address.Postal_Code }}, {{ destination.Address.Country }}
+                {{ destination.Address.Street }}, {{ destination.Address.City }}, {{ destination.Address.Postal_Code }},
+                {{ destination.Address.Country }}
               </td>
               <td>
-                <ul>
+                <ul v-if="destination.Products.length > 0">
                   <li v-for="product in destination.Products" :key="product.Destination_Product_ID">
                     {{ product.Product_Name }} ({{ product.Quantity }} unités)
                   </li>
                 </ul>
+                <p v-else>Aucun produit associé à cette destination.</p>
               </td>
             </tr>
             </tbody>
@@ -102,7 +104,7 @@ h2 {
   width: 100%;
 }
 
-.ui.celled.table.full-width-table th{
+.ui.celled.table.full-width-table th {
   text-align: center;
   padding: 10px;
 }

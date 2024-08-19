@@ -28,10 +28,14 @@ async function getOneBy(attribute, value) {
                u.Name AS User_Name,
                u.Firstname AS User_Firstname,
                u.Email AS User_Email,
-               p.*
+               p.Product_ID,
+               p.Name AS Product_Name,
+               p.Barcode,
+               c.Name AS Category_Name
         FROM Requests r
                  LEFT JOIN Users u ON r.User_ID = u.User_ID
                  LEFT JOIN Products p ON r.Product_ID = p.Product_ID
+                 LEFT JOIN ProductsCategories c ON p.Category_ID = c.Category_ID
         WHERE r.${attribute} = ?
     `;
     const [rows] = await connection.execute(query, [value]);
@@ -46,19 +50,22 @@ async function getAll() {
         SELECT r.Request_ID,
                r.Quantity,
                r.Date AS Request_Date,
-               r.User_ID,
                JSON_OBJECT(
                        'User_ID', u.User_ID,
+                       'Name', u.Name,
+                       'Firstname', u.Firstname,
                        'Email', u.Email
                ) AS User,
                JSON_OBJECT(
                        'Product_ID', p.Product_ID,
                        'Name', p.Name,
-                       'Storage_Type', p.Storage_Type
+                       'Barcode', p.Barcode,
+                       'Category', c.Name
                ) AS Product
         FROM Requests r
                  LEFT JOIN Users u ON r.User_ID = u.User_ID
                  LEFT JOIN Products p ON r.Product_ID = p.Product_ID
+                 LEFT JOIN ProductsCategories c ON p.Category_ID = c.Category_ID
     `;
     const [rows] = await connection.execute(query);
     await connection.end();

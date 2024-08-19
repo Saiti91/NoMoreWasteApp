@@ -12,7 +12,7 @@ const fetchUserDonations = async () => {
   try {
     const response = await axios.get(`/requests/user/${route.params.id}`);
     donations.value = response.data;
-    console.log('User donations:', donations.value); // Debugging output
+    console.log('User Recieved Products:', donations.value); // Debugging output
   } catch (error) {
     console.error('Error fetching user donations:', error);
   }
@@ -20,7 +20,7 @@ const fetchUserDonations = async () => {
 
 const formatDate = (date) => {
   if (!date) return 'Non renseigné';
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const options = {year: 'numeric', month: 'long', day: 'numeric'};
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
@@ -45,16 +45,16 @@ onMounted(() => {
               <th>Code-barres</th>
               <th>Quantité</th>
               <th>Date</th>
-              <th>Type de stockage</th>
+              <th>Catégorie</th>
             </tr>
             </thead>
             <tbody>
-            <tr v-for="donation in donations" :key="donation.Donation_ID">
-              <td>{{ donation.Name }}</td>
+            <tr v-for="donation in donations" :key="donation.Request_ID">
+              <td>{{ donation.Product_Name }}</td>
               <td>{{ donation.Barcode }}</td>
               <td>{{ donation.Quantity }}</td>
               <td>{{ formatDate(donation.Date) }}</td>
-              <td>{{ donation.Storage_Type }}</td>
+              <td>{{ donation.Category_Name }}</td>
             </tr>
             </tbody>
           </table>

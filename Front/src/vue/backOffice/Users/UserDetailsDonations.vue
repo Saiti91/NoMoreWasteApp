@@ -20,8 +20,13 @@ const fetchUserDonations = async () => {
 
 const formatDate = (date) => {
   if (!date) return 'Non renseigné';
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const options = {year: 'numeric', month: 'long', day: 'numeric'};
   return new Date(date).toLocaleDateString('fr-FR', options);
+};
+
+const displayCollectionStatus = (collected, date) => {
+  if (collected) return formatDate(date);
+  return 'Non collecté';
 };
 
 onMounted(() => {
@@ -44,17 +49,21 @@ onMounted(() => {
               <th>Nom du produit</th>
               <th>Code-barres</th>
               <th>Quantité</th>
-              <th>Date</th>
-              <th>Type de stockage</th>
+              <th>Date de donation</th>
+              <th>Date de collecte</th>
+              <th>Catégorie</th>
+              <th>Statut de la collecte</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="donation in donations" :key="donation.Donation_ID">
-              <td>{{ donation.Name }}</td>
-              <td>{{ donation.Barcode }}</td>
+              <td>{{ donation.Product_Name }}</td>
+              <td>{{ donation.Product_Barcode }}</td>
               <td>{{ donation.Quantity }}</td>
-              <td>{{ formatDate(donation.Date) }}</td>
-              <td>{{ donation.Storage_Type }}</td>
+              <td>{{ formatDate(donation.Donation_Date) }}</td>
+              <td>{{ displayCollectionStatus(donation.Collected, donation.Collection_Date) }}</td>
+              <td>{{ donation.Category_Name }}</td>
+              <td>{{ donation.Collected ? 'Collecté' : 'Non collecté' }}</td>
             </tr>
             </tbody>
           </table>
