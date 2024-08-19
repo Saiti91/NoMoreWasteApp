@@ -5,10 +5,10 @@ import Cookies from 'js-cookie';
 import VueJwtDecode from 'vue-jwt-decode';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import {ref} from "vue";
-
+import { ref } from "vue";
 
 const { t } = useI18n();
+const router = useRouter(); // Récupérer l'instance du routeur
 const token = Cookies.get('token');
 const isAuthenticated = ref(false);
 
@@ -22,15 +22,15 @@ if (token) {
       Cookies.remove('token');
     }
   } catch (error) {
-    console.error('Invalid token', error);
+    console.error('Jeton invalide', error);
     Cookies.remove('token');
   }
 }
 
+// Fonction pour naviguer vers une autre page
 const navigateTo = (routeName) => {
-  router.push({name: routeName});
+  router.push({ name: routeName }); // Utiliser l'instance du routeur pour naviguer
 };
-
 </script>
 
 <template>
@@ -72,7 +72,6 @@ const navigateTo = (routeName) => {
         </div>
       </div>
     </div>
-    <FooterComponent/>
   </div>
 </template>
 
