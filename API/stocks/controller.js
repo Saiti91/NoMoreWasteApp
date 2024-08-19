@@ -87,7 +87,7 @@ controller.get(
  *         description: Stock not found
  */
 controller.get(
-    "/;id",
+    "/:id",
     (req, res, next) => {
         stocksService.getOne(Number(req.params.id))
             .then((data) => {

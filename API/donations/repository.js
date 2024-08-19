@@ -7,15 +7,24 @@ async function createOne(donation) {
     }
     const connection = await getConnection();
     const query = `
-        INSERT INTO Donations (Product_ID, Quantity, Donor_User_ID, Date)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO Donations (Product_ID, Quantity, Donor_User_ID, Date, Route_ID, Collected, Collection_Date)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
-    const values = [donation.Product_ID, donation.Quantity, donation.Donor_User_ID, donation.Date];
+    const values = [
+        donation.Product_ID,
+        donation.Quantity,
+        donation.Donor_User_ID,
+        donation.Date,
+        donation.Route_ID || null,  // Allow NULL if Route_ID is not provided
+        donation.Collected || false, // Default to false if not provided
+        donation.Collection_Date || null // Allow NULL if Collection_Date is not provided
+    ];
     const [result] = await connection.execute(query, values);
     await connection.end();
     return { Donation_ID: result.insertId, ...donation };
 }
 
+// Récupère les donations par un attribut spécifique
 async function getDonationsBy(attribute, value) {
     if (attribute === undefined || value === undefined) {
         throw new Error("getDonationsBy: Both attribute and value must be defined");
@@ -29,10 +38,13 @@ async function getDonationsBy(attribute, value) {
                u_donor.Name          AS Donor_Name,
                u_donor.Firstname     AS Donor_Firstname,
                u_donor.Email         AS Donor_Email,
-               p.*
+               p.*,
+               r.Route_ID            AS Route_ID,
+               r.Date                AS Route_Date
         FROM Donations d
                  LEFT JOIN Users u_donor ON d.Donor_User_ID = u_donor.User_ID
                  LEFT JOIN Products p ON d.Product_ID = p.Product_ID
+                 LEFT JOIN Routes r ON d.Route_ID = r.Route_ID
         WHERE d.${attribute} = ?
     `;
 
@@ -50,6 +62,9 @@ async function getAll() {
                d.Quantity,
                d.Date AS Donation_Date,
                d.Donor_User_ID,
+               d.Route_ID,
+               d.Collected,
+               d.Collection_Date,
                JSON_OBJECT(
                        'User_ID', u_donor.User_ID,
                        'Email', u_donor.Email
@@ -58,10 +73,15 @@ async function getAll() {
                        'Product_ID', p.Product_ID,
                        'Name', p.Name,
                        'Storage_Type', p.Storage_Type
-               )       AS Product
+               )       AS Product,
+               JSON_OBJECT(
+                       'Route_ID', r.Route_ID,
+                       'Date', r.Date
+               )       AS Route
         FROM Donations d
                  LEFT JOIN Users u_donor ON d.Donor_User_ID = u_donor.User_ID
                  LEFT JOIN Products p ON d.Product_ID = p.Product_ID
+                 LEFT JOIN Routes r ON d.Route_ID = r.Route_ID
     `;
     const [rows] = await connection.execute(query);
     await connection.end();
@@ -70,7 +90,10 @@ async function getAll() {
         Quantity: row.Quantity,
         Donation_Date: row.Donation_Date,
         Donor_User: typeof row.Donor_User === 'string' ? JSON.parse(row.Donor_User) : row.Donor_User,
-        Product: typeof row.Product === 'string' ? JSON.parse(row.Product) : row.Product
+        Product: typeof row.Product === 'string' ? JSON.parse(row.Product) : row.Product,
+        Route: typeof row.Route === 'string' ? JSON.parse(row.Route) : row.Route,
+        Collected: row.Collected,
+        Collection_Date: row.Collection_Date
     }));
 }
 
