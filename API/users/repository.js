@@ -1,12 +1,13 @@
 const getConnection = require("../common/db_handler");
 
-// Création d'un utilisateur classique
+// Création d'un utilisateur classique et de son adresse
 async function createOne(user) {
-    console.log('User in repository : ',user)
+    console.log('User in repository:', user);
+
     const {
         name = null,
         firstname = null,
-        address_id = null,
+        address = {}, // L'objet adresse contenant street, city, state, postal_code, country
         phone = null,
         email = null,
         password = null,
@@ -15,13 +16,24 @@ async function createOne(user) {
     } = user;
 
     const connection = await getConnection();
+
+    // Insérer l'adresse dans la table Addresses et récupérer l'ID généré
+    const [addressResult] = await connection.execute(
+        'INSERT INTO Address (Street, City, State, Postal_Code, Country) VALUES (?, ?, ?, ?, ?)',
+        [address.street, address.city, address.state, address.postal_code, address.country]
+    );
+    const address_id = addressResult.insertId;
+
+    // Insérer l'utilisateur dans la table Users avec l'Address_ID
     const [result] = await connection.execute(
         'INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, Current_Subscription) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         [name, firstname, address_id, phone, email, password, birthdate, current_subscription]
     );
+
     await connection.end();
     return result.insertId;
 }
+
 
 // Récupère un utilisateur en fonction de son ID
 async function getOne(id) {
