@@ -1,12 +1,20 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const users = ref([]);
 const router = useRouter();
 
+// Variables pour les filtres
+const selectedRole = ref('all');
+const selectedSubscription = ref('all');
+const searchName = ref('');
+
+// Fonction pour récupérer les utilisateurs
 const fetchUsers = async () => {
   try {
     const response = await axios.get('/users');
@@ -17,14 +25,27 @@ const fetchUsers = async () => {
   }
 };
 
-const formatDate = (date) => {
-  if (!date) return 'Non renseigné';
-  const options = {year: 'numeric', month: 'long', day: 'numeric'};
-  return new Date(date).toLocaleDateString('fr-FR', options);
-};
+// Propriété calculée pour filtrer et trier les utilisateurs
+const filteredUsers = computed(() => {
+  return users.value
+      .filter(user => {
+        return (selectedRole.value === 'all' || user.Role === selectedRole.value) &&
+            (selectedSubscription.value === 'all' || (selectedSubscription.value === 'subscribed' && user.Current_Subscription) || (selectedSubscription.value === 'not_subscribed' && !user.Current_Subscription)) &&
+            (searchName.value === '' || user.Name.toLowerCase().includes(searchName.value.toLowerCase()) || user.Firstname.toLowerCase().includes(searchName.value.toLowerCase()));
+      })
+      .sort((a, b) => b.User_ID - a.User_ID); // Tri par ID décroissant
+});
 
+// Fonction pour naviguer vers les détails d'un utilisateur
 const goToDetails = (userId) => {
   router.push({ name: 'UserDetails', params: { id: userId } });
+};
+
+// Fonction pour formater la date
+const formatDate = (date) => {
+  if (!date) return 'Non renseigné';
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
 onMounted(() => {
@@ -37,6 +58,35 @@ onMounted(() => {
   <div class="spacer"></div>
   <div class="ui container full-width no-center">
     <h1>Admin Users</h1>
+
+    <!-- Filters -->
+    <div class="ui form">
+      <div class="fields">
+        <div class="field">
+          <label>Role</label>
+          <select v-model="selectedRole" class="ui dropdown">
+            <option value="all">Tous les rôles</option>
+            <option value="admin">Admin</option>
+            <option value="volunteer">{{ t('volunteer') }}</option>
+            <!-- Ajoutez d'autres rôles si nécessaire -->
+          </select>
+        </div>
+        <div class="field">
+          <label>Abonnement</label>
+          <select v-model="selectedSubscription" class="ui dropdown">
+            <option value="all">Tous</option>
+            <option value="subscribed">Abonné</option>
+            <option value="not_subscribed">Non Abonné</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Nom ou Prénom</label>
+          <input type="text" v-model="searchName" placeholder="Rechercher par nom ou prénom">
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
     <table class="ui celled table full-width-table">
       <thead>
       <tr>
@@ -52,7 +102,7 @@ onMounted(() => {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="user in users" :key="user.User_ID" class="clickable-row">
+      <tr v-for="user in filteredUsers" :key="user.User_ID" class="clickable-row" @click="goToDetails(user.User_ID)">
         <td>{{ user.User_ID }}</td>
         <td>{{ user.Name || 'Non renseigné' }}</td>
         <td>{{ user.Firstname || 'Non renseigné' }}</td>
@@ -66,7 +116,6 @@ onMounted(() => {
         </td>
         <td>
           <button @click.stop="goToDetails(user.User_ID)">Détails</button>
-          <!-- Add more action buttons like edit, delete here -->
         </td>
       </tr>
       </tbody>

@@ -1,13 +1,18 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import {useRouter} from 'vue-router';
+import {useI18n} from 'vue-i18n';
 
-const { t } = useI18n();
+const {t} = useI18n();
 const tours = ref([]);
 const router = useRouter();
+
+// Variables pour les filtres
+const selectedDriver = ref('all');
+const selectedTruck = ref('all');
+const selectedDateRange = ref([null, null]);
 
 const fetchTours = async () => {
   try {
@@ -24,8 +29,34 @@ const fetchTours = async () => {
   }
 };
 
+// Propriété calculée pour filtrer les tournées
+const filteredTours = computed(() => {
+  let filtered = tours.value;
+
+  // Filtrer par chauffeur
+  if (selectedDriver.value !== 'all') {
+    filtered = filtered.filter(tour => tour.Driver.Driver_Name === selectedDriver.value);
+  }
+
+  // Filtrer par camion
+  if (selectedTruck.value !== 'all') {
+    filtered = filtered.filter(tour => tour.Truck.Truck_Registration === selectedTruck.value);
+  }
+
+  // Filtrer par plage de dates
+  if (selectedDateRange.value[0] && selectedDateRange.value[1]) {
+    const [startDate, endDate] = selectedDateRange.value;
+    filtered = filtered.filter(tour => {
+      const tourDate = new Date(tour.Route_Date);
+      return tourDate >= new Date(startDate) && tourDate <= new Date(endDate);
+    });
+  }
+
+  return filtered;
+});
+
 const goToDetails = (tourId) => {
-  router.push({ name: 'tourDetails', params: { id: tourId } });
+  router.push({name: 'tourDetails', params: {id: tourId}});
 };
 
 const calculateTotalQuantity = (destinations) => {
@@ -33,6 +64,16 @@ const calculateTotalQuantity = (destinations) => {
     return total + destination.Products.reduce((sum, product) => sum + product.Quantity, 0);
   }, 0);
 };
+
+// Fonction pour réinitialiser la plage de dates
+const resetDateRange = () => {
+  selectedDateRange.value = [null, null];
+};
+
+// Propriété calculée pour vérifier si une date est sélectionnée
+const isDateSelected = computed(() => {
+  return selectedDateRange.value[0] !== null || selectedDateRange.value[1] !== null;
+});
 
 onMounted(() => {
   fetchTours();
@@ -44,21 +85,58 @@ onMounted(() => {
   <div class="spacer"></div>
   <div class="ui container full-width no-center">
     <h1>{{ t('tourneesDeCollecte') }}</h1>
+
+    <!-- Filters -->
+    <div class="ui form">
+      <div class="fields">
+        <div class="field">
+          <label>{{ t('chauffeur') }}</label>
+          <select v-model="selectedDriver" class="ui dropdown">
+            <option value="all">{{ t('alldrivers') }}</option>
+            <option v-for="tour in tours" :key="tour.Driver.Driver_Name" :value="tour.Driver.Driver_Name">
+              {{ tour.Driver.Driver_Name }}
+            </option>
+          </select>
+        </div>
+        <div class="field">
+          <label>{{ t('camion') }}</label>
+          <select v-model="selectedTruck" class="ui dropdown">
+            <option value="all">{{ t('alltrucks') }}</option>
+            <option v-for="tour in tours" :key="tour.Truck.Truck_Registration" :value="tour.Truck.Truck_Registration">
+              {{ tour.Truck.Truck_Registration }} - {{ tour.Truck.Truck_Model }}
+            </option>
+          </select>
+        </div>
+        <div class="field date-range-field">
+          <label>{{ t('dateRange') }}</label>
+          <div class="date-range-inputs">
+            <input type="date" v-model="selectedDateRange[0]">
+            <input type="date" v-model="selectedDateRange[1]">
+            <button class="ui button" v-if="isDateSelected" @click="resetDateRange">{{
+                t('reinitialiserLaPeriode')
+              }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
     <table class="ui celled table full-width-table">
       <thead>
       <tr>
-        <th>Numéro de Tournée</th>
+        <th>{{ t('numeroDeTournee') }}</th>
         <th>Date</th>
-        <th>Chauffeur</th>
-        <th>Camion</th>
-        <th>Capacité du Camion (m³)</th>
-        <th>Nombre de Destinations</th>
-        <th>Quantité Totale</th>
-        <th>Actions</th>
+        <th>{{ t('chauffeur') }}</th>
+        <th>{{ t('camion') }}</th>
+        <th>{{ t('capaciteDuCamion') }}</th>
+        <th>{{ t('nombreDeDestinations') }}</th>
+        <th>{{ t('totalQuantity') }}</th>
+        <th>{{ t('actions') }}</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="tour in tours" :key="tour.Route_ID" class="clickable-row" @click="goToDetails(tour.Route_ID)">
+      <tr v-for="tour in filteredTours" :key="tour.Route_ID" class="clickable-row" @click="goToDetails(tour.Route_ID)">
         <td>{{ tour.Route_ID }}</td>
         <td>{{ new Date(tour.Route_Date).toLocaleDateString() }}</td>
         <td>{{ tour.Driver.Driver_Name }}</td>
@@ -68,7 +146,7 @@ onMounted(() => {
         <td>{{ calculateTotalQuantity(tour.Destinations) }}</td>
         <td>
           <button @click.stop="goToDetails(tour.Route_ID)" class="ui button">
-            Voir Détails
+            {{ t('voirDetails') }}
           </button>
         </td>
       </tr>
@@ -107,5 +185,24 @@ onMounted(() => {
 
 .ui.button:hover {
   background-color: #1678c2;
+}
+
+.ui.form .fields .date-range-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-range-inputs {
+  display: flex;
+  align-items: center;
+}
+
+.date-range-inputs input[type="date"] {
+  margin-right: 10px;
+  flex: 1;
+}
+
+.date-range-inputs button {
+  margin-left: 10px;
 }
 </style>

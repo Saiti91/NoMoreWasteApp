@@ -22,7 +22,9 @@ const options = {
         path.join(basePath, "tours", "*.js"),
         path.join(basePath, "Destination", "*.js"),
         path.join(basePath, "Requests", "*.js"),
-        path.join(basePath, "categories", "*.js"),],
+        path.join(basePath, "Categories", "*.js"),
+        path.join(basePath, "Products", "*.js"),
+        path.join(basePath, "productCategories", "*.js"),],
 
 };
 

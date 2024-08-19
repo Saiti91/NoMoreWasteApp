@@ -20,7 +20,7 @@ async function createOne(ticket) {
 // Récupère un ticket par son ID
 async function getOne(id) {
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT * FROM tickets WHERE Ticket_ID = ?', [id]);
+    const [rows] = await connection.execute('SELECT * FROM Tickets WHERE Ticket_ID = ?', [id]);
     await connection.end();
     return rows[0] || null;
 }
@@ -28,7 +28,7 @@ async function getOne(id) {
 // Récupère tous les tickets
 async function getAll() {
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT * FROM tickets');
+    const [rows] = await connection.execute('SELECT * FROM Tickets');
     await connection.end();
     return rows;
 }
@@ -52,7 +52,7 @@ async function updateOne(id, ticket) {
 // Suppression d'un ticket par son ID
 async function deleteOne(id) {
     const connection = await getConnection();
-    const [result] = await connection.execute('DELETE FROM tickets WHERE Ticket_ID = ?', [id]);
+    const [result] = await connection.execute('DELETE FROM Tickets WHERE Ticket_ID = ?', [id]);
     await connection.end();
     return result.affectedRows > 0;
 }

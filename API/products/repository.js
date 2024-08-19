@@ -1,9 +1,9 @@
 const getConnection = require("../common/db_handler");
 
-// Création d'un enregistrement de stock
-async function createOne(stock) {
-    if (!stock.Product_ID || !stock.Quantity) {
-        throw new Error("createOne: Product_ID and Quantity must be defined");
+// Création d'un enregistrement de produit
+async function createOne(product) {
+    if (!product.Barcode || !product.Name || !product.Category_ID) {
+        throw new Error("createOne: Barcode, Name, and Category_ID must be defined");
     }
 
     const connection = await getConnection();
@@ -11,10 +11,10 @@ async function createOne(stock) {
         await connection.beginTransaction();
 
         const query = `
-            INSERT INTO Stocks (Product_ID, Quantity)
-            VALUES (?, ?)
+            INSERT INTO Products (Barcode, Name, Category_ID)
+            VALUES (?, ?, ?)
         `;
-        const [result] = await connection.execute(query, [stock.Product_ID, stock.Quantity]);
+        const [result] = await connection.execute(query, [product.Barcode, product.Name, product.Category_ID]);
 
         await connection.commit();
         return result.insertId;
@@ -26,7 +26,7 @@ async function createOne(stock) {
     }
 }
 
-// Récupère un stock par son ID
+// Récupère un produit par son ID
 async function getOne(id) {
     if (!id) {
         throw new Error("getOne: ID must be defined");
@@ -34,18 +34,17 @@ async function getOne(id) {
 
     const connection = await getConnection();
     const query = `
-        SELECT s.*, p.*, c.Name AS Category_Name, c.StorageSector
-        FROM Stocks s
-                 JOIN Products p ON s.Product_ID = p.Product_ID
+        SELECT p.*, c.Name AS Category_Name, c.StorageSector
+        FROM Products p
                  LEFT JOIN ProductsCategories c ON p.Category_ID = c.Category_ID
-        WHERE s.Stock_ID = ?
+        WHERE p.Product_ID = ?
     `;
     const [rows] = await connection.execute(query, [id]);
     await connection.end();
     return rows.length ? rows[0] : null;
 }
 
-// Récupère un ou plusieurs stocks en fonction d'un attribut
+// Récupère un ou plusieurs produits en fonction d'un attribut
 async function getOneBy(attribute, value) {
     if (attribute === undefined || value === undefined) {
         throw new Error("getOneBy: Both attribute and value must be defined");
@@ -54,11 +53,10 @@ async function getOneBy(attribute, value) {
     const connection = await getConnection();
     console.log(`Searching by ${attribute}: ${value}`);
     const query = `
-        SELECT s.*, p.*, c.Name AS Category_Name, c.StorageSector
-        FROM Stocks s
-                 JOIN Products p ON s.Product_ID = p.Product_ID
+        SELECT p.*, c.Name AS Category_Name, c.StorageSector
+        FROM Products p
                  LEFT JOIN ProductsCategories c ON p.Category_ID = c.Category_ID
-        WHERE s.${attribute} = ?
+        WHERE p.${attribute} = ?
     `;
     const [rows] = await connection.execute(query, [value]);
     console.log("Produit trouvé: ", rows);
@@ -66,13 +64,12 @@ async function getOneBy(attribute, value) {
     return rows || null;
 }
 
-// Récupère tous les stocks
+// Récupère tous les produits
 async function getAll() {
     const connection = await getConnection();
     const query = `
-        SELECT s.*, p.*, c.Name AS Category_Name, c.StorageSector
-        FROM Stocks s
-                 JOIN Products p ON s.Product_ID = p.Product_ID
+        SELECT p.*, c.Name AS Category_Name, c.StorageSector
+        FROM Products p
                  LEFT JOIN ProductsCategories c ON p.Category_ID = c.Category_ID
     `;
     const [rows] = await connection.execute(query);
@@ -80,28 +77,34 @@ async function getAll() {
     return rows;
 }
 
-// Update un enregistrement de stock
-async function updateOne(id, quantity) {
-    if (id === undefined || quantity === undefined) {
-        throw new Error("updateOne: id and quantity must be defined");
+// Update un enregistrement de produit
+async function updateOne(id, product) {
+    if (!id || !product) {
+        throw new Error("updateOne: ID and product data must be defined");
     }
 
     const connection = await getConnection();
-    const [result] = await connection.execute(
-        'UPDATE Stocks SET Quantity = ? WHERE Product_ID = ?',
-        [quantity, id]
-    );
+    const fields = Object.keys(product).map(key => `${key} = ?`).join(", ");
+    const values = Object.values(product);
+    values.push(id);
+
+    const query = `
+        UPDATE Products
+        SET ${fields}
+        WHERE Product_ID = ?
+    `;
+    const [result] = await connection.execute(query, values);
     await connection.end();
     return result.affectedRows > 0;
 }
 
-// Supprime un enregistrement de stock par son ID
+// Supprime un enregistrement de produit par son ID
 async function deleteOne(id) {
     if (id === undefined) {
-        throw new Error("deleteOne: id must be defined");
+        throw new Error("deleteOne: ID must be defined");
     }
     const connection = await getConnection();
-    const [result] = await connection.execute('DELETE FROM Stocks WHERE Product_ID = ?', [id]);
+    const [result] = await connection.execute('DELETE FROM Products WHERE Product_ID = ?', [id]);
     await connection.end();
     return result.affectedRows > 0;
 }

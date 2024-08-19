@@ -34,7 +34,7 @@ import StocksDetails from '@/vue/backOffice/Stocks/StocksDetails.vue';
 
 //***** Donations
 import DonationAdmin from '@/vue/backOffice/Don/DonationsAdmin.vue';
-import DonationsAdmin from "@/vue/backOffice/Don/DonationsDetails.vue";
+import DonationsAdmin from "@/vue/backOffice/Don/DonationsDetailsAdmin.vue";
 import RequestsAdmin from "@/vue/backOffice/Don/RequestDetails.vue";
 
 //***** Tounrée
@@ -42,6 +42,7 @@ import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
 import TourDetails from "@/vue/backOffice/Tournee/TourDetails.vue";
 import DistributionTourAdmin from "@/vue/backOffice/Tournee/DistributionTourAdmin.vue";
 import PickupTourAdmin from "@/vue/backOffice/Tournee/PickUpTourAdmin.vue";
+import CreateTour from "@/vue/backOffice/Tournee/TourCreation.vue";
 
 const routes = [
     {path: '/login', name: 'Login', component: LoginPage},
@@ -201,6 +202,12 @@ const routes = [
         path: '/tour-admin',
         name: 'TourAdmin',
         component: TourAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/createTour-admin',
+        name: 'CreateTour',
+        component: CreateTour,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {

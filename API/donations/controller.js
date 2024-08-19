@@ -12,22 +12,45 @@ const controller = Router();
  *     Donation:
  *       type: object
  *       properties:
+ *         Donation_ID:
+ *           type: integer
+ *           description: The auto-generated ID of the donation
  *         Product_ID:
  *           type: integer
- *           description: The product ID
+ *           description: The product ID related to the donation
  *         Quantity:
  *           type: integer
- *           description: The quantity of the product
- *         Donor_User:
+ *           description: The quantity of the product donated
+ *         Donor_User_ID:
+ *           type: integer
+ *           description: The ID of the user who donated the product
+ *         Date:
  *           type: string
- *           description: The ID or name of the donor user
- *         Recipient_User:
+ *           format: date
+ *           description: The date the donation was made
+ *         Route_ID:
+ *           type: integer
+ *           description: The ID of the route associated with the donation (nullable)
+ *         Collected:
+ *           type: boolean
+ *           description: Whether the donation has been collected
+ *         Collection_Date:
  *           type: string
- *           description: The ID or name of the recipient user
+ *           format: date
+ *           description: The date the donation was collected (nullable)
  *       required:
  *         - Product_ID
  *         - Quantity
- *         - Donor_User
+ *         - Date
+ *       example:
+ *         Donation_ID: 1
+ *         Product_ID: 101
+ *         Quantity: 50
+ *         Donor_User_ID: 10
+ *         Date: "2024-08-19"
+ *         Route_ID: null
+ *         Collected: false
+ *         Collection_Date: null
  */
 
 /**
@@ -41,11 +64,11 @@ const controller = Router();
  * @swagger
  * /donations:
  *   get:
- *     summary: Retrieve a list of donations
+ *     summary: Retrieve a list of all donations
  *     tags: [Donation]
  *     responses:
  *       200:
- *         description: A list of donations
+ *         description: A list of all donations
  *         content:
  *           application/json:
  *             schema:
@@ -55,19 +78,15 @@ const controller = Router();
  */
 controller.get("/", (req, res, next) => {
     donationsService.getAll()
-        .then((data) => {
-            res.json(data);
-        })
-        .catch((err) => {
-            next(err);
-        });
+        .then((data) => res.json(data))
+        .catch((err) => next(err));
 });
 
 /**
  * @swagger
  * /donations/donor/{donorID}:
  *   get:
- *     summary: Retrieve the donations by Donor ID
+ *     summary: Retrieve donations by Donor ID
  *     tags: [Donation]
  *     parameters:
  *       - in: path
@@ -78,7 +97,7 @@ controller.get("/", (req, res, next) => {
  *         description: The ID of the donor
  *     responses:
  *       200:
- *         description: A list of donations
+ *         description: A list of donations by the donor
  *         content:
  *           application/json:
  *             schema:
@@ -86,16 +105,15 @@ controller.get("/", (req, res, next) => {
  *               items:
  *                 $ref: '#/components/schemas/Donation'
  *       404:
- *         description: Donation not found
+ *         description: Donations not found
  */
 controller.get("/donor/:donorID", (req, res, next) => {
     donationsService.getOneDonor(Number(req.params.donorID))
         .then((data) => {
             if (data === null) {
-                throw new NotFoundError(`Donation with donorID ${req.params.donorID} not found`);
+                throw new NotFoundError(`No donations found for donor ID ${req.params.donorID}`);
             }
             res.json(data);
-            console.log('Retour du controlleur : ', data);
         })
         .catch((err) => next(err));
 });
@@ -104,7 +122,7 @@ controller.get("/donor/:donorID", (req, res, next) => {
  * @swagger
  * /donations/product/{productID}:
  *   get:
- *     summary: Retrieve the donations by Product ID
+ *     summary: Retrieve donations by Product ID
  *     tags: [Donation]
  *     parameters:
  *       - in: path
@@ -115,7 +133,7 @@ controller.get("/donor/:donorID", (req, res, next) => {
  *         description: The ID of the product
  *     responses:
  *       200:
- *         description: A list of donations
+ *         description: A list of donations by the product
  *         content:
  *           application/json:
  *             schema:
@@ -123,16 +141,15 @@ controller.get("/donor/:donorID", (req, res, next) => {
  *               items:
  *                 $ref: '#/components/schemas/Donation'
  *       404:
- *         description: Donation not found
+ *         description: Donations not found
  */
 controller.get("/product/:productID", (req, res, next) => {
     donationsService.getOneProduct(Number(req.params.productID))
         .then((data) => {
             if (data === null) {
-                throw new NotFoundError(`Donation with productID ${req.params.productID} not found`);
+                throw new NotFoundError(`No donations found for product ID ${req.params.productID}`);
             }
             res.json(data);
-            console.log('Retour du controlleur : ', data);
         })
         .catch((err) => next(err));
 });
@@ -152,7 +169,7 @@ controller.get("/product/:productID", (req, res, next) => {
  *         description: The ID of the donation
  *     responses:
  *       200:
- *         description: A donation
+ *         description: A single donation
  *         content:
  *           application/json:
  *             schema:
@@ -167,7 +184,6 @@ controller.get("/:id", (req, res, next) => {
                 throw new NotFoundError(`Donation with ID ${req.params.id} not found`);
             }
             res.json(data);
-            console.log('Retour du controlleur : ', data);
         })
         .catch((err) => next(err));
 });
@@ -186,11 +202,13 @@ controller.get("/:id", (req, res, next) => {
  *             $ref: '#/components/schemas/Donation'
  *     responses:
  *       201:
- *         description: Donation created
+ *         description: Donation created successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Donation'
+ *       400:
+ *         description: Invalid input data
  */
 controller.post("/", (req, res, next) => {
     donationsService.createOne(req.body)
@@ -213,9 +231,11 @@ controller.post("/", (req, res, next) => {
  *         description: The ID of the donation
  *     responses:
  *       204:
- *         description: Donation deleted
+ *         description: Donation deleted successfully
  *       404:
  *         description: Donation not found
+ *       401:
+ *         description: Unauthorized access
  *     security:
  *       - bearerAuth: []
  */
@@ -251,13 +271,15 @@ controller.delete("/:id", authorize(["admin"]), (req, res, next) => {
  *             $ref: '#/components/schemas/Donation'
  *     responses:
  *       200:
- *         description: Donation updated
+ *         description: Donation updated successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Donation'
  *       404:
  *         description: Donation not found
+ *       400:
+ *         description: Invalid input data
  */
 controller.patch("/:id", (req, res, next) => {
     const donationId = Number(req.params.id);
@@ -265,6 +287,9 @@ controller.patch("/:id", (req, res, next) => {
 
     donationsService.updateOne(donationId, data)
         .then((updatedDonation) => {
+            if (!updatedDonation) {
+                throw new NotFoundError(`Donation with ID ${req.params.id} not found`);
+            }
             res.status(200).json(updatedDonation);
         })
         .catch((err) => next(err));

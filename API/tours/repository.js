@@ -52,7 +52,7 @@ async function getOne(tourId) {
     const connection = await getConnection();
 
     const [routes] = await connection.execute(`
-        SELECT 
+        SELECT
             r.Route_ID,
             r.Date AS Route_Date,
             r.Type AS Route_Type,
@@ -62,13 +62,13 @@ async function getOne(tourId) {
             t.Registration AS Truck_Registration,
             t.Model AS Truck_Model,
             t.Capacity AS Truck_Capacity
-        FROM 
+        FROM
             Routes r
-        JOIN 
+                JOIN
             Users u ON r.User_ID = u.User_ID
-        JOIN 
+                JOIN
             Trucks t ON r.Truck_ID = t.Truck_ID
-        WHERE 
+        WHERE
             r.Route_ID = ?
     `, [tourId]);
 
@@ -95,7 +95,7 @@ async function getOne(tourId) {
     };
 
     const [destinations] = await connection.execute(`
-        SELECT 
+        SELECT
             d.Destination_ID,
             d.Type AS Destination_Type,
             a.Street,
@@ -107,16 +107,20 @@ async function getOne(tourId) {
             p.Product_ID,
             p.Name AS Product_Name,
             p.Barcode,
-            dp.Quantity AS Product_Quantity
-        FROM 
+            dp.Quantity AS Product_Quantity,
+            c.Name AS Category_Name,
+            c.StorageSector
+        FROM
             Destinations d
-        LEFT JOIN 
+                LEFT JOIN
             Address a ON d.Address_ID = a.Address_ID
-        LEFT JOIN 
+                LEFT JOIN
             Destination_Products dp ON d.Destination_ID = dp.Destination_ID
-        LEFT JOIN 
+                LEFT JOIN
             Products p ON dp.Product_ID = p.Product_ID
-        WHERE 
+                LEFT JOIN
+            ProductsCategories c ON p.Category_ID = c.Category_ID
+        WHERE
             d.Route_ID = ?
     `, [tourId]);
 
@@ -145,7 +149,9 @@ async function getOne(tourId) {
                 Product_ID: row.Product_ID,
                 Product_Name: row.Product_Name,
                 Barcode: row.Barcode,
-                Quantity: row.Product_Quantity
+                Quantity: row.Product_Quantity,
+                Category_Name: row.Category_Name,
+                StorageSector: row.StorageSector
             });
         }
     });
@@ -162,7 +168,7 @@ async function getAll() {
     const connection = await getConnection();
 
     const [rows] = await connection.execute(`
-        SELECT 
+        SELECT
             r.Route_ID,
             r.Date AS Route_Date,
             r.Type AS Route_Type,
@@ -183,21 +189,25 @@ async function getAll() {
             p.Product_ID,
             p.Name AS Product_Name,
             p.Barcode,
-            dp.Quantity AS Product_Quantity
-        FROM 
+            dp.Quantity AS Product_Quantity,
+            c.Name AS Category_Name,
+            c.StorageSector
+        FROM
             Routes r
-        JOIN 
+                JOIN
             Users u ON r.User_ID = u.User_ID
-        JOIN 
+                JOIN
             Trucks t ON r.Truck_ID = t.Truck_ID
-        LEFT JOIN 
+                LEFT JOIN
             Destinations d ON r.Route_ID = d.Route_ID
-        LEFT JOIN 
+                LEFT JOIN
             Address a ON d.Address_ID = a.Address_ID
-        LEFT JOIN 
+                LEFT JOIN
             Destination_Products dp ON d.Destination_ID = dp.Destination_ID
-        LEFT JOIN 
-            Products p ON dp.Product_ID = p.Product_ID;
+                LEFT JOIN
+            Products p ON dp.Product_ID = p.Product_ID
+                LEFT JOIN
+            ProductsCategories c ON p.Category_ID = c.Category_ID;
     `);
 
     await connection.end();
@@ -205,7 +215,6 @@ async function getAll() {
     const routes = {};
 
     rows.forEach(row => {
-        // Si la route n'existe pas encore dans l'objet routes, on la crée
         if (!routes[row.Route_ID]) {
             routes[row.Route_ID] = {
                 Route_ID: row.Route_ID,
@@ -225,7 +234,6 @@ async function getAll() {
             };
         }
 
-        // Si la destination existe, on la met à jour, sinon, on la crée
         const route = routes[row.Route_ID];
         let destination = route.Destinations.find(d => d.Destination_ID === row.Destination_ID);
 
@@ -245,19 +253,19 @@ async function getAll() {
             route.Destinations.push(destination);
         }
 
-        // On ajoute les produits à la destination
         if (row.Product_ID) {
             destination.Products.push({
                 Destination_Product_ID: row.Destination_Product_ID,
                 Product_ID: row.Product_ID,
                 Product_Name: row.Product_Name,
                 Barcode: row.Barcode,
-                Quantity: row.Product_Quantity
+                Quantity: row.Product_Quantity,
+                Category_Name: row.Category_Name,
+                StorageSector: row.StorageSector
             });
         }
     });
 
-    // Conversion des routes en tableau pour le retour
     return Object.values(routes);
 }
 
@@ -384,7 +392,6 @@ async function updateOne(id, data) {
     try {
         await connection.beginTransaction();
 
-        // Mise à jour de la route si les données existent
         const routeFields = ['Date', 'User_ID', 'Truck_ID', 'Type'];
         const routeUpdates = routeFields.filter(field => field in data);
 
