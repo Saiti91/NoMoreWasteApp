@@ -1,20 +1,26 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import {ref} from 'vue';
+import {useRouter} from 'vue-router';
+import {useI18n} from 'vue-i18n';
 import axios from '@/utils/Axios.js';
 
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
-const router = useRouter();
 const last_name = ref('');
 const first_name = ref('');
+const street = ref('');
+const city = ref('');
+const state = ref('');
+const postal_code = ref('');
+const country = ref('');
+
 const message = ref(false);
 const error = ref(null);
 const success = ref(null);
 
-const { t } = useI18n();
+const router = useRouter();
+const {t} = useI18n();
 
 const submitForm = async () => {
   error.value = null;
@@ -30,9 +36,18 @@ const submitForm = async () => {
       email: email.value,
       password: password.value,
       firstname: first_name.value,
-      name: last_name.value
+      name: last_name.value,
+      address: {
+        street: street.value,
+        city: city.value,
+        state: state.value,
+        postal_code: postal_code.value,
+        country: country.value,
+      },
     };
-    console.log("payload", payload)
+
+    console.log("payload", payload);
+
     const response = await axios.post('auth/register/', payload, {
       headers: {
         'Content-Type': 'application/json'
@@ -47,7 +62,6 @@ const submitForm = async () => {
     }
   } catch (err) {
     if (err.response) {
-      // Erreur de l'API
       if (err.response.status === 400) {
         error.value = t('emailalreadyused');
       } else if (err.response.status === 401) {
@@ -56,7 +70,6 @@ const submitForm = async () => {
         error.value = err.response.data?.message || t('something_went_wrong');
       }
     } else {
-      // Autre erreur
       error.value = t('networkError');
     }
     console.log("Error:", err);
@@ -103,6 +116,37 @@ const submitForm = async () => {
               <i class="lock icon"></i>
               <input type="password" v-model="confirmPassword" name="confirmPassword"
                      :placeholder="t('confirm_password')" required>
+            </div>
+          </div>
+          <!-- Partie Adresse -->
+          <div class="field">
+            <div class="ui left icon input">
+              <i class="home icon"></i>
+              <input type="text" v-model="street" name="street" :placeholder="t('street')" required>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui left icon input">
+              <i class="building icon"></i>
+              <input type="text" v-model="city" name="city" :placeholder="t('city')" required>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui left icon input">
+              <i class="map marker alternate icon"></i>
+              <input type="text" v-model="state" name="state" :placeholder="t('state')" required>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui left icon input">
+              <i class="envelope icon"></i>
+              <input type="text" v-model="postal_code" name="postal_code" :placeholder="t('postalCode')" required>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui left icon input">
+              <i class="globe icon"></i>
+              <input type="text" v-model="country" name="country" :placeholder="t('country')" required>
             </div>
           </div>
           <button class="ui fluid large teal submit button" type="submit">{{ t('sign_up') }}</button>
