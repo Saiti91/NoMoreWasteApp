@@ -37,7 +37,6 @@ const fetchProducts = async () => {
   try {
     const response = await axios.get('/stocks');
     products.value = response.data;
-    console.log('Produits:', products.value);
   } catch (error) {
     console.error('Erreur lors de la récupération des produits :', error);
   }
@@ -48,7 +47,6 @@ const fetchCategories = async () => {
   try {
     const response = await axios.get('/productsCategories');
     categories.value = response.data.map(category => category.Name);
-    console.log('Catégories:', categories.value);
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories :', error);
   }
@@ -148,21 +146,16 @@ const validateOrder = async () => {
         Date: currentDate,
         User_ID: userId.value
       };
-      console.log(requestData);
-
       const response = await axios.post('/requests', requestData);
-      console.log(response)
       if (response.status !== 201) {
         throw new Error(`Erreur lors de l'enregistrement du produit ${item.Name}`);
       }
     }
-
     Swal.fire({
       icon: 'success',
       title: t('orderSuccess'),
       text: t('orderSuccessMessage')
     });
-
   } catch (error) {
     console.error('Erreur lors de la validation de la demande :', error);
     Swal.fire({
@@ -172,7 +165,6 @@ const validateOrder = async () => {
     });
   }
 };
-
 
 onMounted(() => {
   fetchProducts();
