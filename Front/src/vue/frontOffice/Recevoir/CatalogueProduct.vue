@@ -11,8 +11,8 @@ const selectedCategory = ref('all');
 const searchQuery = ref('');
 const products = ref([]);
 const cart = ref([]);
-const categories = ref([]); // Catégories extraites des produits
-const errorMessages = ref({}); // Stocke les messages d'erreur pour chaque produit
+const categories = ref([]);
+
 
 // Récupération des produits du stock
 const fetchProducts = async () => {
@@ -26,18 +26,11 @@ const fetchProducts = async () => {
   }
 };
 
-// Récupération des catégories depuis l'API
+// Récupération des catégories depuis /productsCategories
 const fetchCategories = async () => {
   try {
-    const response = await axios.get('/productsCategories'); // Utilisez l'URL appropriée
-    categories.value = response.data;
-
-    // Ajouter l'option "Toutes les catégories"
-    categories.value.unshift({
-      Category_ID: 0,
-      Name: t('all_products'),
-      StorageSector: 'all'
-    });
+    const response = await axios.get('/productsCategories');
+    categories.value = response.data.map(category => category.Name);
 
     console.log('Catégories:', categories.value);
   } catch (error) {
@@ -49,7 +42,7 @@ const fetchCategories = async () => {
 const filteredProducts = computed(() => {
   let filtered = products.value;
   if (selectedCategory.value !== 'all') {
-    filtered = filtered.filter(product => product.Category_ID === selectedCategory.value);
+    filtered = filtered.filter(product => product.Category_Name === selectedCategory.value);
   }
   if (searchQuery.value) {
     filtered = filtered.filter(product => product.Name.toLowerCase().includes(searchQuery.value.toLowerCase()));
@@ -59,11 +52,7 @@ const filteredProducts = computed(() => {
 
 // Choisir une catégorie
 const selectCategory = (category) => {
-  if (category.StorageSector === 'all') {
-    selectedCategory.value = 'all';
-  } else {
-    selectedCategory.value = category.Category_ID;
-  }
+  selectedCategory.value = category;
 };
 
 // Ajouter un produit à la "liste de course"
@@ -170,14 +159,16 @@ onMounted(() => {
     <!-- Menu des catégories -->
     <div class="three wide column">
       <div class="ui vertical fluid tabular menu">
-        <a
-            v-for="category in categories"
-            :key="category.Category_ID"
-            class="item"
-            :class="{ active: selectedCategory === 'all' || selectedCategory === category.Category_ID }"
-            @click="selectCategory(category)"
-        >
-          {{ category.Name }}
+        <a class="item"
+           :class="{ active: selectedCategory === 'all' }"
+           @click="selectCategory('all')">
+          {{ t('all_products') }}
+        </a>
+        <a v-for="category in categories"
+           :key="category" class="item"
+           :class="{ active: selectedCategory === category }"
+           @click="selectCategory(category)">
+          {{ category }}
         </a>
       </div>
     </div>
@@ -192,7 +183,6 @@ onMounted(() => {
           <div class="content">
             <div class="header">{{ product.Name }}</div>
             <div class="meta">{{ t('estimated_stock') }} {{ product.Quantity }}</div>
-            <!-- Affichage du nom de la catégorie -->
             <div class="meta">{{ t('category') }}: {{ product.Category_Name }}</div>
             <div class="description">
               <button class="ui button" @click="addToCart(product)">{{ t('add_list') }}</button>
