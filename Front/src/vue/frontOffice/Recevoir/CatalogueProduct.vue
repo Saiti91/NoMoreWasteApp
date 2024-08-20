@@ -148,10 +148,11 @@ const validateOrder = async () => {
         Date: currentDate,
         User_ID: userId.value
       };
+      console.log(requestData);
 
       const response = await axios.post('/requests', requestData);
-
-      if (response.status !== 200) {
+      console.log(response)
+      if (response.status !== 201) {
         throw new Error(`Erreur lors de l'enregistrement du produit ${item.Name}`);
       }
     }
