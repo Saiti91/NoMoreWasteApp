@@ -4,6 +4,8 @@ import axios from '@/utils/Axios.js';
 import Header from "@/components/HeaderFrontOffice.vue";
 import { useI18n } from 'vue-i18n';
 import Swal from 'sweetalert2';
+import Cookies from 'js-cookie';
+import VueJwtDecode from 'vue-jwt-decode';
 
 const { t } = useI18n();
 const selectedCategory = ref('all');
@@ -11,13 +13,46 @@ const searchQuery = ref('');
 const products = ref([]);
 const donationList = ref([]);
 const categories = ref([]);
+const token = Cookies.get('token');
+const userId = ref(null);
+
+//Récupérer id de l'utilisateur
+if (token) {
+  try {
+    const decodedToken = VueJwtDecode.decode(token);
+    const expirationTime = decodedToken.exp * 1000;
+    if (Date.now() < expirationTime) {
+      userId.value = decodedToken.uid;
+    } else {
+      Cookies.remove('token');
+    }
+  } catch (error) {
+    console.error('Jeton invalide', error);
+    Cookies.remove('token');
+  }
+}
+
+// Fonction pour générer le code-barres pour les nouveaux produits
+function generateBarcode() {
+  const randomNumbers = Math.floor(Math.random() * 900) + 100; // Générer un nombre aléatoire à 3 chiffres
+  return `${Date.now()}${randomNumbers}`;
+}
+
+// Fonction pour obtenir la date actuelle au format YYYY-MM-DD
+function getFormattedDate() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
 
 // Récupération des catégories depuis /productsCategories
 const fetchCategories = async () => {
   try {
     const response = await axios.get('/productsCategories');
     categories.value = response.data.map(category => category.Name);
-    console.log('Catégories:', categories.value);
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories :', error);
   }
@@ -28,7 +63,6 @@ const fetchProducts = async () => {
   try {
     const response = await axios.get('/products');
     products.value = response.data;
-    console.log('Produits:', products.value);
   } catch (error) {
     console.error('Erreur lors de la récupération des produits :', error);
   }
@@ -86,7 +120,7 @@ const removeFromDonationList = (item) => {
 };
 
 // Valider la liste des dons
-const validateDonation = () => {
+const validateDonation = async () => {
   // Vérifier si un produit "autre" n'a pas de nom ou de catégorie
   const invalidOtherProduct = donationList.value.find(item => item.isOther && (!item.Name.trim() || !item.Category_Name));
 
@@ -97,28 +131,52 @@ const validateDonation = () => {
       title: t('donationError'),
       text: t('errorOtherProductNameCategory'),
     });
-  } else {
-    try {
-      // Envoie de la liste de dons au serveur
-      axios.post('/donations', donationList.value)
-          .then(() => {
-            Swal.fire({
-              icon: 'success',
-              title: t('donationSuccess'),
-              text: t('donationSuccessMessage'),
-            });
-          })
-          .catch(() => {
-            Swal.fire({
-              icon: 'error',
-              title: t('donationError'),
-              text: t('donationErrorMessage'),
-            });
-          });
-      console.log('Liste des dons validée:', donationList.value);
-    } catch (error) {
-      console.error('Erreur lors de la validation de la liste des dons :', error);
+    return; // Arrêter la validation si un produit est invalide
+  }
+
+  try {
+    // Parcourir chaque produit dans la donationList
+    for (const item of donationList.value) {
+      let productId = item.Product_ID;
+
+      // Si c'est un nouveau produit, l'enregistrer d'abord
+      if (item.isOther) {
+        const barcode = generateBarcode();
+        const newProduct = {
+          Barcode: barcode,
+          Name: item.Name,
+          Category_ID: categories.value.indexOf(item.Category_Name) + 1,
+        };
+        const productResponse = await axios.post('/products', newProduct);
+        productId = productResponse.data.Product_ID;
+      }
+
+      // Enregistrer la donation
+      const donationData = {
+        Product_ID: productId,
+        Quantity: item.quantity,
+        Donor_User_ID: userId.value,
+        Date: getFormattedDate(),
+        Route_ID: null,
+        Collected: false,
+        Collection_Date: null,
+      };
+
+      await axios.post('/donations', donationData);
     }
+    Swal.fire({
+      icon: 'success',
+      title: t('donationSuccess'),
+      text: t('donationSuccessMessage'),
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de la validation de la liste des dons :', error);
+    Swal.fire({
+      icon: 'error',
+      title: t('donationError'),
+      text: t('donationErrorMessage'),
+    });
   }
 };
 
@@ -127,6 +185,7 @@ onMounted(() => {
   fetchProducts();
 });
 </script>
+
 
 <template>
   <Header />
