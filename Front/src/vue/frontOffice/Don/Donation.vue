@@ -3,21 +3,20 @@ import { ref, computed, onMounted } from 'vue';
 import axios from '@/utils/Axios.js';
 import Header from "@/components/HeaderFrontOffice.vue";
 import { useI18n } from 'vue-i18n';
-import Swal from 'sweetalert2'; // Import de SweetAlert2
+import Swal from 'sweetalert2';
 
 const { t } = useI18n();
 const selectedCategory = ref('all');
 const searchQuery = ref('');
 const products = ref([]);
 const donationList = ref([]);
-const categories = ref([]); // Catégories extraites via /productsCategories
+const categories = ref([]);
 
 // Récupération des catégories depuis /productsCategories
 const fetchCategories = async () => {
   try {
     const response = await axios.get('/productsCategories');
     categories.value = response.data.map(category => category.Name);
-
     console.log('Catégories:', categories.value);
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories :', error);
@@ -29,7 +28,6 @@ const fetchProducts = async () => {
   try {
     const response = await axios.get('/products');
     products.value = response.data;
-
     console.log('Produits:', products.value);
   } catch (error) {
     console.error('Erreur lors de la récupération des produits :', error);
@@ -96,8 +94,8 @@ const validateDonation = () => {
     // Afficher une pop-up d'erreur
     Swal.fire({
       icon: 'error',
-      title: t('error_title'),
-      text: t('error_other_product_name_category'),
+      title: t('donationError'),
+      text: t('errorOtherProductNameCategory'),
     });
   } else {
     try {
@@ -106,15 +104,15 @@ const validateDonation = () => {
           .then(() => {
             Swal.fire({
               icon: 'success',
-              title: t('success_title'),
-              text: t('donation_success'),
+              title: t('donationSuccess'),
+              text: t('donationSuccessMessage'),
             });
           })
           .catch(() => {
             Swal.fire({
               icon: 'error',
-              title: t('error_title'),
-              text: t('donation_error'),
+              title: t('donationError'),
+              text: t('donationErrorMessage'),
             });
           });
       console.log('Liste des dons validée:', donationList.value);
@@ -125,8 +123,8 @@ const validateDonation = () => {
 };
 
 onMounted(() => {
-  fetchCategories();  // Charger les catégories lors du montage
-  fetchProducts();    // Charger les produits lors du montage
+  fetchCategories();
+  fetchProducts();
 });
 </script>
 
@@ -186,7 +184,7 @@ onMounted(() => {
             <div v-if="item.isOther">
               <input type="text" v-model="item.Name" :placeholder="t('other_product_name')" style="margin-bottom: 5px;" />
               <select v-model="item.Category_Name" class="ui dropdown" style="width: 100%;">
-                <option value="">{{ t('select_category') }}</option>
+                <option value="">{{ t('selectCategory') }}</option>
                 <option v-for="category in categories" :key="category" :value="category">
                   {{ category }}
                 </option>
@@ -224,7 +222,7 @@ onMounted(() => {
 }
 
 .product-card {
-  width: calc(40% - 10px); /* Réduire la largeur des cartes */
+  width: calc(40% - 10px);
   margin-bottom: 20px;
   margin-right: 2.5%;
   float: left;
