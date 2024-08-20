@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import { useRouter } from 'vue-router';
@@ -13,6 +13,15 @@ const router = useRouter();
 const selectedRole = ref('all');
 const selectedSubscription = ref('all');
 const searchName = ref('');
+
+// Variables pour la pagination
+const currentPage = ref(1);
+const usersPerPage = 10; // Nombre d'utilisateurs par page
+
+// Fonction pour normaliser une chaîne (supprimer les accents)
+const normalizeString = (str) => {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
 
 // Fonction pour récupérer les utilisateurs
 const fetchUsers = async () => {
@@ -31,14 +40,26 @@ const filteredUsers = computed(() => {
       .filter(user => {
         return (selectedRole.value === 'all' || user.Role === selectedRole.value) &&
             (selectedSubscription.value === 'all' || (selectedSubscription.value === 'subscribed' && user.Current_Subscription) || (selectedSubscription.value === 'not_subscribed' && !user.Current_Subscription)) &&
-            (searchName.value === '' || user.Name.toLowerCase().includes(searchName.value.toLowerCase()) || user.Firstname.toLowerCase().includes(searchName.value.toLowerCase()));
+            (searchName.value === '' || normalizeString(user.Name).includes(normalizeString(searchName.value)) || normalizeString(user.Firstname).includes(normalizeString(searchName.value)));
       })
       .sort((a, b) => b.User_ID - a.User_ID); // Tri par ID décroissant
 });
 
+// Propriété calculée pour la pagination
+const paginatedUsers = computed(() => {
+  const start = (currentPage.value - 1) * usersPerPage;
+  const end = start + usersPerPage;
+  return filteredUsers.value.slice(start, end);
+});
+
+// Calcul du nombre total de pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredUsers.value.length / usersPerPage);
+});
+
 // Fonction pour naviguer vers les détails d'un utilisateur
 const goToDetails = (userId) => {
-  router.push({ name: 'UserDetails', params: { id: userId } });
+  router.push({name: 'UserDetails', params: {id: userId}});
 };
 
 // Fonction pour formater la date
@@ -47,6 +68,24 @@ const formatDate = (date) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
+
+// Fonctions pour naviguer entre les pages
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value += 1;
+  }
+};
+
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value -= 1;
+  }
+};
+
+// Watchers pour réinitialiser currentPage lorsque les filtres changent
+watch([searchName, selectedRole, selectedSubscription], () => {
+  currentPage.value = 1;
+});
 
 onMounted(() => {
   fetchUsers();
@@ -102,7 +141,7 @@ onMounted(() => {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="user in filteredUsers" :key="user.User_ID" class="clickable-row" @click="goToDetails(user.User_ID)">
+      <tr v-for="user in paginatedUsers" :key="user.User_ID" class="clickable-row" @click="goToDetails(user.User_ID)">
         <td>{{ user.User_ID }}</td>
         <td>{{ user.Name || 'Non renseigné' }}</td>
         <td>{{ user.Firstname || 'Non renseigné' }}</td>
@@ -120,6 +159,13 @@ onMounted(() => {
       </tr>
       </tbody>
     </table>
+
+    <!-- Pagination Buttons -->
+    <div class="pagination-controls">
+      <button @click="previousPage" :disabled="currentPage === 1">Précédent</button>
+      <span>Page {{ currentPage }} sur {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="currentPage === totalPages">Suivant</button>
+    </div>
   </div>
 </template>
 
@@ -148,5 +194,16 @@ onMounted(() => {
 
 .ui.celled.table tr td button {
   margin-right: 5px;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination-controls button {
+  margin: 0 10px;
 }
 </style>

@@ -1,13 +1,14 @@
 <script setup>
-import {computed, onMounted, ref} from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import axios from '@/utils/Axios.js';
-import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
-import {useRouter} from 'vue-router';
-import {useI18n} from 'vue-i18n';
+import HeaderBackOffice from '@/components/HeaderBackOffice.vue';
+import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
-const {t} = useI18n();
+const { t } = useI18n();
 const tours = ref([]);
-const router = useRouter();
+const currentPage = ref(1); // Page actuelle
+const itemsPerPage = 10; // Nombre d'éléments par page
 
 // Variables pour les filtres
 const selectedDriver = ref('all');
@@ -29,18 +30,23 @@ const fetchTours = async () => {
   }
 };
 
+// Fonction pour normaliser une chaîne (supprimer les accents)
+const normalizeString = (str) => {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
+
 // Propriété calculée pour filtrer les tournées
 const filteredTours = computed(() => {
   let filtered = tours.value;
 
   // Filtrer par chauffeur
   if (selectedDriver.value !== 'all') {
-    filtered = filtered.filter(tour => tour.Driver.Driver_Name === selectedDriver.value);
+    filtered = filtered.filter(tour => normalizeString(tour.Driver.Driver_Name) === normalizeString(selectedDriver.value));
   }
 
   // Filtrer par camion
   if (selectedTruck.value !== 'all') {
-    filtered = filtered.filter(tour => tour.Truck.Truck_Registration === selectedTruck.value);
+    filtered = filtered.filter(tour => normalizeString(tour.Truck.Truck_Registration) === normalizeString(selectedTruck.value));
   }
 
   // Filtrer par plage de dates
@@ -55,8 +61,20 @@ const filteredTours = computed(() => {
   return filtered;
 });
 
+// Pagination calculée
+const paginatedTours = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredTours.value.slice(start, end);
+});
+
+// Calcul du nombre total de pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredTours.value.length / itemsPerPage);
+});
+
 const goToDetails = (tourId) => {
-  router.push({name: 'tourDetails', params: {id: tourId}});
+  router.push({ name: 'tourDetails', params: { id: tourId } });
 };
 
 const calculateTotalQuantity = (destinations) => {
@@ -73,6 +91,11 @@ const resetDateRange = () => {
 // Propriété calculée pour vérifier si une date est sélectionnée
 const isDateSelected = computed(() => {
   return selectedDateRange.value[0] !== null || selectedDateRange.value[1] !== null;
+});
+
+// Watchers pour réinitialiser currentPage lorsque les filtres changent
+watch([selectedDriver, selectedTruck, selectedDateRange], () => {
+  currentPage.value = 1;
 });
 
 onMounted(() => {
@@ -112,9 +135,8 @@ onMounted(() => {
           <div class="date-range-inputs">
             <input type="date" v-model="selectedDateRange[0]">
             <input type="date" v-model="selectedDateRange[1]">
-            <button class="ui button" v-if="isDateSelected" @click="resetDateRange">{{
-                t('reinitialiserLaPeriode')
-              }}
+            <button class="ui button" v-if="isDateSelected" @click="resetDateRange">
+              {{ t('reinitialiserLaPeriode') }}
             </button>
           </div>
         </div>
@@ -136,7 +158,7 @@ onMounted(() => {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="tour in filteredTours" :key="tour.Route_ID" class="clickable-row" @click="goToDetails(tour.Route_ID)">
+      <tr v-for="tour in paginatedTours" :key="tour.Route_ID" class="clickable-row" @click="goToDetails(tour.Route_ID)">
         <td>{{ tour.Route_ID }}</td>
         <td>{{ new Date(tour.Route_Date).toLocaleDateString() }}</td>
         <td>{{ tour.Driver.Driver_Name }}</td>
@@ -152,6 +174,13 @@ onMounted(() => {
       </tr>
       </tbody>
     </table>
+
+    <!-- Pagination Buttons -->
+    <div class="pagination-controls">
+      <button @click="currentPage > 1 && currentPage--" :disabled="currentPage === 1">Précédent</button>
+      <span>Page {{ currentPage }} sur {{ totalPages }}</span>
+      <button @click="currentPage < totalPages && currentPage++" :disabled="currentPage === totalPages">Suivant</button>
+    </div>
   </div>
 </template>
 
@@ -168,6 +197,13 @@ onMounted(() => {
 
 .ui.celled.table.full-width-table {
   width: 100%;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center; /* Centre les boutons horizontalement */
+  align-items: center; /* Centre les éléments verticalement */
+  margin-top: 20px;
 }
 
 .ui.celled.table tr.clickable-row {

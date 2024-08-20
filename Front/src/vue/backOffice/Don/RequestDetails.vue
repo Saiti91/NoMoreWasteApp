@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import { useRouter } from 'vue-router';
@@ -7,33 +7,19 @@ import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 const requests = ref([]);
-const filteredRequests = computed(() => {
-  let filtered = requests.value;
-
-  if (selectedStorageType.value && selectedStorageType.value !== 'all') {
-    filtered = filtered.filter(request => request.Product.Storage_Type === selectedStorageType.value);
-  }
-  if (selectedDateRange.value && selectedDateRange.value[0] && selectedDateRange.value[1]) {
-    const [startDate, endDate] = selectedDateRange.value;
-    filtered = filtered.filter(request => {
-      const requestDate = new Date(request.Date);
-      return requestDate >= new Date(startDate) && requestDate <= new Date(endDate);
-    });
-  }
-  if (searchQuery.value) {
-    filtered = filtered.filter(request =>
-        request.Product.Name.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
-  }
-
-  return filtered;
-});
+const currentPage = ref(1); // Page actuelle
+const itemsPerPage = 10; // Nombre d'éléments par page
 
 const storageTypes = ref([]);
 const selectedStorageType = ref('all');
 const selectedDateRange = ref([null, null]);  // Initialize as an array with two null values
 const searchQuery = ref('');
 const router = useRouter();
+
+// Fonction pour normaliser une chaîne (supprimer les accents)
+const normalizeString = (str) => {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
 
 const fetchRequests = async () => {
   try {
@@ -49,11 +35,46 @@ const fetchRequests = async () => {
   }
 };
 
+const filteredRequests = computed(() => {
+  let filtered = requests.value;
+
+  if (selectedStorageType.value && selectedStorageType.value !== 'all') {
+    filtered = filtered.filter(request => request.Product.Storage_Type === selectedStorageType.value);
+  }
+  if (selectedDateRange.value && selectedDateRange.value[0] && selectedDateRange.value[1]) {
+    const [startDate, endDate] = selectedDateRange.value;
+    filtered = filtered.filter(request => {
+      const requestDate = new Date(request.Date);
+      return requestDate >= new Date(startDate) && requestDate <= new Date(endDate);
+    });
+  }
+  if (searchQuery.value) {
+    const normalizedSearchQuery = normalizeString(searchQuery.value);
+    filtered = filtered.filter(request =>
+        normalizeString(request.Product.Name).includes(normalizedSearchQuery)
+    );
+  }
+
+  return filtered;
+});
+
+// Pagination calculée
+const paginatedRequests = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredRequests.value.slice(start, end);
+});
+
+// Calcul du nombre total de pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredRequests.value.length / itemsPerPage);
+});
+
 const formatDate = (dateString) => {
   // Supprimer les fractions de seconde et les 'Z' si présents
   const cleanedDateString = dateString.replace(/\.\d{3}Z$/, '');
 
-  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  const options = {day: '2-digit', month: '2-digit', year: 'numeric'};
   const date = new Date(cleanedDateString);
 
   // Vérifier si la date est valide
@@ -80,6 +101,11 @@ const resetDateRange = () => {
 // Computed property to check if a date is selected
 const isDateSelected = computed(() => {
   return selectedDateRange.value[0] !== null || selectedDateRange.value[1] !== null;
+});
+
+// Watchers pour réinitialiser currentPage lorsque les filtres changent
+watch([searchQuery, selectedStorageType, selectedDateRange], () => {
+  currentPage.value = 1;
 });
 
 onMounted(() => {
@@ -133,7 +159,7 @@ onMounted(() => {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="request in filteredRequests" :key="request.Request_ID" class="clickable-row">
+      <tr v-for="request in paginatedRequests" :key="request.Request_ID" class="clickable-row">
         <td>{{ request.Product.Name }}</td>
         <td>{{ request.Quantity }}</td>
         <td>{{ formatDate(request.Request_Date) }}</td>
@@ -142,6 +168,13 @@ onMounted(() => {
       </tr>
       </tbody>
     </table>
+
+    <!-- Pagination Buttons -->
+    <div class="pagination-controls">
+      <button @click="previousPage" :disabled="currentPage === 1">Précédent</button>
+      <span>Page {{ currentPage }} sur {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="currentPage === totalPages">Suivant</button>
+    </div>
   </div>
 </template>
 
@@ -192,5 +225,16 @@ onMounted(() => {
 
 .ui.celled.table tr.clickable-row:hover {
   background-color: #f1f1f1;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination-controls button {
+  margin: 0 10px;
 }
 </style>

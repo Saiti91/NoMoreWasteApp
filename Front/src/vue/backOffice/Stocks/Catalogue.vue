@@ -1,11 +1,21 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import axios from '@/utils/Axios.js';
-import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
+import HeaderBackOffice from '@/components/HeaderBackOffice.vue';
 import { useI18n } from 'vue-i18n';
 
 const products = ref([]);
 const t = useI18n().t;
+
+const selectedCategory = ref('all');
+const selectedZone = ref('all');
+const searchQuery = ref('');
+
+// Fonction pour normaliser une chaîne (supprimer les accents)
+const normalizeString = (str) => {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
+
 const filteredProducts = computed(() => {
   let filtered = products.value;
 
@@ -16,8 +26,9 @@ const filteredProducts = computed(() => {
     filtered = filtered.filter(product => product.Zone === selectedZone.value);
   }
   if (searchQuery.value) {
+    const normalizedSearchQuery = normalizeString(searchQuery.value);
     filtered = filtered.filter(product =>
-        product.Name.toLowerCase().includes(searchQuery.value.toLowerCase())
+        normalizeString(product.Name).includes(normalizedSearchQuery)
     );
   }
 
@@ -26,9 +37,6 @@ const filteredProducts = computed(() => {
 
 const categories = ref([]);
 const zones = ref([]);
-const selectedCategory = ref('all');
-const selectedZone = ref('all');
-const searchQuery = ref('');
 
 const fetchProducts = async () => {
   try {

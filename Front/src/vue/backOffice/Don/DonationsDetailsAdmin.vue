@@ -1,27 +1,38 @@
 <script setup>
-import {computed, onMounted, ref} from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
-import {useRouter} from 'vue-router';
-import {useI18n} from 'vue-i18n';
+import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
-const {t} = useI18n();
+const { t } = useI18n();
 const donations = ref([]);
+const currentPage = ref(1); // Page actuelle
+const itemsPerPage = 10; // Nombre d'éléments par page
+
 const selectedStorageType = ref('all');
 const selectedDateRange = ref([null, null]);
 const searchQuery = ref('');
-const selectedCollectedStatus = ref('all'); // New filter for collected status
-const selectedRoute = ref('all'); // New filter for routes
+const selectedCollectedStatus = ref('all'); // Filtre pour le statut de collecte
+const selectedRoute = ref('all'); // Filtre pour les routes
 const storageTypes = ref([]);
-const routes = ref([]); // Store available routes
+const routes = ref([]); // Stocker les routes disponibles
 const router = useRouter();
+
+// Fonction pour normaliser une chaîne (supprimer les accents)
+const normalizeString = (str) => {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
 
 const filteredDonations = computed(() => {
   let filtered = donations.value;
 
+  // Filtre par catégorie de stockage
   if (selectedStorageType.value && selectedStorageType.value !== 'all') {
-    filtered = filtered.filter(donation => donation.Product.Storage_Type === selectedStorageType.value);
+    filtered = filtered.filter(donation => donation.Product.Category === selectedStorageType.value);
   }
+
+  // Filtre par plage de dates
   if (selectedDateRange.value && selectedDateRange.value[0] && selectedDateRange.value[1]) {
     const [startDate, endDate] = selectedDateRange.value;
     filtered = filtered.filter(donation => {
@@ -29,14 +40,22 @@ const filteredDonations = computed(() => {
       return donationDate >= new Date(startDate) && donationDate <= new Date(endDate);
     });
   }
+
+  // Filtre par recherche
   if (searchQuery.value) {
+    const normalizedSearchQuery = normalizeString(searchQuery.value);
     filtered = filtered.filter(donation =>
-        donation.Product.Name.toLowerCase().includes(searchQuery.value.toLowerCase())
+        normalizeString(donation.Product.Name).includes(normalizedSearchQuery)
     );
   }
+
+  // Filtre par statut de collecte
   if (selectedCollectedStatus.value !== 'all') {
-    filtered = filtered.filter(donation => donation.Collected === (selectedCollectedStatus.value === 'collected'));
+    const isCollected = selectedCollectedStatus.value === 'collected';
+    filtered = filtered.filter(donation => Boolean(donation.Collected) === isCollected);
   }
+
+  // Filtre par route
   if (selectedRoute.value !== 'all') {
     filtered = filtered.filter(donation => donation.Route && donation.Route.Route_ID === parseInt(selectedRoute.value));
   }
@@ -44,13 +63,25 @@ const filteredDonations = computed(() => {
   return filtered;
 });
 
+// Pagination calculée
+const paginatedDonations = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredDonations.value.slice(start, end);
+});
+
+// Calcul du nombre total de pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredDonations.value.length / itemsPerPage);
+});
+
 const fetchDonations = async () => {
   try {
     const response = await axios.get('/donations');
     donations.value = response.data;
 
-    // Populate storage types
-    storageTypes.value = [...new Set(donations.value.map(donation => donation.Product.Storage_Type))];
+    // Populate storage types (using Category here as Category is your actual data field)
+    storageTypes.value = [...new Set(donations.value.map(donation => donation.Product.Category))];
 
     // Populate routes
     routes.value = [...new Set(donations.value.map(donation => donation.Route ? donation.Route.Route_ID : null).filter(route => route !== null))];
@@ -62,16 +93,16 @@ const fetchDonations = async () => {
 };
 
 const formatDate = (dateString) => {
-  const options = {day: '2-digit', month: '2-digit', year: 'numeric'};
+  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
   return new Date(dateString).toLocaleDateString('fr-FR', options);
 };
 
 const goToUserDetails = (user_id) => {
-  router.push({name: 'UserDetails', params: {id: user_id}});
+  router.push({ name: 'UserDetails', params: { id: user_id } });
 };
 
 const goToCreateTour = () => {
-  router.push({name: 'CreateTour'});
+  router.push({ name: 'CreateTour' });
 };
 
 // Function to reset the date range
@@ -82,6 +113,11 @@ const resetDateRange = () => {
 // Computed property to check if a date is selected
 const isDateSelected = computed(() => {
   return selectedDateRange.value[0] !== null || selectedDateRange.value[1] !== null;
+});
+
+// Watchers pour réinitialiser currentPage lorsque les filtres changent
+watch([searchQuery, selectedStorageType, selectedCollectedStatus, selectedRoute, selectedDateRange], () => {
+  currentPage.value = 1;
 });
 
 onMounted(() => {
@@ -145,16 +181,23 @@ onMounted(() => {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="donation in filteredDonations" :key="donation.Donation_ID" class="clickable-row">
+      <tr v-for="donation in paginatedDonations" :key="donation.Donation_ID" class="clickable-row">
         <td>{{ donation.Product.Name }}</td>
         <td>{{ donation.Quantity }}</td>
         <td>{{ formatDate(donation.Donation_Date) }}</td>
-        <td>{{ donation.Product.Storage_Type }}</td>
+        <td>{{ donation.Product.Category }}</td>
         <td @click="goToUserDetails(donation.Donor_User.User_ID)">{{ donation.Donor_User.Email }}</td>
         <td>{{ donation.Collected ? 'Collecté' : 'Non collecté' }}</td>
       </tr>
       </tbody>
     </table>
+
+    <!-- Pagination Buttons -->
+    <div class="pagination-controls">
+      <button @click="currentPage > 1 && currentPage--" :disabled="currentPage === 1">Précédent</button>
+      <span>Page {{ currentPage }} sur {{ totalPages }}</span>
+      <button @click="currentPage < totalPages && currentPage++" :disabled="currentPage === totalPages">Suivant</button>
+    </div>
   </div>
 </template>
 
@@ -205,5 +248,16 @@ onMounted(() => {
 
 .ui.celled.table tr.clickable-row:hover {
   background-color: #f1f1f1;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination-controls button {
+  margin: 0 10px;
 }
 </style>
