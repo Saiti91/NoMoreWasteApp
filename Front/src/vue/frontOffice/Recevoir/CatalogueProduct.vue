@@ -5,6 +5,8 @@ import Header from "@/components/HeaderFrontOffice.vue";
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import Swal from 'sweetalert2';
+import Cookies from 'js-cookie';
+import VueJwtDecode from 'vue-jwt-decode';
 
 const { t } = useI18n();
 const selectedCategory = ref('all');
@@ -12,14 +14,29 @@ const searchQuery = ref('');
 const products = ref([]);
 const cart = ref([]);
 const categories = ref([]);
+const token = Cookies.get('token');
+const userId = ref(null);
 
+if (token) {
+  try {
+    const decodedToken = VueJwtDecode.decode(token);
+    const expirationTime = decodedToken.exp * 1000;
+    if (Date.now() < expirationTime) {
+      userId.value = decodedToken.uid;
+    } else {
+      Cookies.remove('token');
+    }
+  } catch (error) {
+    console.error('Jeton invalide', error);
+    Cookies.remove('token');
+  }
+}
 
 // Récupération des produits du stock
 const fetchProducts = async () => {
   try {
     const response = await axios.get('/stocks');
     products.value = response.data;
-
     console.log('Produits:', products.value);
   } catch (error) {
     console.error('Erreur lors de la récupération des produits :', error);
@@ -31,7 +48,6 @@ const fetchCategories = async () => {
   try {
     const response = await axios.get('/productsCategories');
     categories.value = response.data.map(category => category.Name);
-
     console.log('Catégories:', categories.value);
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories :', error);
@@ -120,22 +136,32 @@ const removeFromCart = (item) => {
   cart.value = cart.value.filter(cartItem => cartItem.Product_ID !== item.Product_ID);
 };
 
-// Valider la liste
 const validateOrder = async () => {
   try {
-    console.log('Demande validée avec les produits:', cart.value);
-    // Simuler une requête de validation
-    const response = await axios.post('/validateOrder', cart.value); // Remplacez par votre endpoint
+    const currentDate = new Date().toISOString().split('T')[0]; // Formater la date en YYYY-MM-DD
 
-    if (response.status === 200) {
-      Swal.fire({
-        icon: 'success',
-        title: t('orderSuccess'),
-        text: t('orderSuccessMessage')
-      });
-    } else {
-      throw new Error('Validation échouée');
+    // Pour chaque produit dans le panier, créer une demande
+    for (const item of cart.value) {
+      const requestData = {
+        Product_ID: item.Product_ID,
+        Quantity: item.quantity,
+        Date: currentDate,
+        User_ID: userId.value
+      };
+
+      const response = await axios.post('/requests', requestData);
+
+      if (response.status !== 200) {
+        throw new Error(`Erreur lors de l'enregistrement du produit ${item.Name}`);
+      }
     }
+
+    Swal.fire({
+      icon: 'success',
+      title: t('orderSuccess'),
+      text: t('orderSuccessMessage')
+    });
+
   } catch (error) {
     console.error('Erreur lors de la validation de la demande :', error);
     Swal.fire({
@@ -145,6 +171,7 @@ const validateOrder = async () => {
     });
   }
 };
+
 
 onMounted(() => {
   fetchProducts();
