@@ -6,9 +6,15 @@ import SignUpPage from "../vue/frontOffice/SignUpPage.vue";
 import Home from "../vue/frontOffice/Home.vue";
 import CatalogueProduct from "@/vue/frontOffice/Recevoir/CatalogueProduct.vue";
 import Donation from "@/vue/frontOffice/Don/Donation.vue";
+
 import MyAccount from "@/vue/frontOffice/Compte/MyAccount.vue";
+import MyAccountDonation from "@/vue/frontOffice/Compte/MyAccountDonation.vue";
+import MyAccountRecievedProduct from "@/vue/frontOffice/Compte/MyAccountRecievedProduct.vue";
+import MyAccountRoutes from "@/vue/frontOffice/Compte/MyAccountRoutes.vue";
+import MyAccountRoutesDetails from "@/vue/frontOffice/Compte/MyAccountRoutesDetails.vue";
+
 import CreateTicket from "@/vue/frontOffice/Tickets/CreateTicket.vue";
-import Test from "@/vue/frontOffice/test.vue";
+
 import JoinUs from "@/vue/frontOffice/Join/JoinUs.vue";
 import PaymentCotisation from "@/vue/frontOffice/Join/PaymentCotisation.vue";
 import PaymentSuccess from "@/vue/frontOffice/Join/PaymentSuccess.vue";
@@ -44,6 +50,7 @@ import DistributionTourAdmin from "@/vue/backOffice/Tournee/DistributionTourAdmi
 import PickupTourAdmin from "@/vue/backOffice/Tournee/PickUpTourAdmin.vue";
 import CreateTour from "@/vue/backOffice/Tournee/TourCreation.vue";
 
+
 const routes = [
     {path: '/login', name: 'Login', component: LoginPage},
     {path: '/', name: 'Home', component: Home},
@@ -52,48 +59,63 @@ const routes = [
     {path: '/sign-up', name: 'SignUp', component: SignUpPage},
     {path: '/create-ticket', name: 'CreateTicket', component: CreateTicket},
     {path: '/join-us', name: 'JoinUs', component: JoinUs},
-    {path: '/test', name: 'Test', component: Test},
     {
         path: '/catalogue',
         name: 'Catalogue',
         component: CatalogueProduct,
-        //beforeEnter: useAuthGuard(['client'])
+        //beforeEnter: useAuthGuard(['volunteer'])
     },
     {
         path: '/donation',
         name: 'Donation',
         component: Donation,
-        //beforeEnter: useAuthGuard(['client'])
+        //beforeEnter: useAuthGuard(['volunteer'])
     },
+
+    //Pages de compte
     {
-        path: '/donations',
-        name: 'Donations',
-        component: Donation,
-        //beforeEnter: useAuthGuard(['client'])
-    },
-    {
-        path: '/request',
-        name: 'Request',
-        component: Request,
-        //beforeEnter: useAuthGuard(['client'])
-    },
-    {
-        path: '/my-account',
+        path: '/my-account/:id',
         name: 'MyAccount',
         component: MyAccount,
-        //beforeEnter: useAuthGuard(['client'])
+        //beforeEnter: useAuthGuard(['volunteer'])
     },
+    {
+        path: '/my-account-donations/:id',
+        name: 'MyAccountDonation',
+        component: MyAccountDonation,
+        /*beforeEnter: useAuthGuard(['volunteer'])*/
+    },
+    {
+        path: '/my-account-products-received/:id',
+        name: 'MyAccountRecievedProduct',
+        component: MyAccountRecievedProduct,
+        /*beforeEnter: useAuthGuard(['volunteer'])*/
+    },
+    {
+        path: '/my-account-routes/:id',
+        name: 'MyAccountRoutes',
+        component: MyAccountRoutes,
+        /*beforeEnter: useAuthGuard(['volunteer'])*/
+    },
+    {
+        path: '/my-account-routes/details/:id',
+        name: 'MyAccountRoutesDetails',
+        component: MyAccountRoutesDetails,
+        /*beforeEnter: useAuthGuard(['volunteer'])*/
+    },
+
+    //Stripe
     {
         path: '/payment-cotisation',
         name: 'PaymentCotisation',
         component: PaymentCotisation,
-        //beforeEnter: useAuthGuard(['client'])
+        //beforeEnter: useAuthGuard(['volunteer'])
     },
     {
         path: '/payment-success',
         name: 'PaymentSuccess',
         component: PaymentSuccess,
-        //beforeEnter: useAuthGuard(['client'])
+        //beforeEnter: useAuthGuard(['volunteer'])
     },
 
 //***** BACK OFFICE
