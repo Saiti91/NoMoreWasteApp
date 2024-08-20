@@ -1,35 +1,18 @@
 <script setup>
 import axios from '@/utils/Axios.js';
 import Header from "@/components/HeaderFrontOffice.vue";
-import Cookies from 'js-cookie';
-import VueJwtDecode from 'vue-jwt-decode';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { ref } from "vue";
+import useAuth from '@/components/Auth/useAuth';  // Importation de useAuth
 
 const { t } = useI18n();
 const router = useRouter(); // Récupérer l'instance du routeur
-const token = Cookies.get('token');
-const isAuthenticated = ref(false);
 
-if (token) {
-  try {
-    const decodedToken = VueJwtDecode.decode(token);
-    const expirationTime = decodedToken.exp * 1000;
-    if (Date.now() < expirationTime) {
-      isAuthenticated.value = true;
-    } else {
-      Cookies.remove('token');
-    }
-  } catch (error) {
-    console.error('Jeton invalide', error);
-    Cookies.remove('token');
-  }
-}
+const { isAuthenticated, userId } = useAuth();  // Utilisation de useAuth pour récupérer isAuthenticated et userId
 
 // Fonction pour naviguer vers une autre page
-const navigateTo = (routeName) => {
-  router.push({ name: routeName }); // Utiliser l'instance du routeur pour naviguer
+const navigateTo = (routeName, params = {}) => {
+  router.push({ name: routeName, params }); // Utilisation de paramètres dynamiques
 };
 </script>
 
@@ -46,7 +29,7 @@ const navigateTo = (routeName) => {
         <div class="ui segment">
           <h2>{{ t('update-account') }}</h2>
           <p>{{ t('update-txt') }}</p>
-          <button class="ui primary button" @click="navigateTo('MyAccount')">{{ t('update') }}</button>
+          <button class="ui primary button" @click="navigateTo('MyAccount', { id: userId })">{{ t('update') }}</button>
         </div>
       </div>
       <div v-if="!isAuthenticated" class="eight wide column">
@@ -74,6 +57,7 @@ const navigateTo = (routeName) => {
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .spacer {
