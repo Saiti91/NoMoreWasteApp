@@ -111,6 +111,47 @@ async function getAll() {
     }));
 }
 
+async function getAllNotCollected() {
+    const connection = await getConnection();
+    const query = `
+        SELECT
+            a.Address_ID,
+            a.Street,
+            a.City,
+            a.State,
+            a.Postal_Code,
+            a.Country,
+            COUNT(d.Donation_ID) AS Total_Donations,
+            SUM(d.Quantity) AS Total_Quantity,
+            GROUP_CONCAT(DISTINCT CONCAT(u.Firstname, ' ', u.Name)) AS Donors,
+            JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                            'Product_Name', p.Name,
+                            'Quantity', d.Quantity
+                    )
+            ) AS Products
+        FROM
+            Donations d
+                JOIN
+            Users u ON d.Donor_User_ID = u.User_ID
+                JOIN
+            Address a ON u.Address_ID = a.Address_ID
+                JOIN
+            Products p ON d.Product_ID = p.Product_ID
+        WHERE
+            d.Collected = FALSE
+        GROUP BY
+            a.Address_ID, a.Street, a.City, a.State, a.Postal_Code, a.Country
+        ORDER BY
+            a.City, a.Street;
+    `;
+
+    const [rows] = await connection.execute(query);
+    await connection.end();
+
+    return rows.length > 0 ? rows : [];
+}
+
 // Met à jour une donation par son ID
 async function updateOne(id, data) {
     if (id === undefined) {
@@ -147,4 +188,4 @@ async function deleteOne(id) {
     return result.affectedRows > 0;
 }
 
-module.exports = { createOne, getAll, getDonationsBy, updateOne, deleteOne };
+module.exports = { createOne, getAll, getDonationsBy, updateOne, deleteOne, getAllNotCollected };

@@ -13,7 +13,7 @@ async function createOne(tourData) {
         const [result] = await connection.execute(`
             INSERT INTO Routes (Date, User_ID, Truck_ID, Type)
             VALUES (?, ?, ?, ?)
-        `, [tourData.Date, tourData.User_ID, tourData.Truck_ID, tourData.Type]);
+        `, [tourData.Date, tourData.User_ID ?? null, tourData.Truck_ID, tourData.Type]);
 
         const routeId = result.insertId;
 

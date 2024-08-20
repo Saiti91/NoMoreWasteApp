@@ -24,7 +24,8 @@ const options = {
         path.join(basePath, "Requests", "*.js"),
         path.join(basePath, "Categories", "*.js"),
         path.join(basePath, "Products", "*.js"),
-        path.join(basePath, "productCategories", "*.js"),],
+        path.join(basePath, "productCategories", "*.js"),
+        path.join(basePath, "trucks", "*.js"),],
 
 };
 

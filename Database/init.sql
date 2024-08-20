@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS Routes
 (
     Route_ID INT AUTO_INCREMENT PRIMARY KEY,
     Date     DATE,
-    User_ID  INT,
+    User_ID  INT NULL,
     Truck_ID INT,
     Type     BOOLEAN, -- true for 'collect', false for 'distribute'
     FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE,

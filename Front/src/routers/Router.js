@@ -48,7 +48,9 @@ import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
 import TourDetails from "@/vue/backOffice/Tournee/TourDetails.vue";
 import DistributionTourAdmin from "@/vue/backOffice/Tournee/DistributionTourAdmin.vue";
 import PickupTourAdmin from "@/vue/backOffice/Tournee/PickUpTourAdmin.vue";
-import CreateTour from "@/vue/backOffice/Tournee/TourCreation.vue";
+import CreateTour from "@/vue/backOffice/Tournee/TourCreation/TourCreation.vue";
+import SelectTruck from "@/vue/backOffice/Tournee/TourCreation/SelectTruck.vue";
+import ReviewAndConfirmTour from "@/vue/backOffice/Tournee/TourCreation/ReviewAndConfirmTour.vue";
 
 
 const routes = [
@@ -230,6 +232,18 @@ const routes = [
         path: '/createTour-admin',
         name: 'CreateTour',
         component: CreateTour,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+      path: '/select-truck',
+        name: 'SelectTruck',
+        component: SelectTruck,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/review-and-confirm-tour',
+        name: 'ReviewAndConfirmTour',
+        component: ReviewAndConfirmTour,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {

@@ -57,6 +57,12 @@ async function getAll() {
     return donations.map(donation => ({ ...donation }));
 }
 
+// Fonction de récupération de toutes les donations
+async function getAllNotCollected() {
+    const donations = await donationRepository.getAllNotCollected();
+    return donations.map(donation => ({ ...donation }));
+}
+
 // Fonction de mise à jour d'une donation en fonction de son ID
 async function updateOne(id, data) {
     // Validation des données de la requête
@@ -88,4 +94,4 @@ async function deleteOne(id, issuer) {
     return await donationRepository.deleteOne(id);
 }
 
-module.exports = { createOne, getOneDonation, getOneDonor, getOneProduct, getOneBy, getAll, updateOne, deleteOne };
+module.exports = { createOne, getOneDonation, getOneDonor, getOneProduct, getAllNotCollected, getOneBy, getAll, updateOne, deleteOne };

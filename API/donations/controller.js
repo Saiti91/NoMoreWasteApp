@@ -84,6 +84,71 @@ controller.get("/", (req, res, next) => {
 
 /**
  * @swagger
+ * /donations/notcollected:
+ *   get:
+ *     summary: Retrieve all donations that have not been collected, grouped by address
+ *     tags: [Donation]
+ *     responses:
+ *       200:
+ *         description: A list of all donations that have not been collected, grouped by address
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   Address_ID:
+ *                     type: integer
+ *                     description: The ID of the address where donations were made
+ *                   Street:
+ *                     type: string
+ *                     description: The street of the address
+ *                   City:
+ *                     type: string
+ *                     description: The city of the address
+ *                   State:
+ *                     type: string
+ *                     description: The state of the address
+ *                   Postal_Code:
+ *                     type: string
+ *                     description: The postal code of the address
+ *                   Country:
+ *                     type: string
+ *                     description: The country of the address
+ *                   Total_Donations:
+ *                     type: integer
+ *                     description: The total number of donations made to this address
+ *                   Total_Quantity:
+ *                     type: integer
+ *                     description: The total quantity of products donated to this address
+ *                   Donors:
+ *                     type: string
+ *                     description: A comma-separated list of donor names who made donations to this address
+ *                   Products:
+ *                     type: array
+ *                     description: A list of products donated to this address
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         Product_Name:
+ *                           type: string
+ *                           description: The name of the product
+ *                         Quantity:
+ *                           type: integer
+ *                           description: The quantity of the product donated
+ *       404:
+ *         description: No donations found
+ */
+controller.get("/notcollected", (req, res, next) => {
+    donationsService.getAllNotCollected()
+        .then((data) => res.json(data))
+        .catch((err) => next(err));
+});
+
+
+/**
+ * @swagger
  * /donations/donor/{donorID}:
  *   get:
  *     summary: Retrieve donations by Donor ID

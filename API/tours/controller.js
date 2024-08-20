@@ -219,6 +219,7 @@ controller.get(
  */
 controller.post(
     "/", (req, res, next) => {
+        console.log('Donnée depuis le controller',req.body);
         toursService.createOne(req.body)
             .then(data => res.status(201).json(data))
             .catch(err => next(err));
