@@ -127,6 +127,12 @@ const submitForm = async () => {
           </div>
           <div class="field">
             <div class="ui left icon input">
+              <i class="envelope icon"></i>
+              <input type="text" v-model="postal_code" name="postal_code" :placeholder="t('postalCode')" required>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui left icon input">
               <i class="building icon"></i>
               <input type="text" v-model="city" name="city" :placeholder="t('city')" required>
             </div>
@@ -135,12 +141,6 @@ const submitForm = async () => {
             <div class="ui left icon input">
               <i class="map marker alternate icon"></i>
               <input type="text" v-model="state" name="state" :placeholder="t('state')" required>
-            </div>
-          </div>
-          <div class="field">
-            <div class="ui left icon input">
-              <i class="envelope icon"></i>
-              <input type="text" v-model="postal_code" name="postal_code" :placeholder="t('postalCode')" required>
             </div>
           </div>
           <div class="field">
