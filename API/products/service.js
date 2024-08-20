@@ -10,9 +10,13 @@ async function createOne(product) {
         throw new InvalidArgumentError(error.details[0].message);
     }
 
-    // Create the product
-    await productRepository.createOne(product);
+    // Create the product and get the ID
+    const productId = await productRepository.createOne(product);
+
+    // Return the ID
+    return { Product_ID: productId };
 }
+
 
 // Fonction de récupération d'un produit en fonction de son ID
 async function getOne(id) {

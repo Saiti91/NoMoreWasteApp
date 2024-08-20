@@ -122,11 +122,16 @@ controller.get(
  *             $ref: '#/components/schemas/Product'
  *     responses:
  *       201:
- *         description: Product created successfully
+ *         description: Product created successfully and returns the Product ID
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Product'
+ *               type: object
+ *               properties:
+ *                 Product_ID:
+ *                   type: integer
+ *                   description: The ID of the newly created product
+ *                   example: 123
  *       400:
  *         description: Invalid input
  */
