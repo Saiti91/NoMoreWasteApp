@@ -23,14 +23,14 @@ const fetchUserDetails = async () => {
 
 const deleteUser = async () => {
   Swal.fire({
-    title: t('Êtes-vous sûr de vouloir supprimer cet utilisateur ?'),
-    text: t("Cette action est irréversible!"),
+    title: t('popupDelUserBE'),
+    text: t('popupDelUserTxt'),
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
-    confirmButtonText: t('Oui, supprimer!'),
-    cancelButtonText: t('Annuler')
+    confirmButtonText: t('yesDel'),
+    cancelButtonText: t('cancel')
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
@@ -41,8 +41,8 @@ const deleteUser = async () => {
         console.error('Error deleting user:', error);
         Swal.fire({
           icon: 'error',
-          title: t('Erreur'),
-          text: t('Erreur lors de la suppression de l\'utilisateur'),
+          title: t('error_title'),
+          text: t('errorDelTxt'),
         });
       }
     }
@@ -53,13 +53,13 @@ const validateSuppression = () => {
   // Afficher une pop-up de confirmation de suppression
   Swal.fire({
     icon: 'success',
-    title: t('Supprimé!'),
-    text: t('L\'utilisateur a bien été supprimé.'),
+    title: t('deleted'),
+    text: t('successDelUserTxt'),
   });
 };
 
 const formatDate = (date) => {
-  if (!date) return 'Non renseigné';
+  if (!date) return t('noInfo');
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
@@ -77,26 +77,26 @@ onMounted(() => {
       <UserMenu />
       <div class="content-area">
         <div class="header-section">
-          <h2>Détails de l'utilisateur</h2>
-          <button @click="deleteUser" class="ui red button">Supprimer</button>
+          <h2>{{ t('userDetails') }}</h2>
+          <button @click="deleteUser" class="ui red button">{{ t('delete') }}</button>
         </div>
         <div v-if="user" class="user-details">
-          <p><strong>Nom :</strong> {{ user.Name || 'Non renseigné' }}</p>
-          <p><strong>Prénom :</strong> {{ user.Firstname || 'Non renseigné' }}</p>
-          <p><strong>Email :</strong> {{ user.Email }}</p>
-          <p><strong>Téléphone :</strong> {{ user.Phone || 'Non renseigné' }}</p>
-          <p><strong>Rôle :</strong> {{ user.Role }}</p>
-          <p><strong>Date de naissance :</strong> {{ formatDate(user.Birthdate) }}</p>
-          <p><strong>Statut de l'abonnement :</strong>
-            <span v-if="user.Current_Subscription" class="status-active">Abonné</span>
-            <span v-else>Non Abonné</span>
+          <p><strong>{{ t('last-name') }} :</strong> {{ user.Name || t('noInfo') }}</p>
+          <p><strong>{{ t('first-name') }} :</strong> {{ user.Firstname || t('noInfo') }}</p>
+          <p><strong>{{ t('email') }} :</strong> {{ user.Email }}</p>
+          <p><strong>{{ t('phone') }} :</strong> {{ user.Phone || t('noInfo') }}</p>
+          <p><strong>{{ t('role') }} :</strong> {{ user.Role }}</p>
+          <p><strong>{{ t('birthdate') }} :</strong> {{ formatDate(user.Birthdate) }}</p>
+          <p><strong>{{ t('subscriptionStatus') }} :</strong>
+            <span v-if="user.Current_Subscription" class="status-active">{{ t('subscriber') }}</span>
+            <span v-else>{{ t('nonSubscriber') }}</span>
           </p>
-          <h3>Adresse</h3>
-          <p><strong>Rue :</strong> {{ user.Street || 'Non renseigné' }}</p>
-          <p><strong>Ville :</strong> {{ user.City || 'Non renseigné' }}</p>
-          <p><strong>État :</strong> {{ user.State || 'Non renseigné' }}</p>
-          <p><strong>Code Postal :</strong> {{ user.Postal_Code || 'Non renseigné' }}</p>
-          <p><strong>Pays :</strong> {{ user.Country || 'Non renseigné' }}</p>
+          <h3>{{ t('address') }}</h3>
+          <p><strong>{{ t('street') }} :</strong> {{ user.Street || t('noInfo') }}</p>
+          <p><strong>{{ t('city') }} :</strong> {{ user.City || t('noInfo') }}</p>
+          <p><strong>{{ t('state') }} :</strong> {{ user.State || t('noInfo') }}</p>
+          <p><strong>{{ t('postalCode') }} :</strong> {{ user.Postal_Code || t('noInfo') }}</p>
+          <p><strong>{{ t('country') }}:</strong> {{ user.Country || t('noInfo') }}</p>
         </div>
 
         <router-view />
