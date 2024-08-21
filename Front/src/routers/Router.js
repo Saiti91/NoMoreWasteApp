@@ -48,9 +48,13 @@ import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
 import TourDetails from "@/vue/backOffice/Tournee/TourDetails.vue";
 import DistributionTourAdmin from "@/vue/backOffice/Tournee/DistributionTourAdmin.vue";
 import PickupTourAdmin from "@/vue/backOffice/Tournee/PickUpTourAdmin.vue";
-import CreateTour from "@/vue/backOffice/Tournee/TourCreation/TourCreation.vue";
-import SelectTruck from "@/vue/backOffice/Tournee/TourCreation/SelectTruck.vue";
-import ReviewAndConfirmTour from "@/vue/backOffice/Tournee/TourCreation/ReviewAndConfirmTour.vue";
+import DonationsCreateTour from "@/vue/backOffice/Tournee/PickUpTourCreation/TourCreation.vue";
+import DonationsSelectTruck from "@/vue/backOffice/Tournee/PickUpTourCreation/SelectTruck.vue";
+import DonationsReviewAndConfirmTour from "@/vue/backOffice/Tournee/PickUpTourCreation/ReviewAndConfirmTour.vue";
+
+import RequestsCreateTour from "@/vue/backOffice/Tournee/DistributionTourCreation/TourCreation.vue";
+import RequestsSelectTruck from "@/vue/backOffice/Tournee/DistributionTourCreation/SelectTruck.vue";
+import RequestsReviewAndConfirmTour from "@/vue/backOffice/Tournee/DistributionTourCreation/ReviewAndConfirmTour.vue";
 
 
 const routes = [
@@ -229,21 +233,39 @@ const routes = [
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {
-        path: '/createTour-admin',
-        name: 'CreateTour',
-        component: CreateTour,
+        path: '/donations-createTour-admin',
+        name: 'DonationsCreateTour',
+        component: DonationsCreateTour,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {
-      path: '/select-truck',
-        name: 'SelectTruck',
-        component: SelectTruck,
+      path: '/donations-select-truck',
+        name: 'DonationsSelectTruck',
+        component: DonationsSelectTruck,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {
-        path: '/review-and-confirm-tour',
-        name: 'ReviewAndConfirmTour',
-        component: ReviewAndConfirmTour,
+        path: '/donations-review-and-confirm-tour',
+        name: 'DonationsReviewAndConfirmTour',
+        component: DonationsReviewAndConfirmTour,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/requests-createTour-admin',
+        name: 'RequestsCreateTour',
+        component: RequestsCreateTour,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/requests-select-truck',
+        name: 'RequestsSelectTruck',
+        component: RequestsSelectTruck,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/requests-review-and-confirm-tour',
+        name: 'RequestsReviewAndConfirmTour',
+        component: RequestsReviewAndConfirmTour,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {

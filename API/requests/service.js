@@ -48,6 +48,11 @@ async function getAll() {
     return requests.map(request => ({ ...request }));
 }
 
+async function getAllWithoutRoute() {
+    const requests = await requestsRepository.getAllWithoutRoute();
+    return requests.map(request => ({ ...request }));
+}
+
 // Update a request by ID
 async function updateOne(id, data) {
     // Validation of the request
@@ -80,4 +85,4 @@ async function deleteOne(id, issuer) {
     return await requestsRepository.deleteOne(id);
 }
 
-module.exports = { createOne, getOneRequest, getOneUserID, getOneProduct, getOneByDate, getAll, updateOne, deleteOne };
+module.exports = { createOne, getOneRequest,getAllWithoutRoute, getOneUserID, getOneProduct, getOneByDate, getAll, updateOne, deleteOne };

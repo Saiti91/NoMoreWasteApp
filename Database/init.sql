@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS Route_Donations
     FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID) ON DELETE CASCADE
 );
 
+
 CREATE TABLE IF NOT EXISTS Destinations
 (
     Destination_ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -147,13 +148,27 @@ CREATE TABLE IF NOT EXISTS Stocks
 
 CREATE TABLE IF NOT EXISTS Requests
 (
-    Request_ID INT AUTO_INCREMENT PRIMARY KEY,
-    Product_ID INT,
-    Quantity   INT,
-    Date       DATE,
-    User_ID    INT,
+    Request_ID     INT AUTO_INCREMENT PRIMARY KEY,
+    Product_ID     INT,
+    Quantity       INT,
+    Date           DATE,
+    User_ID        INT,
+    Route_ID       INT  NULL,
+    Processed      BOOLEAN DEFAULT FALSE,
+    Processed_Date DATE NULL,
+    FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID) ON DELETE SET NULL,
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID) ON DELETE CASCADE,
     FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
+);
+
+
+CREATE TABLE IF NOT EXISTS Route_Requests
+(
+    Route_ID   INT,
+    Request_ID INT,
+    PRIMARY KEY (Route_ID, Request_ID),
+    FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Request_ID) REFERENCES Requests (Request_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Donations
@@ -168,7 +183,7 @@ CREATE TABLE IF NOT EXISTS Donations
     Collection_Date DATE NULL,                                                   -- Date when the donation was collected (NULL if not yet collected)
     FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID) ON DELETE SET NULL,      -- If the route is deleted, set Route_ID to NULL
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID) ON DELETE CASCADE, -- If the product is deleted, delete the donation
-    FOREIGN KEY (Donor_User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE     -- If the user is deleted, delete the donation
+    FOREIGN KEY (Donor_User_ID) REFERENCES Users (User_ID) ON DELETE SET NULL    -- If the user is deleted, delete the donation
 );
 
 CREATE TABLE IF NOT EXISTS SkillsCategories
@@ -563,12 +578,19 @@ VALUES
 (75, 7000);
 
 -- Données de test pour la table Requests
-INSERT INTO Requests (Product_ID, Quantity, Date, User_ID)
-VALUES (1, 10, '2023-10-01', 1),
-       (2, 20, '2023-10-02', 2),
-       (3, 30, '2023-10-03', 3),
-       (4, 40, '2023-10-04', 4),
-       (5, 50, '2023-10-05', 5);
+INSERT INTO Requests (Product_ID, Quantity, Date, User_ID, Route_ID, Processed, Processed_Date)
+VALUES (1, 10, '2023-10-01', 3, 1, TRUE, '2023-10-02'),
+       (2, 20, '2023-10-02', 2, 2, TRUE, '2023-10-03'),
+       (3, 30, '2023-10-03', 3, NULL, FALSE, NULL),
+       (7, 30, '2023-10-03', 3, NULL, FALSE, NULL),
+       (4, 40, '2023-10-04', 4, NULL, FALSE, NULL),
+       (5, 50, '2023-10-05', 5, NULL, FALSE, NULL);
+
+-- Données de test pour la table Route_Requests
+INSERT INTO Route_Requests (Route_ID, Request_ID)
+VALUES
+    (1, 1),
+    (2, 2);
 
 -- Données de test pour la table Donations
 INSERT INTO Donations (Product_ID, Quantity, Donor_User_ID, Date, Route_ID, Collected, Collection_Date)
