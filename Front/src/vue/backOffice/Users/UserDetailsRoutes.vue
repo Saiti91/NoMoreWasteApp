@@ -4,7 +4,9 @@ import axios from '@/utils/Axios.js';
 import { useRoute, useRouter } from 'vue-router';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import UserMenu from "@/components/UserDetailsLeftMenu.vue";
+import { useI18n } from 'vue-i18n';
 
+const t = useI18n().t;
 const tours = ref([]);
 const route = useRoute();
 const router = useRouter();
@@ -13,14 +15,13 @@ const fetchUserTours = async () => {
   try {
     const response = await axios.get(`/tours/users/${route.params.id}`);
     tours.value = response.data;
-    console.log('User tours:', tours.value); // Debugging output
   } catch (error) {
     console.error('Error fetching user tours:', error);
   }
 };
 
 const formatDate = (date) => {
-  if (!date) return 'Non renseigné';
+  if (!date) return t('noInfo');
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
@@ -41,14 +42,14 @@ onMounted(() => {
     <div class="ui grid">
       <UserMenu/>
       <div class="content-area">
-        <h2>Détails des tournées de l'utilisateur</h2>
+        <h2>{{ t('tourDetailsBO') }}</h2>
         <div v-if="Object.keys(tours).length > 0" class="user-details">
           <table class="ui celled table full-width-table">
             <thead>
             <tr>
-              <th>Date de la tournée</th>
-              <th>Camion</th>
-              <th>Destinations</th>
+              <th>{{ t('tourDate') }}</th>
+              <th>{{ t('camion') }}</th>
+              <th>{{ t('destinations') }}</th>
             </tr>
             </thead>
             <tbody>
@@ -67,8 +68,7 @@ onMounted(() => {
           </table>
         </div>
         <div v-else>
-          <p>Aucune tournée trouvée pour cet utilisateur.</p>
-          <p>Debug Info: {{ tours }}</p> <!-- Add debugging info to the template -->
+          <p>{{ t('noTourMsgBO') }}</p>
         </div>
       </div>
     </div>
