@@ -17,7 +17,6 @@ const fetchUserDonations = async () => {
   try {
     const response = await axios.get(`/requests/user/${route.params.id}`);
     donations.value = response.data;
-    console.log('User Recieved Products:', donations.value); // Debugging output
   } catch (error) {
     console.error('Error fetching user donations:', error);
   }
