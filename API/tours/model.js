@@ -11,6 +11,7 @@ const createTourSchema = Joi.object({
             Address_ID: Joi.number().integer().required(),
             Products: Joi.array().items(
                 Joi.object({
+                    Donation_ID: Joi.number().integer().required(),
                     Product_ID: Joi.number().integer().required(),
                     Quantity: Joi.number().integer().required(),
                 })

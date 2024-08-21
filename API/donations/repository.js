@@ -126,6 +126,7 @@ async function getAllNotCollected() {
             GROUP_CONCAT(DISTINCT CONCAT(u.Firstname, ' ', u.Name)) AS Donors,
             JSON_ARRAYAGG(
                     JSON_OBJECT(
+                            'Donation_ID', d.Donation_ID,
                             'Product_Name', p.Name,
                             'Quantity', d.Quantity
                     )
@@ -139,7 +140,7 @@ async function getAllNotCollected() {
                 JOIN
             Products p ON d.Product_ID = p.Product_ID
         WHERE
-            d.Collected = FALSE
+            d.Route_ID IS NULL
         GROUP BY
             a.Address_ID, a.Street, a.City, a.State, a.Postal_Code, a.Country
         ORDER BY

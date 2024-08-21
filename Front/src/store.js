@@ -3,7 +3,7 @@ import { createStore } from 'vuex';
 const store = createStore({
     state: {
         selectedAddresses: new Set(),
-        selectedProducts: [],
+        selectedDestinations: [], // Store selected destinations including address data and products
         selectedTruck: null, // Store the selected truck object
     },
     mutations: {
@@ -16,13 +16,13 @@ const store = createStore({
         clearAddresses(state) {
             state.selectedAddresses.clear();
         },
-        setSelectedProducts(state, products) {
-            state.selectedProducts = products;
+        setSelectedDestinations(state, destinations) {
+            state.selectedDestinations = destinations; // Store the complete destination objects
         },
-        clearSelectedProducts(state) {
-            state.selectedProducts = [];
+        clearSelectedDestinations(state) {
+            state.selectedDestinations = [];
         },
-        setSelectedTruck(state, truck) { // Accept and store the entire truck object
+        setSelectedTruck(state, truck) {
             state.selectedTruck = truck;
         },
         clearSelectedTruck(state) {
@@ -32,16 +32,16 @@ const store = createStore({
     getters: {
         selectedAddresses: state => Array.from(state.selectedAddresses),
         isAddressSelected: (state) => (addressId) => state.selectedAddresses.has(addressId),
-        selectedProducts: state => state.selectedProducts,
-        selectedTruck: state => state.selectedTruck, // Getter for the selected truck object
+        selectedDestinations: state => state.selectedDestinations, // Return complete destinations with address and products
+        selectedTruck: state => state.selectedTruck,
     },
     actions: {
-        saveTourData({ commit }, products) {
-            commit('setSelectedProducts', products);
+        saveTourData({ commit }, destinations) {
+            commit('setSelectedDestinations', destinations);
         },
         clearTourData({ commit }) {
             commit('clearAddresses');
-            commit('clearSelectedProducts');
+            commit('clearSelectedDestinations');
             commit('clearSelectedTruck');
         }
     }
