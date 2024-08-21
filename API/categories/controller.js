@@ -1,7 +1,8 @@
 const { Router } = require('express');
-const categoryService = require('./service');
+const categoriesService = require('./service');
 const NotFoundError = require('../common/http_errors').NotFoundError;
-const { createCategorySchema, updateCategorySchema } = require('./model');
+const authorize = require('../common/middlewares/authorize_middleware');
+const { createCategorySchema, updateCategorySchema } = require('./model'); // Assurez-vous que ces schémas sont correctement définis.
 
 const controller = Router();
 
@@ -13,7 +14,6 @@ const controller = Router();
  *       type: object
  *       required:
  *         - name
- *         - diploma_id
  *       properties:
  *         id:
  *           type: integer
@@ -21,19 +21,15 @@ const controller = Router();
  *         name:
  *           type: string
  *           description: The name of the category.
- *         diploma_id:
- *           type: integer
- *           description: The ID of the related diploma.
  *       example:
  *         id: 1
- *         name: "Mathematics"
- *         diploma_id: 2
+ *         name: Electronics
  */
 
 /**
  * @swagger
  * tags:
- *   name: categories
+ *   name: Categories
  *   description: Category management
  */
 
@@ -42,7 +38,7 @@ const controller = Router();
  * /categories:
  *   get:
  *     summary: Retrieve a list of categories
- *     tags: [categories]
+ *     tags: [Categories]
  *     responses:
  *       200:
  *         description: A list of categories.
@@ -53,10 +49,13 @@ const controller = Router();
  *               items:
  *                 $ref: '#/components/schemas/Category'
  */
-controller.get('/', (req, res, next) => {
-    categoryService.getAll()
-        .then((data) => res.json(data))
-        .catch((err) => next(err));
+controller.get('/', async (req, res, next) => {
+    try {
+        const data = await categoriesService.getAll();
+        res.json(data);
+    } catch (err) {
+        next(err);
+    }
 });
 
 /**
@@ -64,7 +63,7 @@ controller.get('/', (req, res, next) => {
  * /categories/{id}:
  *   get:
  *     summary: Get a category by ID
- *     tags: [categories]
+ *     tags: [Categories]
  *     parameters:
  *       - in: path
  *         name: id
@@ -82,16 +81,17 @@ controller.get('/', (req, res, next) => {
  *       404:
  *         description: Category not found
  */
-controller.get('/:id', (req, res, next) => {
+controller.get('/:id', async (req, res, next) => {
     const id = Number(req.params.id);
-    categoryService.getOne(id)
-        .then((data) => {
-            if (data === null) {
-                throw new NotFoundError(`Category with id ${id} not found`);
-            }
-            res.json(data);
-        })
-        .catch((err) => next(err));
+    try {
+        const data = await categoriesService.getOne(id);
+        if (data === null) {
+            throw new NotFoundError(`Category with id ${id} not found`);
+        }
+        res.json(data);
+    } catch (err) {
+        next(err);
+    }
 });
 
 /**
@@ -99,7 +99,7 @@ controller.get('/:id', (req, res, next) => {
  * /categories:
  *   post:
  *     summary: Create a new category
- *     tags: [categories]
+ *     tags: [Categories]
  *     requestBody:
  *       required: true
  *       content:
@@ -114,13 +114,15 @@ controller.get('/:id', (req, res, next) => {
  *             schema:
  *               $ref: '#/components/schemas/Category'
  */
-controller.post('/', (req, res, next) => {
-    const { error } = createCategorySchema.validate(req.body);
-    if (error) return res.status(400).json({ error: error.details[0].message });
-
-    categoryService.createOne(req.body)
-        .then((data) => res.status(201).json(data))
-        .catch((err) => next(err));
+controller.post('/', async (req, res, next) => {
+    try {
+        const { error } = createCategorySchema.validate(req.body);
+        if (error) return res.status(400).json({ error: error.details[0].message });
+        const data = await categoriesService.createOne(req.body);
+        res.status(201).json(data);
+    } catch (err) {
+        next(err);
+    }
 });
 
 /**
@@ -128,7 +130,7 @@ controller.post('/', (req, res, next) => {
  * /categories/{id}:
  *   delete:
  *     summary: Delete a category by ID
- *     tags: [categories]
+ *     tags: [Categories]
  *     parameters:
  *       - in: path
  *         name: id
@@ -138,20 +140,21 @@ controller.post('/', (req, res, next) => {
  *         description: The category ID
  *     responses:
  *       204:
- *         description: No content
+ *         description: Category deleted successfully.
  *       404:
- *         description: Category not found
+ *         description: Category not found.
  */
-controller.delete('/:id', (req, res, next) => {
+controller.delete('/:id', async (req, res, next) => {
     const id = Number(req.params.id);
-    categoryService.deleteOne(id)
-        .then((deletedId) => {
-            if (deletedId === null) {
-                throw new NotFoundError(`Category with id ${id} not found`);
-            }
-            res.status(204).json();
-        })
-        .catch((err) => next(err));
+    try {
+        const deletedId = await categoriesService.deleteOne(id);
+        if (deletedId === null) {
+            throw new NotFoundError(`Category with id ${id} not found`);
+        }
+        res.status(204).json();
+    } catch (err) {
+        next(err);
+    }
 });
 
 /**
@@ -159,7 +162,7 @@ controller.delete('/:id', (req, res, next) => {
  * /categories/{id}:
  *   patch:
  *     summary: Update a category by ID
- *     tags: [categories]
+ *     tags: [Categories]
  *     parameters:
  *       - in: path
  *         name: id
@@ -181,22 +184,21 @@ controller.delete('/:id', (req, res, next) => {
  *             schema:
  *               $ref: '#/components/schemas/Category'
  *       404:
- *         description: Category not found
+ *         description: Category not found.
  */
-controller.patch('/:id', (req, res, next) => {
+controller.patch('/:id', async (req, res, next) => {
     const id = Number(req.params.id);
-    //TODO: Pourquoi faire la validation dans le controller et dans le service ?
-    const { error } = updateCategorySchema.validate(req.body);
-    if (error) return res.status(400).json({ error: error.details[0].message });
-
-    categoryService.updateOne(id, req.body)
-        .then((data) => {
-            if (data === null) {
-                throw new NotFoundError(`Category with id ${id} not found`);
-            }
-            res.status(200).json(data);
-        })
-        .catch((err) => next(err));
+    try {
+        const { error } = updateCategorySchema.validate(req.body);
+        if (error) return res.status(400).json({ error: error.details[0].message });
+        const data = await categoriesService.updateOne(id, req.body);
+        if (data === null) {
+            throw new NotFoundError(`Category with id ${id} not found`);
+        }
+        res.status(200).json(data);
+    } catch (err) {
+        next(err);
+    }
 });
 
 module.exports = controller;
