@@ -38,7 +38,7 @@ onMounted(() => {
 
 <template>
   <Header />
-  <div class="spacer"></div>
+  <div class="spacer_perso"></div>
   <div class="ui container full-width no-center">
     <div class="ui grid">
       <UserMenuFO />
@@ -77,8 +77,8 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.spacer {
-  margin: 20px 0;
+.spacer_perso {
+  margin: 7% ;
 }
 
 .content-area {
