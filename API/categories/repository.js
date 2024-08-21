@@ -1,11 +1,11 @@
 const getConnection = require('../common/db_handler');
 
 // Crée une nouvelle catégorie
-async function createOne(category) {
+async function createOne(SkillsCategories) {
     const {
         name,
         diploma_id
-    } = category;
+    } = SkillsCategories;
 
     if (name === undefined || diploma_id === undefined) {
         throw new Error("createOne: name and diploma_id must be defined");
@@ -13,7 +13,7 @@ async function createOne(category) {
 
     const connection = await getConnection();
     const [result] = await connection.execute(
-        'INSERT INTO Categories (Name, Diploma_ID) VALUES (?, ?)',
+        'INSERT INTO SkillsCategories (Name, Diploma_ID) VALUES (?, ?)',
         [name, diploma_id]
     );
     await connection.end();
@@ -27,7 +27,7 @@ async function getOne(id) {
     }
 
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT * FROM Categories WHERE Category_ID = ?', [id]);
+    const [rows] = await connection.execute('SELECT * FROM SkillsCategories WHERE Category_ID = ?', [id]);
     await connection.end();
     return rows[0] || null;
 }
@@ -35,23 +35,23 @@ async function getOne(id) {
 // Récupère toutes les catégories
 async function getAll() {
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT * FROM Categories');
+    const [rows] = await connection.execute('SELECT * FROM SkillsCategories');
     await connection.end();
     return rows;
 }
 
 // Met à jour une catégorie
-async function updateOne(id, category) {
+async function updateOne(id, SkillsCategories) {
     if (id === undefined) {
         throw new Error("updateOne: id must be defined");
     }
 
     const connection = await getConnection();
-    const attrsStr = Object.keys(category)
+    const attrsStr = Object.keys(SkillsCategories)
         .map((k) => `${k} = ?`)
         .join(', ');
 
-    const values = [...Object.values(category), id];
+    const values = [...Object.values(SkillsCategories), id];
     const [result] = await connection.execute(
         `UPDATE Categories SET ${attrsStr} WHERE Category_ID = ?`,
         values
@@ -67,7 +67,7 @@ async function deleteOne(id) {
     }
 
     const connection = await getConnection();
-    const [result] = await connection.execute('DELETE FROM Categories WHERE Category_ID = ?', [id]);
+    const [result] = await connection.execute('DELETE FROM SkillsCategories WHERE Category_ID = ?', [id]);
     await connection.end();
     return result.affectedRows > 0;
 }
