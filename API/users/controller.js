@@ -102,7 +102,6 @@ controller.get(
  */
 controller.get(
     "/:id",
-    authorize([/*"admin"*/]),
     (req, res, next) => {
         usersService.getOne(Number(req.params.id), {
             id: req.auth?.uid,
@@ -334,7 +333,6 @@ controller.post(
  */
 controller.delete(
     "/:id",
-    authorize([/*"admin"*/]),
     (req, res, next) => {
         usersService.deleteOne(Number(req.params.id), {
             id: req.auth?.uid,
@@ -381,7 +379,6 @@ controller.delete(
  */
 controller.patch(
     "/:id",
-    authorize([/*"admin"*/]),
     (req, res, next) => {
         usersService.updateOne(Number(req.params.id), req.body, {
             id: req.auth?.uid,
