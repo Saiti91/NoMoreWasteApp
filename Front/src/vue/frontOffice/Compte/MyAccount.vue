@@ -89,7 +89,7 @@ onMounted(() => {
           <p><strong>{{ t('birthdate') }} :</strong> {{ formatDate(user.Birthdate) }}</p>
           <p><strong>{{ t('subscriptionStatus') }} :</strong>
             <span v-if="user.Current_Subscription" class="status-active">{{ t('subscriber') }}</span>
-            <span v-else>{{ t('nonSubscriber') }}</span>
+            <span v-else class="status-inactive">{{ t('nonSubscriber') }}</span>
           </p>
           <h3>{{ t('address') }}</h3>
           <p><strong>{{ t('street') }} :</strong> {{ user.Street || t('noInfo') }}</p>
