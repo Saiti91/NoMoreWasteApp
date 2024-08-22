@@ -96,6 +96,7 @@ async function updateOne(id, user, issuer) {
         ...value,
         Name: value.last_name || currentUser.Name,
         Firstname: value.first_name || currentUser.Firstname,
+        Password: value.password || currentUser.Password,
         Phone: value.telephone || currentUser.Phone,
         Birthdate: value.birthdate || currentUser.Birthdate
     };

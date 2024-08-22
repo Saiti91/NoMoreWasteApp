@@ -139,6 +139,7 @@ async function updateOne(id, user) {
         const {
             Name,
             Firstname,
+            Password,
             Phone,
             Email,
             Birthdate,
@@ -149,6 +150,7 @@ async function updateOne(id, user) {
         const userDetails = {
             ...(Name !== undefined && { Name }),
             ...(Firstname !== undefined && { Firstname }),
+            ...(Password !== undefined && { Password }),
             ...(Phone !== undefined && { Phone }),
             ...(Email !== undefined && { Email }),
             ...(Birthdate !== undefined && { Birthdate }),
