@@ -7,10 +7,18 @@ async function createOne(request) {
     }
     const connection = await getConnection();
     const query = `
-        INSERT INTO Requests (Product_ID, Quantity, Date, User_ID)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO Requests (Product_ID, Quantity, Date, User_ID, Route_ID, Processed, Processed_Date)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
-    const values = [request.Product_ID, request.Quantity, request.Date, request.User_ID];
+    const values = [
+        request.Product_ID,
+        request.Quantity,
+        request.Date,
+        request.User_ID,
+        request.Route_ID || null,  // Route_ID can be null
+        request.Processed || false,  // Default to false if not provided
+        request.Processed_Date || null  // Allow null if not processed yet
+    ];
     const [result] = await connection.execute(query, values);
     await connection.end();
     return { Request_ID: result.insertId, ...request };
@@ -23,15 +31,24 @@ async function getOneBy(attribute, value) {
     }
     const connection = await getConnection();
     const query = `
-        SELECT r.*,
-               u.User_ID,
-               u.Name AS User_Name,
-               u.Firstname AS User_Firstname,
-               u.Email AS User_Email,
-               p.Product_ID,
-               p.Name AS Product_Name,
-               p.Barcode,
-               c.Name AS Category_Name
+        SELECT r.Request_ID,
+               r.Quantity,
+               r.Date AS Request_Date,
+               r.Route_ID,
+               r.Processed,
+               r.Processed_Date,
+               JSON_OBJECT(
+                       'User_ID', u.User_ID,
+                       'Name', u.Name,
+                       'Firstname', u.Firstname,
+                       'Email', u.Email
+               ) AS User,
+               JSON_OBJECT(
+                       'Product_ID', p.Product_ID,
+                       'Name', p.Name,
+                       'Barcode', p.Barcode,
+                       'Category', c.Name
+               ) AS Product
         FROM Requests r
                  LEFT JOIN Users u ON r.User_ID = u.User_ID
                  LEFT JOIN Products p ON r.Product_ID = p.Product_ID
@@ -40,7 +57,59 @@ async function getOneBy(attribute, value) {
     `;
     const [rows] = await connection.execute(query, [value]);
     await connection.end();
-    return rows.length > 0 ? rows : null;
+    return rows.length > 0 ? rows.map(row => ({
+        Request_ID: row.Request_ID,
+        Quantity: row.Quantity,
+        Request_Date: row.Request_Date,
+        Route_ID: row.Route_ID,
+        Processed: row.Processed,
+        Processed_Date: row.Processed_Date,
+        User: typeof row.User === 'string' ? JSON.parse(row.User) : row.User,
+        Product: typeof row.Product === 'string' ? JSON.parse(row.Product) : row.Product
+    })) : null;
+}
+
+async function getAllWithoutRoute() {
+    const connection = await getConnection();
+    const query = `
+        SELECT
+            a.Address_ID,
+            a.Street,
+            a.City,
+            a.State,
+            a.Postal_Code,
+            a.Country,
+            COUNT(r.Request_ID) AS Total_Requests,
+            SUM(r.Quantity) AS Total_Quantity,
+            GROUP_CONCAT(DISTINCT CONCAT(u.Firstname, ' ', u.Name)) AS Users,
+            JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                            'Request_ID', r.Request_ID,
+                            'Product_Name', p.Name,
+                            'Quantity', r.Quantity,
+                            'Request_Date', r.Date,
+                            'Product_Barcode', p.Barcode,
+                            'Category', c.Name
+                    )
+            ) AS Products
+        FROM
+            Requests r
+                LEFT JOIN Users u ON r.User_ID = u.User_ID
+                LEFT JOIN Products p ON r.Product_ID = p.Product_ID
+                LEFT JOIN ProductsCategories c ON p.Category_ID = c.Category_ID
+                LEFT JOIN Address a ON u.Address_ID = a.Address_ID
+        WHERE
+            r.Route_ID IS NULL
+        GROUP BY
+            a.Address_ID, a.Street, a.City, a.State, a.Postal_Code, a.Country
+        ORDER BY
+            a.City, a.Street;
+    `;
+
+    const [rows] = await connection.execute(query);
+    await connection.end();
+
+    return rows.length > 0 ? rows : [];
 }
 
 // Get all requests
@@ -50,6 +119,9 @@ async function getAll() {
         SELECT r.Request_ID,
                r.Quantity,
                r.Date AS Request_Date,
+               r.Route_ID,
+               r.Processed,
+               r.Processed_Date,
                JSON_OBJECT(
                        'User_ID', u.User_ID,
                        'Name', u.Name,
@@ -73,6 +145,9 @@ async function getAll() {
         Request_ID: row.Request_ID,
         Quantity: row.Quantity,
         Request_Date: row.Request_Date,
+        Route_ID: row.Route_ID,
+        Processed: row.Processed,
+        Processed_Date: row.Processed_Date,
         User: typeof row.User === 'string' ? JSON.parse(row.User) : row.User,
         Product: typeof row.Product === 'string' ? JSON.parse(row.Product) : row.Product
     }));
@@ -113,4 +188,4 @@ async function deleteOne(id) {
     return result.affectedRows > 0;
 }
 
-module.exports = { createOne, getAll, getOneBy, updateOne, deleteOne };
+module.exports = { createOne, getAll, getOneBy, updateOne, deleteOne, getAllWithoutRoute };

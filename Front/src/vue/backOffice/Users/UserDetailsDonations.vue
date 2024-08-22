@@ -4,9 +4,11 @@ import axios from '@/utils/Axios.js';
 import { useRoute } from 'vue-router';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import UserMenu from "@/components/UserDetailsLeftMenu.vue";
+import {useI18n} from "vue-i18n";
 
 const donations = ref([]);
 const route = useRoute();
+const t = useI18n().t;
 
 const fetchUserDonations = async () => {
   try {
@@ -19,14 +21,14 @@ const fetchUserDonations = async () => {
 };
 
 const formatDate = (date) => {
-  if (!date) return 'Non renseigné';
+  if (!date) return t('noInfo');
   const options = {year: 'numeric', month: 'long', day: 'numeric'};
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
 const displayCollectionStatus = (collected, date) => {
   if (collected) return formatDate(date);
-  return 'Non collecté';
+  return t('nonCollected');
 };
 
 onMounted(() => {
@@ -41,18 +43,18 @@ onMounted(() => {
     <div class="ui grid">
       <UserMenu/>
       <div class="content-area">
-        <h2>Détails des donations de l'utilisateur</h2>
+        <h2>{{ t('donationDetailsUser') }}</h2>
         <div v-if="Object.keys(donations).length > 0" class="user-details">
           <table class="ui celled table full-width-table">
             <thead>
             <tr>
-              <th>Nom du produit</th>
-              <th>Code-barres</th>
-              <th>Quantité</th>
-              <th>Date de donation</th>
-              <th>Date de collecte</th>
-              <th>Catégorie</th>
-              <th>Statut de la collecte</th>
+              <th>{{ t('productName') }}</th>
+              <th>{{ t('codeBarre') }}</th>
+              <th>{{ t('quantité') }}</th>
+              <th>{{ t('donationDate') }}</th>
+              <th>{{ t('collectionDate') }}</th>
+              <th>{{ t('category') }}</th>
+              <th>{{ t('statutDeCollecte') }}</th>
             </tr>
             </thead>
             <tbody>
@@ -63,14 +65,15 @@ onMounted(() => {
               <td>{{ formatDate(donation.Donation_Date) }}</td>
               <td>{{ displayCollectionStatus(donation.Collected, donation.Collection_Date) }}</td>
               <td>{{ donation.Category_Name }}</td>
-              <td>{{ donation.Collected ? 'Collecté' : 'Non collecté' }}</td>
+              <td :class="donation.Collected ? 'status-collected' : 'status-noncollected'">
+                {{ donation.Collected ? t('Collected') : t('nonCollected') }}
+              </td>
             </tr>
             </tbody>
           </table>
         </div>
         <div v-else>
-          <p>Aucune donation trouvée pour cet utilisateur.</p>
-          <p>Debug Info: {{ donations }}</p> <!-- Add debugging info to the template -->
+          <p>{{ t('noDonationMsg') }}</p>
         </div>
       </div>
     </div>
@@ -100,6 +103,16 @@ h2 {
   font-size: 2em;
   margin-bottom: 20px;
   color: #4a4a4a;
+}
+
+.status-collected {
+  color: green;
+  font-weight: bold;
+}
+
+.status-noncollected {
+  color: red;
+  font-weight: bold;
 }
 
 .ui.celled.table.full-width-table {

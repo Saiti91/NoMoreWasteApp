@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, computed, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import { useRouter } from 'vue-router';
@@ -7,8 +7,8 @@ import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 const requests = ref([]);
-const currentPage = ref(1); // Page actuelle
-const itemsPerPage = 10; // Nombre d'éléments par page
+const currentPage = ref(1); // Current page
+const itemsPerPage = 10; // Items per page
 
 const storageTypes = ref([]);
 const selectedStorageType = ref('all');
@@ -16,7 +16,7 @@ const selectedDateRange = ref([null, null]);  // Initialize as an array with two
 const searchQuery = ref('');
 const router = useRouter();
 
-// Fonction pour normaliser une chaîne (supprimer les accents)
+// Function to normalize a string (remove accents)
 const normalizeString = (str) => {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 };
@@ -27,7 +27,7 @@ const fetchRequests = async () => {
     requests.value = response.data;
 
     // Populate storage types
-    storageTypes.value = [...new Set(requests.value.map(request => request.Product.Storage_Type))];
+    storageTypes.value = [...new Set(requests.value.map(request => request.Product.Storage_Type || 'Unknown'))];
 
     console.log(requests.value);
   } catch (error) {
@@ -44,7 +44,7 @@ const filteredRequests = computed(() => {
   if (selectedDateRange.value && selectedDateRange.value[0] && selectedDateRange.value[1]) {
     const [startDate, endDate] = selectedDateRange.value;
     filtered = filtered.filter(request => {
-      const requestDate = new Date(request.Date);
+      const requestDate = new Date(request.Request_Date);
       return requestDate >= new Date(startDate) && requestDate <= new Date(endDate);
     });
   }
@@ -58,26 +58,26 @@ const filteredRequests = computed(() => {
   return filtered;
 });
 
-// Pagination calculée
+// Computed pagination
 const paginatedRequests = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
   return filteredRequests.value.slice(start, end);
 });
 
-// Calcul du nombre total de pages
+// Total pages calculation
 const totalPages = computed(() => {
   return Math.ceil(filteredRequests.value.length / itemsPerPage);
 });
 
 const formatDate = (dateString) => {
-  // Supprimer les fractions de seconde et les 'Z' si présents
+  // Remove milliseconds and 'Z' if present
   const cleanedDateString = dateString.replace(/\.\d{3}Z$/, '');
 
-  const options = {day: '2-digit', month: '2-digit', year: 'numeric'};
+  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
   const date = new Date(cleanedDateString);
 
-  // Vérifier si la date est valide
+  // Check if the date is valid
   if (isNaN(date)) {
     return "Invalid Date";
   }
@@ -86,11 +86,11 @@ const formatDate = (dateString) => {
 };
 
 const goToUserDetails = (user_id) => {
-  router.push({name: 'UserDetails', params: {id: user_id}});
+  router.push({ name: 'UserDetails', params: { id: user_id } });
 };
 
 const goToCreateTour = () => {
-  router.push({name: 'CreateTour'});
+  router.push({ name: 'RequestsCreateTour' });
 };
 
 // Function to reset the date range
@@ -103,10 +103,22 @@ const isDateSelected = computed(() => {
   return selectedDateRange.value[0] !== null || selectedDateRange.value[1] !== null;
 });
 
-// Watchers pour réinitialiser currentPage lorsque les filtres changent
+// Watchers to reset currentPage when filters change
 watch([searchQuery, selectedStorageType, selectedDateRange], () => {
   currentPage.value = 1;
 });
+
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
 
 onMounted(() => {
   fetchRequests();
@@ -114,7 +126,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <HeaderBackOffice/>
+  <HeaderBackOffice />
   <div class="spacer"></div>
   <div class="ui container full-width no-center">
     <div class="header-section">
@@ -159,11 +171,14 @@ onMounted(() => {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="request in paginatedRequests" :key="request.Request_ID" class="clickable-row">
+      <tr v-if="paginatedRequests.length === 0">
+        <td colspan="5" class="center aligned">Aucune demande disponible pour les filtres appliqués.</td>
+      </tr>
+      <tr v-else v-for="request in paginatedRequests" :key="request.Request_ID" class="clickable-row">
         <td>{{ request.Product.Name }}</td>
         <td>{{ request.Quantity }}</td>
         <td>{{ formatDate(request.Request_Date) }}</td>
-        <td>{{ request.Product.Storage_Type }}</td>
+        <td>{{ request.Product.Category || 'Inconnu' }}</td>
         <td @click="goToUserDetails(request.User.User_ID)">{{ request.User.Email }}</td>
       </tr>
       </tbody>

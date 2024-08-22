@@ -102,7 +102,7 @@ const goToUserDetails = (user_id) => {
 };
 
 const goToCreateTour = () => {
-  router.push({ name: 'CreateTour' });
+  router.push({ name: 'DonationsCreateTour' });
 };
 
 // Function to reset the date range

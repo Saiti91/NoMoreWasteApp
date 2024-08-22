@@ -5,31 +5,133 @@ const getConnection = require("../common/db_handler");
  * @param {Object} tourData - Les données de la route, y compris les destinations et les produits.
  * @returns {Number} - L'ID de la route créée.
  */
-async function createOne(tourData) {
+async function createCollectOne(tourData) {
+    console.log('In Repository: ', tourData);
+
+    const {
+        Date,
+        User_ID = null,
+        Truck_ID = null,
+        Type = null,
+        Destinations = []
+    } = tourData;
+
     const connection = await getConnection();
+
     try {
         await connection.beginTransaction();
 
+        // Insert the route into the Routes table
         const [result] = await connection.execute(`
             INSERT INTO Routes (Date, User_ID, Truck_ID, Type)
             VALUES (?, ?, ?, ?)
-        `, [tourData.Date, tourData.User_ID ?? null, tourData.Truck_ID, tourData.Type]);
+        `, [Date, User_ID, Truck_ID, Type]);
 
         const routeId = result.insertId;
 
-        for (const destination of tourData.Destinations) {
+        // Insert destinations associated with the route
+        for (const destination of Destinations) {
+            const {
+                Address_ID = null,
+                Products = []
+            } = destination;
+
             const [destResult] = await connection.execute(`
                 INSERT INTO Destinations (Route_ID, Address_ID, Type)
                 VALUES (?, ?, ?)
-            `, [routeId, destination.Address_ID, tourData.Type]);
+            `, [routeId, Address_ID, Type]);
 
             const destinationId = destResult.insertId;
 
-            for (const product of destination.Products) {
+            // Insert each product associated with the destination
+            for (const product of Products) {
+                const {
+                    Donation_ID = null,  // Get Donation_ID to update the donation
+                    Product_ID = null,
+                    Quantity = 0
+                } = product;
+
                 await connection.execute(`
                     INSERT INTO Destination_Products (Destination_ID, Product_ID, Quantity)
                     VALUES (?, ?, ?)
-                `, [destinationId, product.Product_ID, product.Quantity]);
+                `, [destinationId, Product_ID, Quantity]);
+
+                // Update the donation to associate it with the route
+                await connection.execute(`
+                    UPDATE Donations
+                    SET Route_ID = ?
+                    WHERE Donation_ID = ?
+                `, [routeId, Donation_ID]);
+            }
+        }
+
+        await connection.commit();
+        return routeId;
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        await connection.end();
+    }
+}
+
+async function createDistributionOne(tourData) {
+    console.log('In Repository: ', tourData);
+
+    const {
+        Date,
+        User_ID = null,
+        Truck_ID = null,
+        Type = null,
+        Destinations = []
+    } = tourData;
+
+    const connection = await getConnection();
+
+    try {
+        await connection.beginTransaction();
+
+        // Insert the route into the Routes table
+        const [result] = await connection.execute(`
+            INSERT INTO Routes (Date, User_ID, Truck_ID, Type)
+            VALUES (?, ?, ?, ?)
+        `, [Date, User_ID, Truck_ID, Type]);
+
+        const routeId = result.insertId;
+
+        // Insert destinations associated with the route
+        for (const destination of Destinations) {
+            const {
+                Address_ID = null,
+                Products = []
+            } = destination;
+
+            const [destResult] = await connection.execute(`
+                INSERT INTO Destinations (Route_ID, Address_ID, Type)
+                VALUES (?, ?, ?)
+            `, [routeId, Address_ID, Type]);
+
+            const destinationId = destResult.insertId;
+
+            // Insert each product associated with the destination and update the associated request
+            for (const product of Products) {
+                const {
+                    Request_ID = null,  // Get Request_ID to update the request
+                    Product_ID = null,
+                    Quantity = 0
+                } = product;
+
+                await connection.execute(`
+                    INSERT INTO Destination_Products (Destination_ID, Product_ID, Quantity)
+                    VALUES (?, ?, ?)
+                `, [destinationId, Product_ID, Quantity]);
+                console.log('Request_ID: ', Request_ID);
+                // Update the request to associate it with the route and mark it as processed
+                await connection.execute(`
+                    UPDATE Requests
+                    SET Route_ID = ?
+                    WHERE Request_ID = ?
+                `, [routeId, Request_ID]);
             }
         }
 
@@ -521,7 +623,8 @@ async function removeProductFromDestination(destinationId, productId) {
 }
 
 module.exports = {
-    createOne,
+    createCollectOne,
+    createDistributionOne,
     getAll,
     getOne,
     updateOne,

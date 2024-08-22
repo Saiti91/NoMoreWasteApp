@@ -4,23 +4,35 @@ import axios from '@/utils/Axios.js';
 import { useRoute } from 'vue-router';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import UserMenu from "@/components/UserDetailsLeftMenu.vue";
+import {useI18n} from "vue-i18n";
 
+const t = useI18n().t;
 const donations = ref([]);
 const route = useRoute();
 
 const fetchUserDonations = async () => {
   try {
     const response = await axios.get(`/requests/user/${route.params.id}`);
-    donations.value = response.data;
-    console.log('User Recieved Products:', donations.value); // Debugging output
+
+    // Convert object to array using Object.values()
+    const dataArray = Object.values(response.data);
+    donations.value = dataArray.map(donation => ({
+      Product_Name: donation.Product.Name,
+      Barcode: donation.Product.Barcode,
+      Quantity: donation.Quantity,
+      Date: donation.Processed ? donation.Processed_Date : donation.Request_Date,
+      Category_Name: donation.Product.Category
+    }));
+
+    console.log('Mapped User Donations:', donations.value);
   } catch (error) {
     console.error('Error fetching user donations:', error);
   }
 };
 
 const formatDate = (date) => {
-  if (!date) return 'Non renseigné';
-  const options = {year: 'numeric', month: 'long', day: 'numeric'};
+  if (!date) return t('noInfo');
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
@@ -36,20 +48,20 @@ onMounted(() => {
     <div class="ui grid">
       <UserMenu/>
       <div class="content-area">
-        <h2>Détails des donations reçu par l'utilisateur</h2>
-        <div v-if="Object.keys(donations).length > 0" class="user-details">
+        <h2>{{ t('receivedDonationTitleBO') }}</h2>
+        <div v-if="donations.length > 0" class="user-details">
           <table class="ui celled table full-width-table">
             <thead>
             <tr>
-              <th>Nom du produit</th>
-              <th>Code-barres</th>
-              <th>Quantité</th>
-              <th>Date</th>
-              <th>Catégorie</th>
+              <th>{{ t('productName') }}</th>
+              <th>{{ t('codeBarre') }}</th>
+              <th>{{ t('quantité') }}</th>
+              <th>{{ t('date') }}</th>
+              <th>{{ t('category') }}</th>
             </tr>
             </thead>
             <tbody>
-            <tr v-for="donation in donations" :key="donation.Request_ID">
+            <tr v-for="donation in donations" :key="donation.Barcode">
               <td>{{ donation.Product_Name }}</td>
               <td>{{ donation.Barcode }}</td>
               <td>{{ donation.Quantity }}</td>
@@ -60,8 +72,7 @@ onMounted(() => {
           </table>
         </div>
         <div v-else>
-          <p>Aucune donation trouvée pour cet utilisateur.</p>
-          <p>Debug Info: {{ donations }}</p> <!-- Add debugging info to the template -->
+          <p>{{ t('noDonationFoundBO') }}</p>
         </div>
       </div>
     </div>

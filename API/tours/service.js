@@ -2,7 +2,14 @@ const tourRepository = require("./repository");
 const { InvalidArgumentError } = require("../common/service_errors");
 
 async function createOne(data) {
-    const tourId = await tourRepository.createOne(data);
+    let tourId;
+    if (data.Type) {
+        // Call the method for 'collect'
+        tourId = tourRepository.createCollectOne(data);
+    } else {
+        // Call the method for 'distribute'
+        tourId = tourRepository.createDistributionOne(data);
+    }
     return { routeId: tourId };
 }
 

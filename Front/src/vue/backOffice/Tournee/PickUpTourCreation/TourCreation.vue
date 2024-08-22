@@ -45,15 +45,32 @@ const createTour = async () => {
     return;
   }
 
-  // Filtrer les destinations sélectionnées et leurs produits
-  const selectedDestinations = donations.value.filter(address => store.getters.isAddressSelected(address.Address_ID));
+  // Filter and map the selected destinations, including full address details and products
+  const selectedDestinations = donations.value.filter(address =>
+      store.getters.isAddressSelected(address.Address_ID)
+  ).map(address => ({
+    Address_ID: address.Address_ID,
+    Street: address.Street,
+    Postal_Code: address.Postal_Code,
+    City: address.City,
+    Country: address.Country,
+    State: address.State,
+    Donors: address.Donors,
+    Total_Donations: address.Total_Donations,
+    Total_Quantity: address.Total_Quantity,
+    Products: address.Products.map(product => ({
+      Donation_ID: product.Donation_ID,
+      Product_Name: product.Product_Name,
+      Quantity: product.Quantity
+    }))
+  }));
 
-  // Enregistrer les destinations et les produits dans le store via l'action saveTourData
+  // Save the selected destinations and their products, including address details, in the store
   store.dispatch('saveTourData', selectedDestinations);
 
   try {
-    store.commit('clearAddresses'); // Clear selected addresses after saving the destinations
-    router.push({name: 'SelectTruck'}); // Passer à la page suivante
+    store.commit('clearAddresses');
+    router.push({ name: 'DonationsSelectTruck' });
   } catch (error) {
     console.error('Error creating tour:', error);
     Swal.fire({
@@ -84,43 +101,48 @@ onMounted(() => {
       </button>
     </div>
 
-    <table class="ui celled table full-width-table">
-      <thead>
-      <tr>
-        <th></th>
-        <th>Adresse</th>
-        <th>Donneur</th>
-        <th colspan="2">Produits</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="address in donations" :key="address.Address_ID">
-        <td>
-          <input
-              type="checkbox"
-              :checked="store.getters.isAddressSelected(address.Address_ID)"
-              @change="toggleAddressSelection(address.Address_ID)"
-          />
-        </td>
-        <td>
-          <strong>{{ address.Street }}, {{ address.Postal_Code }} {{ address.City }}, {{ address.Country }}</strong><br>
-          <div>Total Donations: {{ address.Total_Donations }}</div>
-          <div>Total Quantity: {{ address.Total_Quantity }}</div>
-        </td>
-        <td>{{ address.Donors }}</td>
-        <td colspan="2">
-          <table class="nested-table">
-            <tbody>
-            <tr v-for="(product, index) in address.Products" :key="index">
-              <td>{{ product.Product_Name }}</td>
-              <td>{{ product.Quantity }}</td>
-            </tr>
-            </tbody>
-          </table>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+    <div v-if="donations.length > 0">
+      <table class="ui celled table full-width-table">
+        <thead>
+        <tr>
+          <th></th>
+          <th>Adresse</th>
+          <th>Donneur</th>
+          <th colspan="2">Produits</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="address in donations" :key="address.Address_ID">
+          <td>
+            <input
+                type="checkbox"
+                :checked="store.getters.isAddressSelected(address.Address_ID)"
+                @change="toggleAddressSelection(address.Address_ID)"
+            />
+          </td>
+          <td>
+            <strong>{{ address.Street }}, {{ address.Postal_Code }} {{ address.City }}, {{ address.Country }}</strong><br>
+            <div>Total Donations: {{ address.Total_Donations }}</div>
+            <div>Total Quantity: {{ address.Total_Quantity }}</div>
+          </td>
+          <td>{{ address.Donors }}</td>
+          <td colspan="2">
+            <table class="nested-table">
+              <tbody>
+              <tr v-for="(product, index) in address.Products" :key="index">
+                <td>{{ product.Product_Name }}</td>
+                <td>{{ product.Quantity }}</td>
+              </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div v-else>
+      <p>Aucune donation disponible.</p>
+    </div>
   </div>
 </template>
 

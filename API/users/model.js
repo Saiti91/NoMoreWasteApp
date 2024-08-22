@@ -11,12 +11,12 @@ const createUserSchema = Joi.object({
     last_name: Joi.string().required(),
     telephone: Joi.string().pattern(/^\+?\d{1,15}$/).optional().allow(null),
     address: Joi.object({
-        street: Joi.string().required(),          // La rue est requise
-        city: Joi.string().required(),            // La ville est requise
-        state: Joi.string().required(),           // L'état est requis
-        postal_code: Joi.string().required(),     // Le code postal est requis
-        country: Joi.string().required()          // Le pays est requis
-    }).required()                                // L'adresse entière est requise
+        street: Joi.string().required(),
+        city: Joi.string().required(),
+        state: Joi.string().required(),
+        postal_code: Joi.string().required(),
+        country: Joi.string().required()
+    }).required()
 });
 
 
@@ -26,8 +26,17 @@ const updateUserSchema = Joi.object({
     password: Joi.string().optional(),
     first_name: Joi.string().optional(),
     last_name: Joi.string().optional(),
-    telephone: Joi.string().pattern(/^\+?\d{1,15}$/).optional().allow(null)
+    telephone: Joi.string().pattern(/^\+?\d{1,15}$/).optional().allow(null),
+    birthdate: Joi.string().optional(),
+    address: Joi.object({
+        street: Joi.string().optional(),
+        city: Joi.string().optional(),
+        state: Joi.string().optional(),
+        postal_code: Joi.string().optional(),
+        country: Joi.string().optional()
+    }).optional()
 }).min(1);
+
 
 module.exports = {
     createUserSchema,

@@ -2,6 +2,7 @@ const { Router } = require("express");
 const requestsService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
 const authorize = require("../common/middlewares/authorize_middleware");
+const donationsService = require("../donations/service");
 
 const controller = Router();
 
@@ -66,6 +67,28 @@ controller.get("/", (req, res, next) => {
         .catch((err) => {
             next(err);
         });
+});
+
+/**
+ * @swagger
+ * /requests/notcollected:
+ *   get:
+ *     summary: Retrieve all requests where Route_ID is NULL
+ *     tags: [Requests]
+ *     responses:
+ *       200:
+ *         description: A list of requests where Route_ID is NULL
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Request'
+ */
+controller.get("/notcollected", (req, res, next) => {
+    requestsService.getAllWithoutRoute()
+        .then((data) => res.json(data))
+        .catch((err) => next(err));
 });
 
 /**

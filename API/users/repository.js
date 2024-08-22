@@ -124,26 +124,104 @@ async function getAll() {
     return rows;
 }
 
-// Update un utilisateur
+// MAJ un utilisateur
 async function updateOne(id, user) {
     if (id === undefined) {
         throw new Error("updateOne: id must be defined");
     }
-    const connection = await getConnection();
-    const attrsStr = Object.keys(user)
-        .map((k) => `${k} = ?`)
-        .join(', ');
 
-    const values = [...Object.values(user), id];
-    const [result] = await connection.execute(
-        `UPDATE Users
-         SET ${attrsStr}
-         WHERE User_ID = ?`,
-        values
-    );
-    await connection.end();
-    return result.affectedRows > 0;
+    const connection = await getConnection();
+    console.log("User before update:", user);
+
+    try {
+        await connection.beginTransaction();
+
+        const {
+            Name,
+            Firstname,
+            Password,
+            Phone,
+            Email,
+            Birthdate,
+            Current_Subscription,
+            address = {}
+        } = user;
+
+        const userDetails = {
+            ...(Name !== undefined && { Name }),
+            ...(Firstname !== undefined && { Firstname }),
+            ...(Password !== undefined && { Password }),
+            ...(Phone !== undefined && { Phone }),
+            ...(Email !== undefined && { Email }),
+            ...(Birthdate !== undefined && { Birthdate }),
+            ...(Current_Subscription !== undefined && { Current_Subscription })
+        };
+
+        console.log("User Details to Update:", userDetails);
+
+        if (Object.keys(userDetails).length > 0) {
+            const userUpdateStr = Object.keys(userDetails)
+                .map((k) => `${k} = ?`)
+                .join(', ');
+
+            const userValues = [...Object.values(userDetails), id];
+            const [userResult] = await connection.execute(
+                `UPDATE Users SET ${userUpdateStr} WHERE User_ID = ?`,
+                userValues
+            );
+            console.log("User Update Query Result:", userResult);
+        }
+
+        if (Object.keys(address).length > 0) {
+            const { street, city, state, postal_code, country } = address;
+
+            const addressDetails = {
+                ...(street !== undefined && { Street: street }),
+                ...(city !== undefined && { City: city }),
+                ...(state !== undefined && { State: state }),
+                ...(postal_code !== undefined && { Postal_Code: postal_code }),
+                ...(country !== undefined && { Country: country })
+            };
+
+            console.log("Address Details to Update:", addressDetails);
+
+            if (Object.keys(addressDetails).length > 0) {
+                // Récupérer l'ID de l'adresse de l'utilisateur
+                const [rows] = await connection.execute(
+                    `SELECT Address_ID FROM Users WHERE User_ID = ?`,
+                    [id]
+                );
+                if (rows.length === 0) {
+                    throw new Error("updateOne: No address found for this user.");
+                }
+
+                const addressId = rows[0].Address_ID;
+
+                const addressUpdateStr = Object.keys(addressDetails)
+                    .map((k) => `${k} = ?`)
+                    .join(', ');
+
+                const addressValues = [...Object.values(addressDetails), addressId];
+                const [addressResult] = await connection.execute(
+                    `UPDATE Address SET ${addressUpdateStr} WHERE Address_ID = ?`,
+                    addressValues
+                );
+                console.log("Address Update Query Result:", addressResult);
+            }
+        }
+
+        await connection.commit();
+        return true;
+
+    } catch (error) {
+        await connection.rollback();
+        console.error("Error during update:", error);
+        throw error;
+    } finally {
+        await connection.end();
+    }
 }
+
 
 // Supprime un utilisateur par son ID
 async function deleteOne(id) {
@@ -156,4 +234,5 @@ async function deleteOne(id) {
     return result.affectedRows > 0;
 }
 
-module.exports = {createOne, getOne, getOneVerifBy, verifySkill, getAll, updateOne, deleteOne, getOneBy, checkPassword};
+module.exports = {createOne, getOne, getOneVerifBy, verifySkill, getAll, updateOne, deleteOne, getOneBy, checkPassword,
+    updateOne};
