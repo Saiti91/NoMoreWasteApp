@@ -55,7 +55,7 @@ const validateFields = () => {
   }
 
   // Vérifier la correspondance des mots de passe
-  if (newPassword.value && newPassword.value !== confirmPassword.value) {
+  if (newPassword.value !== confirmPassword.value) {
     Swal.fire({
       icon: 'error',
       title: t('errorUpdateUserTitle'),
