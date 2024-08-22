@@ -13,7 +13,18 @@ const route = useRoute();
 const fetchUserDonations = async () => {
   try {
     const response = await axios.get(`/requests/user/${route.params.id}`);
-    donations.value = response.data;
+
+    // Convert object to array using Object.values()
+    const dataArray = Object.values(response.data);
+    donations.value = dataArray.map(donation => ({
+      Product_Name: donation.Product.Name,
+      Barcode: donation.Product.Barcode,
+      Quantity: donation.Quantity,
+      Date: donation.Processed ? donation.Processed_Date : donation.Request_Date,
+      Category_Name: donation.Product.Category
+    }));
+
+    console.log('Mapped User Donations:', donations.value);
   } catch (error) {
     console.error('Error fetching user donations:', error);
   }
@@ -21,7 +32,7 @@ const fetchUserDonations = async () => {
 
 const formatDate = (date) => {
   if (!date) return t('noInfo');
-  const options = {year: 'numeric', month: 'long', day: 'numeric'};
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
@@ -38,7 +49,7 @@ onMounted(() => {
       <UserMenu/>
       <div class="content-area">
         <h2>{{ t('receivedDonationTitleBO') }}</h2>
-        <div v-if="Object.keys(donations).length > 0" class="user-details">
+        <div v-if="donations.length > 0" class="user-details">
           <table class="ui celled table full-width-table">
             <thead>
             <tr>
@@ -50,7 +61,7 @@ onMounted(() => {
             </tr>
             </thead>
             <tbody>
-            <tr v-for="donation in donations" :key="donation.Request_ID">
+            <tr v-for="donation in donations" :key="donation.Barcode">
               <td>{{ donation.Product_Name }}</td>
               <td>{{ donation.Barcode }}</td>
               <td>{{ donation.Quantity }}</td>
