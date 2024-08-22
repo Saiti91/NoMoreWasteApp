@@ -232,6 +232,24 @@ CREATE TABLE IF NOT EXISTS Tickets
     FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
 );
 
+CREATE TABLE Recipes
+(
+    Recipes_ID   INT PRIMARY KEY AUTO_INCREMENT,
+    Name         VARCHAR(255),
+    Instructions TEXT
+);
+
+CREATE TABLE Recipes_Ingredients
+(
+    Recipes_ID  INT,
+    Product_ID  INT,
+    Quantity    DECIMAL(10, 2), -- Pour les quantités numériques
+    Unit        VARCHAR(50),-- Pour l'unité de mesure
+    Description VARCHAR(255),-- Pour les quantités textuelles (ex : "une pincée", "au goût")
+    FOREIGN KEY (Recipes_ID) REFERENCES Recipes (Recipes_ID),
+    FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
+);
+
 -- Fin des tickets
 
 ## 2.2.2. Insertion of data
@@ -588,9 +606,8 @@ VALUES (1, 10, '2023-10-01', 3, 1, TRUE, '2023-10-02'),
 
 -- Données de test pour la table Route_Requests
 INSERT INTO Route_Requests (Route_ID, Request_ID)
-VALUES
-    (1, 1),
-    (2, 2);
+VALUES (1, 1),
+       (2, 2);
 
 -- Données de test pour la table Donations
 INSERT INTO Donations (Product_ID, Quantity, Donor_User_ID, Date, Route_ID, Collected, Collection_Date)
@@ -626,4 +643,104 @@ VALUES (1, 8), -- Plomberie avec Plomberie
        (2, 6), -- Électricité avec Services de réparation
        (3, 3), -- Maçonnerie avec Bricolage
        (4, 4), -- Peinture avec Conseils anti-gaspi
-       (5, 9); -- Jardinage avec Jardinage
+       (5, 9);
+-- Jardinage avec Jardinage
+
+-- Insérer les recettes dans la table Recipes
+INSERT INTO Recipes (Name, Instructions)
+VALUES ('Salade de poulet aux légumes',
+        'Grillez le poulet, coupez la tomate et le poivron en dés, mélangez avec des feuilles de salade verte, assaisonnez avec de l''huile d''olive et du sel.'),
+       ('Pâtes au saumon et crème fraîche',
+        'Faites cuire les pâtes, ajoutez le saumon coupé en morceaux, mélangez avec la crème fraîche, assaisonnez avec du sel.'),
+       ('Pizza surgelée garnie',
+        'Ajoutez des morceaux de fromage, de poivron et de tomate sur la pizza surgelée avant de la cuire au four selon les instructions.'),
+       ('Tortillas au steak de bœuf',
+        'Faites griller le steak de bœuf, coupez-le en fines lamelles, garnissez les tortillas avec le steak, la salsa et des morceaux de poivron.'),
+       ('Salade de fruits',
+        'Coupez la pomme et la banane en morceaux, mélangez-les, ajoutez un peu de jus d''orange pour assaisonner.'),
+       ('Baguette au jambon et fromage',
+        'Coupez la baguette en deux, tartinez-la de beurre, ajoutez des tranches de jambon et de fromage, passez au four pour faire fondre le fromage.'),
+       ('Poisson pané et frites',
+        'Faites cuire le poisson pané et les frites surgelées au four selon les instructions sur l''emballage.'),
+       ('Nouilles asiatiques au tofu',
+        'Faites cuire les nouilles, faites sauter le tofu dans un peu d''huile, ajoutez les nouilles et la sauce soja, mélangez bien.'),
+       ('Brioche au chocolat noir',
+        'Coupez la brioche en tranches, placez des morceaux de chocolat noir entre deux tranches, faites chauffer au four pour faire fondre le chocolat.'),
+       ('Smoothie banane-lait', 'Mixez la banane avec le lait, ajoutez du miel pour sucrer si désiré.');
+
+-- Pour "Salade de poulet aux légumes"
+INSERT INTO Recipes_Ingredients (Recipes_ID, Product_ID, Quantity, Unit, Description)
+VALUES (1, (SELECT Product_ID FROM Products WHERE Barcode = '2234567890124'), 1, 'pièce', NULL), -- Poulet
+       (1, (SELECT Product_ID FROM Products WHERE Barcode = '1234567890126'), 1, 'pièce', NULL), -- Tomate
+       (1, (SELECT Product_ID FROM Products WHERE Barcode = '1234567890127'), 1, 'pièce', NULL), -- Poivron
+       (1, (SELECT Product_ID FROM Products WHERE Barcode = '8234567890126'), 2, 'cuillères à soupe',
+        NULL),                                                                                   -- Huile d'olive
+       (1, (SELECT Product_ID FROM Products WHERE Barcode = '8234567890127'), NULL, NULL, 'Au goût');
+-- Sel
+
+-- Pour "Pâtes au saumon et crème fraîche"
+INSERT INTO Recipes_Ingredients (Recipes_ID, Product_ID, Quantity, Unit, Description)
+VALUES (2, (SELECT Product_ID FROM Products WHERE Barcode = '8234567890123'), 200, 'grammes', NULL), -- Pâtes
+       (2, (SELECT Product_ID FROM Products WHERE Barcode = '2234567890125'), 150, 'grammes', NULL), -- Saumon
+       (2, (SELECT Product_ID FROM Products WHERE Barcode = '4234567890126'), 100, 'ml', NULL),      -- Crème fraîche
+       (2, (SELECT Product_ID FROM Products WHERE Barcode = '8234567890127'), NULL, NULL, 'Au goût');
+-- Sel
+
+-- Pour "Pizza surgelée garnie"
+INSERT INTO Recipes_Ingredients (Recipes_ID, Product_ID, Quantity, Unit, Description)
+VALUES (3, (SELECT Product_ID FROM Products WHERE Barcode = '6234567890125'), 1, 'pièce', NULL),     -- Pizza surgelée
+       (3, (SELECT Product_ID FROM Products WHERE Barcode = '4234567890127'), 100, 'grammes', NULL), -- Fromage
+       (3, (SELECT Product_ID FROM Products WHERE Barcode = '1234567890127'), 1, 'pièce', NULL),     -- Poivron
+       (3, (SELECT Product_ID FROM Products WHERE Barcode = '1234567890126'), 1, 'pièce', NULL);
+-- Tomate
+
+-- Pour "Tortillas au steak de bœuf"
+INSERT INTO Recipes_Ingredients (Recipes_ID, Product_ID, Quantity, Unit, Description)
+VALUES (4, (SELECT Product_ID FROM Products WHERE Barcode = '10234567890125'), 2, 'pièces', NULL),   -- Tortillas
+       (4, (SELECT Product_ID FROM Products WHERE Barcode = '2234567890123'), 200, 'grammes', NULL), -- Steak de bœuf
+       (4, (SELECT Product_ID FROM Products WHERE Barcode = '10234567890126'), 3, 'cuillères à soupe',
+        NULL),                                                                                       -- Salsa mexicaine
+       (4, (SELECT Product_ID FROM Products WHERE Barcode = '1234567890127'), 1, 'pièce', NULL);
+-- Poivron
+
+-- Pour "Salade de fruits"
+INSERT INTO Recipes_Ingredients (Recipes_ID, Product_ID, Quantity, Unit, Description)
+VALUES (5, (SELECT Product_ID FROM Products WHERE Barcode = '1234567890123'), 1, 'pièce', NULL), -- Pomme
+       (5, (SELECT Product_ID FROM Products WHERE Barcode = '1234567890124'), 1, 'pièce', NULL), -- Banane
+       (5, (SELECT Product_ID FROM Products WHERE Barcode = '7234567890124'), 50, 'ml', NULL);
+-- Jus d'orange
+
+-- Pour "Baguette au jambon et fromage"
+INSERT INTO Recipes_Ingredients (Recipes_ID, Product_ID, Quantity, Unit, Description)
+VALUES (6, (SELECT Product_ID FROM Products WHERE Barcode = '3234567890123'), 1, 'pièce', NULL),    -- Baguette
+       (6, (SELECT Product_ID FROM Products WHERE Barcode = '2234567890127'), 2, 'tranches', NULL), -- Jambon
+       (6, (SELECT Product_ID FROM Products WHERE Barcode = '4234567890127'), 2, 'tranches', NULL), -- Fromage
+       (6, (SELECT Product_ID FROM Products WHERE Barcode = '4234567890124'), 1, 'cuillère à soupe', NULL);
+-- Beurre
+
+-- Pour "Poisson pané et frites"
+INSERT INTO Recipes_Ingredients (Recipes_ID, Product_ID, Quantity, Unit, Description)
+VALUES (7, (SELECT Product_ID FROM Products WHERE Barcode = '6234567890124'), 2, 'pièces', NULL), -- Poisson pané
+       (7, (SELECT Product_ID FROM Products WHERE Barcode = '6234567890126'), 200, 'grammes', NULL);
+-- Frites surgelées
+
+-- Pour "Nouilles asiatiques au tofu"
+INSERT INTO Recipes_Ingredients (Recipes_ID, Product_ID, Quantity, Unit, Description)
+VALUES (8, (SELECT Product_ID FROM Products WHERE Barcode = '10234567890123'), 100, 'grammes',
+        NULL),                                                                                        -- Nouilles asiatiques
+       (8, (SELECT Product_ID FROM Products WHERE Barcode = '11234567890123'), 150, 'grammes', NULL), -- Tofu
+       (8, (SELECT Product_ID FROM Products WHERE Barcode = '10234567890124'), 2, 'cuillères à soupe', NULL);
+-- Sauce soja
+
+-- Pour "Brioche au chocolat noir"
+INSERT INTO Recipes_Ingredients (Recipes_ID, Product_ID, Quantity, Unit, Description)
+VALUES (9, (SELECT Product_ID FROM Products WHERE Barcode = '3234567890126'), 2, 'tranches', NULL), -- Brioche
+       (9, (SELECT Product_ID FROM Products WHERE Barcode = '9234567890123'), 50, 'grammes', NULL);
+-- Chocolat noir
+
+-- Pour "Smoothie banane-lait"
+INSERT INTO Recipes_Ingredients (Recipes_ID, Product_ID, Quantity, Unit, Description)
+VALUES (10, (SELECT Product_ID FROM Products WHERE Barcode = '1234567890124'), 1, 'pièce', NULL), -- Banane
+       (10, (SELECT Product_ID FROM Products WHERE Barcode = '4234567890123'), 200, 'ml', NULL),  -- Lait
+       (10, (SELECT Product_ID FROM Products WHERE Barcode = '9234567890126'), 1, 'cuillère à soupe',
+        'Facultatif'); -- Miel
