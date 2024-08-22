@@ -16,7 +16,16 @@ const route = useRoute();
 const fetchUserDonations = async () => {
   try {
     const response = await axios.get(`/requests/user/${route.params.id}`);
-    donations.value = response.data;
+    const dataArray = Object.values(response.data);
+    donations.value = dataArray.map(donation => ({
+      Product_Name: donation.Product.Name,
+      Barcode: donation.Product.Barcode,
+      Quantity: donation.Quantity,
+      Date: donation.Processed ? donation.Processed_Date : donation.Request_Date,
+      Category_Name: donation.Product.Category
+    }));
+
+    console.log('Mapped User Donations:', donations.value);
   } catch (error) {
     console.error('Error fetching user donations:', error);
   }
