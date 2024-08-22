@@ -1,10 +1,10 @@
 <script setup>
-import {nextTick, onMounted, ref} from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
-import {useI18n} from 'vue-i18n';
+import { useI18n } from 'vue-i18n';
 
-const {t} = useI18n();
+const { t } = useI18n();
 const title = ref('');
 const propose = ref('');
 const category = ref('');
@@ -13,17 +13,12 @@ const startTime = ref('');
 const duration = ref('');
 const format = ref('');
 const places = ref('');
-const tools = ref('Aucun');
-const toolsOther = ref('');
-const extraTools = ref([]);
 const address = ref('');
 const needsCustomerAddress = ref(false);
 const description = ref('');
 const image = ref(null);
 
 const categories = ref([]);
-const toolsOptions = ref([]);
-const extraToolsOptions = ref([]);
 
 const fetchCategories = async () => {
   try {
@@ -34,28 +29,8 @@ const fetchCategories = async () => {
   }
 };
 
-const fetchTools = async () => {
-  try {
-    const response = await axios.get('/api/tools');
-    toolsOptions.value = response.data;
-  } catch (error) {
-    console.error('Erreur lors de la récupération des outils:', error);
-  }
-};
-
-const fetchExtraTools = async () => {
-  try {
-    const response = await axios.get('/api/extra-tools');
-    extraToolsOptions.value = response.data;
-  } catch (error) {
-    console.error('Erreur lors de la récupération des outils supplémentaires:', error);
-  }
-};
-
 onMounted(async () => {
   await fetchCategories();
-  await fetchTools();
-  await fetchExtraTools();
   await nextTick(() => {
     initializeDropdowns();
   });
@@ -68,9 +43,41 @@ function initializeDropdowns() {
 function handleFileUpload(event) {
   const file = event.target.files[0];
   if (file) {
+    image.value = file;
     console.log('Fichier sélectionné:', file);
   }
 }
+
+// Fonction pour sauvegarder le ticket
+const saveTicket = async () => {
+  const formData = new FormData();
+  formData.append('title', title.value);
+  formData.append('propose', propose.value);
+  formData.append('category', category.value);
+  formData.append('startDate', startDate.value);
+  formData.append('startTime', startTime.value);
+  formData.append('duration', duration.value);
+  formData.append('format', format.value);
+  formData.append('places', places.value);
+  formData.append('address', address.value);
+  formData.append('needsCustomerAddress', needsCustomerAddress.value);
+  formData.append('description', description.value);
+  if (image.value) {
+    formData.append('image', image.value);
+  }
+
+  try {
+    const response = await axios.post('/api/tickets', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    console.log('Ticket sauvegardé:', response.data);
+    // Optionally, redirect or reset form after successful save
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du ticket:', error);
+  }
+};
 </script>
 
 <template>
@@ -179,49 +186,6 @@ function handleFileUpload(event) {
         <input v-model="places" type="text" maxlength="3" placeholder="Nombre de places"/>
       </div>
 
-      <!-- Outils -->
-      <div v-if="propose === 'Proposer'" class="field">
-        <label>Outils</label>
-        <div class="ui compact selection dropdown" ref="toolsDropdown">
-          <input type="hidden" v-model="tools"/>
-          <i class="dropdown icon"></i>
-          <div class="text">Aucun</div>
-          <div class="menu">
-            <div v-for="tool in toolsOptions" :key="tool.id" class="item" :data-value="tool.id">{{ tool.name }}</div>
-            <div class="item" data-value="Autre">Autre</div>
-          </div>
-        </div>
-
-        <!-- Préciser l'outil si Autre est sélectionné -->
-        <div v-if="tools === 'Autre'" class="field">
-          <label>{{ t('preciser') }}</label>
-          <input v-model="toolsOther" type="text" placeholder="Préciser"/>
-        </div>
-      </div>
-
-      <!-- Outils supplémentaires -->
-      <div v-if="extraToolsOptions.length > 0">
-        <div v-for="(tool, index) in extraToolsOptions.slice(0, 5)" :key="index" class="ui compact selection dropdown"
-             ref="extraToolsDropdown">
-          <input type="hidden" :name="'OutilClient_' + index"/>
-          <i class="dropdown icon"></i>
-          <div class="text">Aucun</div>
-          <div class="menu">
-            <div class="item" data-value="Aucun">Aucun</div>
-            <div v-for="tool in extraToolsOptions" :key="tool.id" class="item" :data-value="tool.id">{{
-                tool.name
-              }}
-            </div>
-            <div class="item" data-value="Autre">Autre</div>
-          </div>
-          <!-- Préciser l'outil si Autre est sélectionné -->
-          <div v-if="extraTools[index] === 'Autre'" class="field">
-            <label>{{ t('preciser') }}</label>
-            <input v-model="extraTools[index]" type="text" placeholder="Préciser"/>
-          </div>
-        </div>
-      </div>
-
       <!-- Adresse du service -->
       <div class="field">
         <label>Adresse du service</label>
@@ -254,7 +218,7 @@ function handleFileUpload(event) {
       <div class="ui buttons">
         <button class="negative ui button">Annuler</button>
         <button class="ui button">Prévisualiser</button>
-        <button class="positive ui button">Sauvegarder</button>
+        <button class="positive ui button" @click="saveTicket">Sauvegarder</button>
       </div>
     </div>
   </div>

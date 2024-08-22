@@ -1,24 +1,39 @@
-const getConnection = require("../common/db_handler");
+const getConnection = require('../common/db_handler');
 
 // Création d'un ticket
 async function createOne(ticket) {
+    const {
+        title,
+        propose,
+        category,
+        startDate,
+        startTime,
+        duration,
+        format,
+        places,
+        tools,
+        toolsOther,
+        extraTools,
+        address,
+        needsCustomerAddress,
+        description,
+        image
+    } = ticket;
+
     const connection = await getConnection();
     const [result] = await connection.execute(
-        `INSERT INTO Tickets 
-        (Title, Direction, Category_ID, Start_Date, Duration, Places, Tools, Address_ID, Address_Needs, Customers_Address, Description, Image, Status_ID, Owner_User_ID)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-            ticket.title, ticket.direction, ticket.category_id, ticket.start_date, ticket.duration, ticket.places,
-            ticket.tools, ticket.address_id, ticket.address_needs, ticket.customers_address, ticket.description,
-            ticket.image, ticket.status_id, ticket.owner_id
-        ]
+        'INSERT INTO Tickets (Title, Propose, Category, Start_Date, Start_Time, Duration, Format, Places, Tools, Tools_Other, Extra_Tools, Address, Needs_Customer_Address, Description, Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [title, propose, category, startDate, startTime, duration, format, places, tools, toolsOther, JSON.stringify(extraTools), address, needsCustomerAddress, description, image]
     );
     await connection.end();
     return result.insertId;
 }
 
-// Récupère un ticket par son ID
+// Récupère un ticket en fonction de son ID
 async function getOne(id) {
+    if (id === undefined) {
+        throw new Error("getOne: id must be defined");
+    }
     const connection = await getConnection();
     const [rows] = await connection.execute('SELECT * FROM Tickets WHERE Ticket_ID = ?', [id]);
     await connection.end();
@@ -33,28 +48,37 @@ async function getAll() {
     return rows;
 }
 
-// Mise à jour d'un ticket par son ID
+// Met à jour un ticket
 async function updateOne(id, ticket) {
+    if (id === undefined) {
+        throw new Error("updateOne: id must be defined");
+    }
     const connection = await getConnection();
-    const attrsStr = Object.keys(ticket)
-        .map((k) => `${k} = ?`)
-        .join(', ');
+    const { title, propose, category, startDate, startTime, duration, format, places, tools, toolsOther, extraTools, address, needsCustomerAddress, description, image } = ticket;
 
-    const values = [...Object.values(ticket), id];
     const [result] = await connection.execute(
-        `UPDATE Tickets SET ${attrsStr} WHERE Ticket_ID = ?`,
-        values
+        'UPDATE Tickets SET Title = ?, Propose = ?, Category = ?, Start_Date = ?, Start_Time = ?, Duration = ?, Format = ?, Places = ?, Tools = ?, Tools_Other = ?, Extra_Tools = ?, Address = ?, Needs_Customer_Address = ?, Description = ?, Image = ? WHERE Ticket_ID = ?',
+        [title, propose, category, startDate, startTime, duration, format, places, tools, toolsOther, JSON.stringify(extraTools), address, needsCustomerAddress, description, image, id]
     );
     await connection.end();
-    return result.affectedRows > 0;
+    return result.affectedRows;
 }
 
-// Suppression d'un ticket par son ID
+// Supprime un ticket
 async function deleteOne(id) {
+    if (id === undefined) {
+        throw new Error("deleteOne: id must be defined");
+    }
     const connection = await getConnection();
     const [result] = await connection.execute('DELETE FROM Tickets WHERE Ticket_ID = ?', [id]);
     await connection.end();
-    return result.affectedRows > 0;
+    return result.affectedRows;
 }
 
-module.exports = { createOne, getOne, getAll, updateOne, deleteOne };
+module.exports = {
+    createOne,
+    getOne,
+    getAll,
+    updateOne,
+    deleteOne,
+};

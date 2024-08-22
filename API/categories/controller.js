@@ -2,7 +2,7 @@ const { Router } = require('express');
 const categoriesService = require('./service');
 const NotFoundError = require('../common/http_errors').NotFoundError;
 const authorize = require('../common/middlewares/authorize_middleware');
-const { createCategorySchema, updateCategorySchema } = require('./model'); // Assurez-vous que ces schémas sont correctement définis.
+const { createCategorySchema, updateCategorySchema } = require('./model');
 
 const controller = Router();
 
@@ -14,6 +14,7 @@ const controller = Router();
  *       type: object
  *       required:
  *         - name
+ *         - diploma_id
  *       properties:
  *         id:
  *           type: integer
@@ -21,9 +22,13 @@ const controller = Router();
  *         name:
  *           type: string
  *           description: The name of the category.
+ *         diploma_id:
+ *           type: integer
+ *           description: The associated diploma ID.
  *       example:
  *         id: 1
  *         name: Electronics
+ *         diploma_id: 123
  */
 
 /**

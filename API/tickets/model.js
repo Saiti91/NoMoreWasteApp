@@ -1,40 +1,44 @@
-const Joi = require("joi");
+// models/ticketModel.js
+
+const Joi = require('joi');
 
 // Schéma de validation pour créer un ticket
 const createTicketSchema = Joi.object({
     title: Joi.string().required(),
-    direction: Joi.boolean().required(),
-    category_id: Joi.number().integer().required(),
-    start_date: Joi.date().required(),
-    duration: Joi.number().integer().required(),
-    places: Joi.number().integer().required(),
-    tools: Joi.string().optional().allow(null),
-    address_id: Joi.number().integer().required(),
-    address_needs: Joi.boolean().required(),
-    customers_address: Joi.string().optional().allow(null),
-    description: Joi.string().optional().allow(null),
-    image: Joi.string().optional().allow(null),
-    status_id: Joi.number().integer().required(),
-    owner_id: Joi.number().integer().required(),
+    propose: Joi.string().valid('Proposer', 'Demander').required(),
+    category: Joi.string().required(),
+    startDate: Joi.date().iso().required(),
+    startTime: Joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d)$/).required(),
+    duration: Joi.string().max(3).required(),
+    format: Joi.string().valid('Minutes', 'Heures', 'Jours').required(),
+    places: Joi.string().max(3).optional().allow(''),
+    tools: Joi.string().valid('Aucun', 'Autre').optional(),
+    toolsOther: Joi.string().optional().allow(''),
+    extraTools: Joi.array().items(Joi.string()).optional().default([]),
+    address: Joi.string().optional().allow(''),
+    needsCustomerAddress: Joi.boolean().default(false),
+    description: Joi.string().optional().allow(''),
+    image: Joi.any().optional()
 });
 
 // Schéma de validation pour mettre à jour un ticket
 const updateTicketSchema = Joi.object({
     title: Joi.string().optional(),
-    direction: Joi.boolean().optional(),
-    category_id: Joi.number().integer().optional(),
-    start_date: Joi.date().optional(),
-    duration: Joi.number().integer().optional(),
-    places: Joi.number().integer().optional(),
-    tools: Joi.string().optional().allow(null),
-    address_id: Joi.number().integer().optional(),
-    address_needs: Joi.boolean().optional(),
-    customers_address: Joi.string().optional().allow(null),
-    description: Joi.string().optional().allow(null),
-    image: Joi.string().optional().allow(null),
-    status_id: Joi.number().integer().optional(),
-    owner_id: Joi.number().integer().optional(),
-}).min(1);
+    propose: Joi.string().valid('Proposer', 'Demander').optional(),
+    category: Joi.string().optional(),
+    startDate: Joi.date().iso().optional(),
+    startTime: Joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(),
+    duration: Joi.string().max(3).optional(),
+    format: Joi.string().valid('Minutes', 'Heures', 'Jours').optional(),
+    places: Joi.string().max(3).optional().allow(''),
+    tools: Joi.string().valid('Aucun', 'Autre').optional(),
+    toolsOther: Joi.string().optional().allow(''),
+    extraTools: Joi.array().items(Joi.string()).optional(),
+    address: Joi.string().optional().allow(''),
+    needsCustomerAddress: Joi.boolean().optional(),
+    description: Joi.string().optional().allow(''),
+    image: Joi.any().optional()
+}).min(1); // Require at least one field to be updated
 
 module.exports = {
     createTicketSchema,

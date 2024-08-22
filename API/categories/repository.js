@@ -1,11 +1,8 @@
 const getConnection = require('../common/db_handler');
 
 // Crée une nouvelle catégorie
-async function createOne(SkillsCategories) {
-    const {
-        name,
-        diploma_id
-    } = SkillsCategories;
+async function createOne(category) {
+    const { name, diploma_id } = category;
 
     if (name === undefined || diploma_id === undefined) {
         throw new Error("createOne: name and diploma_id must be defined");
@@ -41,19 +38,19 @@ async function getAll() {
 }
 
 // Met à jour une catégorie
-async function updateOne(id, SkillsCategories) {
+async function updateOne(id, category) {
     if (id === undefined) {
         throw new Error("updateOne: id must be defined");
     }
 
     const connection = await getConnection();
-    const attrsStr = Object.keys(SkillsCategories)
+    const attrsStr = Object.keys(category)
         .map((k) => `${k} = ?`)
         .join(', ');
 
-    const values = [...Object.values(SkillsCategories), id];
+    const values = [...Object.values(category), id];
     const [result] = await connection.execute(
-        `UPDATE Categories SET ${attrsStr} WHERE Category_ID = ?`,
+        `UPDATE SkillsCategories SET ${attrsStr} WHERE Category_ID = ?`,
         values
     );
     await connection.end();

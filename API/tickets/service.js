@@ -1,6 +1,6 @@
-const { createTicketSchema, updateTicketSchema } = require("./model");
-const Repository = require("./repository");
-const { InvalidArgumentError, NotFoundError } = require("../common/service_errors");
+const { createTicketSchema, updateTicketSchema } = require('./model');
+const Repository = require('./repository');
+const { InvalidArgumentError, NotFoundError } = require('../common/service_errors');
 
 // Fonction de création d'un ticket
 async function createOne(ticket) {
@@ -9,21 +9,23 @@ async function createOne(ticket) {
         throw error;
     }
 
-    return await Repository.createOne(value);
+    const newTicketId = await Repository.createOne(value);
+    return { ...value, ticket_id: newTicketId };
 }
 
-// Fonction de récupération d'un ticket par ID
+// Fonction de récupération d'un ticket en fonction de son ID
 async function getOne(id) {
     const ticket = await Repository.getOne(id);
     if (!ticket) {
-        throw new NotFoundError(`Ticket avec l'id ${id} non trouvé`);
+        throw new NotFoundError(`Ticket with ID ${id} not found.`);
     }
     return ticket;
 }
 
 // Fonction de récupération de tous les tickets
 async function getAll() {
-    return await Repository.getAll();
+    const tickets = await Repository.getAll();
+    return tickets;
 }
 
 // Fonction de mise à jour d'un ticket
@@ -33,20 +35,27 @@ async function updateOne(id, ticket) {
         throw error;
     }
 
-    const updated = await Repository.updateOne(id, value);
-    if (!updated) {
-        throw new NotFoundError(`Ticket avec l'id ${id} non trouvé`);
+    const affectedRows = await Repository.updateOne(id, value);
+    if (affectedRows === 0) {
+        throw new NotFoundError(`Ticket with ID ${id} not found.`);
     }
-    return updated;
+
+    return { ...value, ticket_id: id };
 }
 
 // Fonction de suppression d'un ticket
 async function deleteOne(id) {
-    const deleted = await Repository.deleteOne(id);
-    if (!deleted) {
-        throw new NotFoundError(`Ticket avec l'id ${id} non trouvé`);
+    const affectedRows = await Repository.deleteOne(id);
+    if (affectedRows === 0) {
+        throw new NotFoundError(`Ticket with ID ${id} not found.`);
     }
-    return deleted;
+    return { message: `Ticket with ID ${id} has been deleted.` };
 }
 
-module.exports = { createOne, getOne, getAll, updateOne, deleteOne };
+module.exports = {
+    createOne,
+    getOne,
+    getAll,
+    updateOne,
+    deleteOne,
+};

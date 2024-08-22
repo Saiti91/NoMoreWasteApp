@@ -1,7 +1,6 @@
-const { Router } = require("express");
-const ticketsService = require("./service");
-const NotFoundError = require("../common/http_errors");
-const authorize = require("../common/middlewares/authorize_middleware");
+const { Router } = require('express');
+const ticketsService = require('./service');
+const NotFoundError = require('../common/http_errors').NotFoundError;
 
 const controller = Router();
 
@@ -13,134 +12,94 @@ const controller = Router();
  *       type: object
  *       required:
  *         - title
- *         - direction
- *         - category_id
- *         - start_date
+ *         - propose
+ *         - category
+ *         - startDate
+ *         - startTime
  *         - duration
- *         - places
- *         - address_id
- *         - address_needs
- *         - status_id
- *         - owner_id
+ *         - format
  *       properties:
- *         id:
+ *         ticket_id:
  *           type: integer
  *           description: The auto-generated ID of the ticket.
  *         title:
  *           type: string
  *           description: The title of the ticket.
- *         direction:
- *           type: boolean
- *           description: The direction of the ticket.
- *         category_id:
- *           type: integer
- *           description: The category ID associated with the ticket.
- *         start_date:
+ *         propose:
  *           type: string
- *           format: date-time
- *           description: The start date of the ticket.
+ *           enum: [Proposer, Demander]
+ *           description: Whether the service is being proposed or requested.
+ *         category:
+ *           type: string
+ *           description: The category of the ticket.
+ *         startDate:
+ *           type: string
+ *           format: date
+ *           description: The start date of the service.
+ *         startTime:
+ *           type: string
+ *           format: time
+ *           description: The start time of the service.
  *         duration:
- *           type: integer
- *           description: The duration of the event.
+ *           type: string
+ *           description: The duration of the service.
+ *         format:
+ *           type: string
+ *           enum: [Minutes, Heures, Jours]
+ *           description: The format of the duration.
  *         places:
- *           type: integer
- *           description: Number of places available.
+ *           type: string
+ *           description: Number of places available (if applicable).
  *         tools:
  *           type: string
- *           description: Tools required for the event.
- *         address_id:
- *           type: integer
- *           description: The ID of the address.
- *         address_needs:
- *           type: boolean
- *           description: Whether address needs are required.
- *         customers_address:
+ *           enum: [Aucun, Autre]
+ *           description: Tools required for the service.
+ *         toolsOther:
  *           type: string
- *           description: The customer's address.
+ *           description: Specify the tool if 'Autre' is selected.
+ *         extraTools:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Extra tools required for the service.
+ *         address:
+ *           type: string
+ *           description: Address of the service.
+ *         needsCustomerAddress:
+ *           type: boolean
+ *           description: Indicates if customer address is needed.
  *         description:
  *           type: string
- *           description: A description of the ticket.
+ *           description: Description of the service.
  *         image:
  *           type: string
- *           description: An image URL for the ticket.
- *         status_id:
- *           type: integer
- *           description: The status ID of the ticket.
- *         owner_id:
- *           type: integer
- *           description: The ID of the ticket's owner.
+ *           format: binary
+ *           description: Image associated with the ticket.
+ *       example:
+ *         ticket_id: 1
+ *         title: "Atelier de peinture"
+ *         propose: "Proposer"
+ *         category: "Arts"
+ *         startDate: "2024-09-01"
+ *         startTime: "10:00"
+ *         duration: "2"
+ *         format: "Heures"
+ *         places: "10"
+ *         tools: "Aucun"
+ *         toolsOther: ""
+ *         extraTools: []
+ *         address: "123 Rue de la Peinture, Paris"
+ *         needsCustomerAddress: false
+ *         description: "Atelier de peinture pour débutants."
+ *         image: null
  */
-
-/**
- * @swagger
- * tags:
- *   name: tickets
- *   description: Ticket management
- */
-
-/**
- * @swagger
- * /tickets:
- *   get:
- *     summary: Retrieve a list of tickets
- *     tags: [tickets]
- *     responses:
- *       200:
- *         description: A list of tickets.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Ticket'
- */
-controller.get(
-    "/",
-    (req, res, next) => {
-        ticketsService.getAll()
-            .then((data) => res.json(data))
-            .catch((err) => next(err));
-    },
-);
-
-/**
- * @swagger
- * /tickets/{id}:
- *   get:
- *     summary: Get a ticket by ID
- *     tags: [tickets]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: The ticket ID
- *     responses:
- *       200:
- *         description: A single ticket.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Ticket'
- *       404:
- *         description: Ticket not found.
- */
-controller.get(
-    "/:id",
-    (req, res, next) => {
-        ticketsService.getOne(req.params.id)
-            .then((data) => res.json(data))
-            .catch((err) => next(err));
-    },
-);
 
 /**
  * @swagger
  * /tickets:
  *   post:
  *     summary: Create a new ticket
- *     tags: [tickets]
+ *     tags: [Tickets]
  *     requestBody:
  *       required: true
  *       content:
@@ -149,28 +108,108 @@ controller.get(
  *             $ref: '#/components/schemas/Ticket'
  *     responses:
  *       201:
- *         description: The created ticket.
+ *         description: Ticket created successfully.
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Ticket'
+ *       400:
+ *         description: Bad Request - Validation errors or missing required fields.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "\"title\" is required"
+ *       500:
+ *         description: Internal Server Error - Unexpected error occurred.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Server error"
+ *                 error:
+ *                   type: string
+ *                   example: "Detailed error message"
  */
-controller.post(
-    "/",
-    authorize(),  // Middleware to check authorization
-    (req, res, next) => {
-        ticketsService.createOne(req.body)
-            .then((id) => res.status(201).json({ id }))
-            .catch((err) => next(err));
-    },
-);
+controller.post("/", async (req, res, next) => {
+    try {
+        const newTicket = await ticketsService.createOne(req.body);
+        res.status(201).json(newTicket);
+    } catch (err) {
+        next(err);
+    }
+});
+
+
+/**
+ * @swagger
+ * /tickets/{id}:
+ *   get:
+ *     summary: Get a ticket by ID
+ *     tags: [Tickets]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The ticket ID
+ *     responses:
+ *       200:
+ *         description: The requested ticket.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Ticket'
+ *       404:
+ *         description: Ticket not found
+ */
+controller.get("/:id", async (req, res, next) => {
+    try {
+        const ticket = await ticketsService.getOne(Number(req.params.id));
+        res.json(ticket);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * @swagger
+ * /tickets:
+ *   get:
+ *     summary: Get all tickets
+ *     tags: [Tickets]
+ *     responses:
+ *       200:
+ *         description: A list of all tickets.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Ticket'
+ */
+controller.get("/", async (req, res, next) => {
+    try {
+        const tickets = await ticketsService.getAll();
+        res.json(tickets);
+    } catch (err) {
+        next(err);
+    }
+});
 
 /**
  * @swagger
  * /tickets/{id}:
  *   put:
- *     summary: Update a ticket by ID
- *     tags: [tickets]
+ *     summary: Update an existing ticket
+ *     tags: [Tickets]
  *     parameters:
  *       - in: path
  *         name: id
@@ -181,31 +220,34 @@ controller.post(
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             $ref: '#/components/schemas/Ticket'
  *     responses:
- *       204:
- *         description: No Content.
+ *       200:
+ *         description: The updated ticket.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Ticket'
  *       404:
- *         description: Ticket not found.
+ *         description: Ticket not found
  */
-controller.put(
-    "/:id",
-    authorize(),  // Middleware to check authorization
-    (req, res, next) => {
-        ticketsService.updateOne(req.params.id, req.body)
-            .then(() => res.status(204).end())
-            .catch((err) => next(err));
-    },
-);
+controller.put("/:id", async (req, res, next) => {
+    try {
+        const updatedTicket = await ticketsService.updateOne(Number(req.params.id), req.body);
+        res.json(updatedTicket);
+    } catch (err) {
+        next(err);
+    }
+});
 
 /**
  * @swagger
  * /tickets/{id}:
  *   delete:
- *     summary: Delete a ticket by ID
- *     tags: [tickets]
+ *     summary: Delete a ticket
+ *     tags: [Tickets]
  *     parameters:
  *       - in: path
  *         name: id
@@ -214,19 +256,25 @@ controller.put(
  *         required: true
  *         description: The ticket ID
  *     responses:
- *       204:
- *         description: No Content.
+ *       200:
+ *         description: Confirmation of ticket deletion.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
  *       404:
- *         description: Ticket not found.
+ *         description: Ticket not found
  */
-controller.delete(
-    "/:id",
-    authorize(),  // Middleware to check authorization
-    (req, res, next) => {
-        ticketsService.deleteOne(req.params.id)
-            .then(() => res.status(204).end())
-            .catch((err) => next(err));
-    },
-);
+controller.delete("/:id", async (req, res, next) => {
+    try {
+        const result = await ticketsService.deleteOne(Number(req.params.id));
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+});
 
 module.exports = controller;

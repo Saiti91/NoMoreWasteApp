@@ -3,23 +3,16 @@ const Joi = require('joi');
 // Schéma de validation pour créer une catégorie
 const createCategorySchema = Joi.object({
     name: Joi.string().max(100).required(),
-    Skill_id: Joi.number().integer().required()
+    diploma_id: Joi.number().integer().required() // Changement de 'Skill_id' en 'diploma_id' pour correspondre aux colonnes de la base de données
 });
 
 // Schéma de validation pour mettre à jour une catégorie
 const updateCategorySchema = Joi.object({
-    Category_ID: Joi.number().required(),
     name: Joi.string().max(100).optional(),
+    diploma_id: Joi.number().integer().optional() // Assurez-vous que 'diploma_id' est optionnel pour la mise à jour
 }).min(1);
-
-// Schéma de validation pour ajouter des compétences à une catégorie
-const addSkillsToCategorySchema = Joi.object({
-    Category_ID: Joi.number().integer().required(),
-    Skill_id: Joi.array().items(Joi.number().integer()).required()
-});
 
 module.exports = {
     createCategorySchema,
     updateCategorySchema,
-    addSkillsToCategorySchema,
 };
