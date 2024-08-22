@@ -39,7 +39,7 @@ const getConditionText = (condition) => {
 
 const proceedToNextStep = () => {
   store.commit('setSelectedTruck', selectedTruck.value); // Commit the selected truck object
-  router.push({name: 'RequestsReviewAndConfirmTour'});
+  router.push({name: 'DonationsReviewAndConfirmTour'});
 };
 
 onMounted(() => {

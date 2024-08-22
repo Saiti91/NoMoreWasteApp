@@ -15,7 +15,7 @@ const router = useRouter();
 const fetchRequests = async () => {
   try {
     const response = await axios.get('/requests/notcollected');
-    requests.value = response.data || [];
+    requests.value = response.data;
     console.log('Fetched Requests:', requests.value);
   } catch (error) {
     console.error('Error fetching requests:', error);
@@ -24,7 +24,6 @@ const fetchRequests = async () => {
       title: 'Erreur',
       text: 'Une erreur est survenue lors de la récupération des demandes.',
     });
-    requests.value = [];
   }
 };
 
@@ -37,7 +36,7 @@ const toggleAddressSelection = (addressId) => {
 };
 
 const createTour = async () => {
-  if (!store.getters.selectedAddresses || store.getters.selectedAddresses.length === 0) {
+  if (store.getters.selectedAddresses.length === 0) {
     Swal.fire({
       icon: 'warning',
       title: 'Aucune adresse sélectionnée',
@@ -46,22 +45,27 @@ const createTour = async () => {
     return;
   }
 
-  const selectedRequests = requests.value
-      .filter(group => store.getters.isAddressSelected(group.Address.Address_ID))
-      .map(group => ({
-        Address: group.Address,
-        Requests: group.Requests.map(request => ({
-          Request_ID: request.Request_ID,
-          Product: request.Product,
-          Quantity: request.Quantity,
-          Request_Date: request.Request_Date,
-          User: request.User
-        }))
-      }));
+  const selectedDestinations = requests.value.filter(address =>
+      store.getters.isAddressSelected(address.Address_ID)
+  ).map(address => ({
+    Address_ID: address.Address_ID,
+    Street: address.Street,
+    Postal_Code: address.Postal_Code,
+    City: address.City,
+    Donors: address.Users,
+    Country: address.Country,
+    State: address.State,
+    Requests: address.Products.map(request => ({
+      Request_ID: request.Request_ID,
+      Product_Name: request.Product_Name,
+      Quantity: request.Quantity
+    }))
+  }));
 
-  store.dispatch('saveTourData', selectedRequests);
+  console.log('Selected Destinations:', selectedDestinations); // Added log
 
   try {
+    store.dispatch('saveTourData', selectedDestinations);
     store.commit('clearAddresses');
     router.push({ name: 'RequestsSelectTruck' });
   } catch (error) {
@@ -78,6 +82,7 @@ onMounted(() => {
   fetchRequests();
 });
 </script>
+
 <template>
   <HeaderBackOffice/>
   <div class="spacer"></div>
@@ -87,7 +92,7 @@ onMounted(() => {
       <button
           class="ui teal button"
           @click="createTour"
-          :disabled="!store.getters.selectedAddresses || store.getters.selectedAddresses.length === 0"
+          :disabled="store.getters.selectedAddresses.length === 0"
       >
         {{ t('createTour') }}
       </button>
@@ -99,32 +104,28 @@ onMounted(() => {
         <tr>
           <th></th>
           <th>Adresse</th>
-          <th>Produit</th>
-          <th>Quantité</th>
-          <th>Demandeur</th>
-          <th>Date de Demande</th>
+          <th>Produits</th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="group in requests" :key="group.Address.Address_ID">
+        <tr v-for="address in requests" :key="address.Address_ID">
           <td>
             <input
                 type="checkbox"
-                :checked="store.getters.isAddressSelected(group.Address.Address_ID)"
-                @change="toggleAddressSelection(group.Address.Address_ID)"
+                :checked="store.getters.isAddressSelected(address.Address_ID)"
+                @change="toggleAddressSelection(address.Address_ID)"
             />
           </td>
           <td>
-            <strong>{{ group.Address.Street }}, {{ group.Address.Postal_Code }} {{ group.Address.City }}, {{ group.Address.Country }}</strong>
+            <strong>{{ address.Street }}, {{ address.Postal_Code }} {{ address.City }},
+              {{ address.Country }}</strong><br>
           </td>
-          <td colspan="4">
+          <td>
             <table class="nested-table">
               <tbody>
-              <tr v-for="(request, index) in group.Requests" :key="index">
-                <td>{{ request.Product.Name }}</td>
+              <tr v-for="(request, index) in address.Products" :key="index">
+                <td>{{ request.Product_Name }}</td>
                 <td>{{ request.Quantity }}</td>
-                <td>{{ request.User.Name }} {{ request.User.Firstname }}</td>
-                <td>{{ new Date(request.Request_Date).toLocaleDateString() }}</td>
               </tr>
               </tbody>
             </table>
@@ -138,6 +139,7 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
 <style scoped>
 .spacer {
   margin: 20px 0;
@@ -158,14 +160,6 @@ onMounted(() => {
 
 .ui.celled.table.full-width-table {
   width: 100%;
-}
-
-.ui.celled.table tr.clickable-row {
-  cursor: pointer;
-}
-
-.ui.celled.table tr.clickable-row:hover {
-  background-color: #f1f1f1;
 }
 
 .nested-table {

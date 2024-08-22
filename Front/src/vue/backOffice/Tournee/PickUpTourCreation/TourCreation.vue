@@ -70,7 +70,7 @@ const createTour = async () => {
 
   try {
     store.commit('clearAddresses');
-    router.push({ name: 'SelectTruck' });
+    router.push({ name: 'DonationsSelectTruck' });
   } catch (error) {
     console.error('Error creating tour:', error);
     Swal.fire({

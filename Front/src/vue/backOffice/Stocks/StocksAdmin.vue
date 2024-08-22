@@ -1,14 +1,14 @@
 <script setup>
-import { onMounted, ref, computed, watch } from 'vue';
+import {onMounted, ref, computed, watch} from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import {useRouter} from 'vue-router';
+import {useI18n} from 'vue-i18n';
 
-const { t } = useI18n();
+const {t} = useI18n();
 const stocks = ref([]);
-const currentPage = ref(1); // Page actuelle
-const itemsPerPage = 10; // Nombre d'éléments par page
+const currentPage = ref(1); // Current page
+const itemsPerPage = 10; // Number of items per page
 
 const categories = ref([]);
 const zones = ref([]);
@@ -23,8 +23,8 @@ const fetchStocks = async () => {
     stocks.value = response.data;
 
     // Populate categories and zones
-    categories.value = [...new Set(stocks.value.map(stock => stock.Storage_Type))];
-    zones.value = [...new Set(stocks.value.map(stock => stock.Zone))];
+    categories.value = [...new Set(stocks.value.map(stock => stock.Category_Name))];
+    zones.value = [...new Set(stocks.value.map(stock => stock.StorageSector))];
 
     console.log(stocks.value);
   } catch (error) {
@@ -32,19 +32,20 @@ const fetchStocks = async () => {
   }
 };
 
-// Fonction pour normaliser une chaîne (supprimer les accents)
+// Normalize strings for filtering (removing accents, case-insensitive)
 const normalizeString = (str) => {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 };
 
+// Computed property to filter stocks
 const filteredStocks = computed(() => {
   let filtered = stocks.value;
 
   if (selectedCategory.value && selectedCategory.value !== 'all') {
-    filtered = filtered.filter(stock => stock.Storage_Type === selectedCategory.value);
+    filtered = filtered.filter(stock => stock.Category_Name === selectedCategory.value);
   }
   if (selectedZone.value && selectedZone.value !== 'all') {
-    filtered = filtered.filter(stock => stock.Zone === selectedZone.value);
+    filtered = filtered.filter(stock => stock.StorageSector === selectedZone.value);
   }
   if (searchQuery.value) {
     const normalizedSearchQuery = normalizeString(searchQuery.value);
@@ -56,23 +57,24 @@ const filteredStocks = computed(() => {
   return filtered;
 });
 
-// Pagination calculée
+// Computed property for paginated stocks
 const paginatedStocks = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
   return filteredStocks.value.slice(start, end);
 });
 
-// Calcul du nombre total de pages
+// Compute the total number of pages
 const totalPages = computed(() => {
   return Math.ceil(filteredStocks.value.length / itemsPerPage);
 });
 
+// Navigate to stock details
 const goToDetails = (stockId) => {
   router.push({name: 'StocksDetails', params: {id: stockId}});
 };
 
-// Fonctions pour naviguer entre les pages
+// Functions for pagination
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value += 1;
@@ -85,7 +87,7 @@ const previousPage = () => {
   }
 };
 
-// Watchers pour réinitialiser currentPage lorsque les filtres changent
+// Watch for changes in filters to reset pagination
 watch([searchQuery, selectedCategory, selectedZone], () => {
   currentPage.value = 1;
 });
@@ -139,9 +141,9 @@ onMounted(() => {
       <tr v-for="product in paginatedStocks" :key="product.Product_ID" class="clickable-row"
           @click="goToDetails(product.Product_ID)">
         <td>{{ product.Name }}</td>
-        <td>{{ product.Storage_Type }}</td>
+        <td>{{ product.Category_Name }}</td>
         <td>{{ product.Quantity }}</td>
-        <td>{{ product.Zone }}</td>
+        <td>{{ product.StorageSector }}</td>
       </tr>
       </tbody>
     </table>

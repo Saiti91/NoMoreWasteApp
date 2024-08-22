@@ -73,63 +73,43 @@ async function getAllWithoutRoute() {
     const connection = await getConnection();
     const query = `
         SELECT
-            r.Request_ID,
-            r.Quantity,
-            r.Date AS Request_Date,
-            JSON_OBJECT(
-                    'User_ID', u.User_ID,
-                    'Name', u.Name,
-                    'Firstname', u.Firstname,
-                    'Email', u.Email
-            ) AS User,
-            JSON_OBJECT(
-                    'Product_ID', p.Product_ID,
-                    'Name', p.Name,
-                    'Barcode', p.Barcode,
-                    'Category', c.Name
-            ) AS Product,
-            JSON_OBJECT(
-                    'Address_ID', a.Address_ID,
-                    'Street', a.Street,
-                    'City', a.City,
-                    'State', a.State,
-                    'Postal_Code', a.Postal_Code,
-                    'Country', a.Country
-            ) AS Address
-        FROM Requests r
-                 LEFT JOIN Users u ON r.User_ID = u.User_ID
-                 LEFT JOIN Products p ON r.Product_ID = p.Product_ID
-                 LEFT JOIN ProductsCategories c ON p.Category_ID = c.Category_ID
-                 LEFT JOIN Address a ON u.Address_ID = a.Address_ID
-        WHERE r.Route_ID IS NULL;
+            a.Address_ID,
+            a.Street,
+            a.City,
+            a.State,
+            a.Postal_Code,
+            a.Country,
+            COUNT(r.Request_ID) AS Total_Requests,
+            SUM(r.Quantity) AS Total_Quantity,
+            GROUP_CONCAT(DISTINCT CONCAT(u.Firstname, ' ', u.Name)) AS Users,
+            JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                            'Request_ID', r.Request_ID,
+                            'Product_Name', p.Name,
+                            'Quantity', r.Quantity,
+                            'Request_Date', r.Date,
+                            'Product_Barcode', p.Barcode,
+                            'Category', c.Name
+                    )
+            ) AS Products
+        FROM
+            Requests r
+                LEFT JOIN Users u ON r.User_ID = u.User_ID
+                LEFT JOIN Products p ON r.Product_ID = p.Product_ID
+                LEFT JOIN ProductsCategories c ON p.Category_ID = c.Category_ID
+                LEFT JOIN Address a ON u.Address_ID = a.Address_ID
+        WHERE
+            r.Route_ID IS NULL
+        GROUP BY
+            a.Address_ID, a.Street, a.City, a.State, a.Postal_Code, a.Country
+        ORDER BY
+            a.City, a.Street;
     `;
+
     const [rows] = await connection.execute(query);
     await connection.end();
 
-    // Group requests by address
-    const groupedByAddress = rows.reduce((acc, row) => {
-        const address = typeof row.Address === 'string' ? JSON.parse(row.Address) : row.Address;
-        const request = {
-            Request_ID: row.Request_ID,
-            Quantity: row.Quantity,
-            Request_Date: row.Request_Date,
-            User: typeof row.User === 'string' ? JSON.parse(row.User) : row.User,
-            Product: typeof row.Product === 'string' ? JSON.parse(row.Product) : row.Product,
-        };
-
-        if (!acc[address.Address_ID]) {
-            acc[address.Address_ID] = {
-                Address: address,
-                Requests: []
-            };
-        }
-        acc[address.Address_ID].Requests.push(request);
-
-        return acc;
-    }, {});
-
-    // Convert the result to an array
-    return Object.values(groupedByAddress);
+    return rows.length > 0 ? rows : [];
 }
 
 // Get all requests
