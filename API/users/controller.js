@@ -366,14 +366,81 @@ controller.delete(
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The user's last name
+ *               firstname:
+ *                 type: string
+ *                 description: The user's first name
+ *               email:
+ *                 type: string
+ *                 description: The user's email address
+ *               telephone:
+ *                 type: string
+ *                 description: The user's telephone number
+ *               password:
+ *                 type: string
+ *                 description: The user's password
+ *               birthdate:
+ *                 type: string
+ *                 format: date
+ *                 description: The user's birth date
+ *               address:
+ *                 type: object
+ *                 properties:
+ *                   street:
+ *                     type: string
+ *                     description: The street of the user's address
+ *                   city:
+ *                     type: string
+ *                     description: The city of the user's address
+ *                   state:
+ *                     type: string
+ *                     description: The state or region of the user's address
+ *                   postal_code:
+ *                     type: integer
+ *                     description: The postal code of the user's address
+ *                   country:
+ *                     type: string
+ *                     description: The country of the user's address
  *     responses:
  *       200:
  *         description: The updated user.
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/User'
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 name:
+ *                   type: string
+ *                 firstname:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 telephone:
+ *                   type: string
+ *                 birthdate:
+ *                   type: string
+ *                   format: date
+ *                 current_subscription:
+ *                   type: boolean
+ *                 address:
+ *                   type: object
+ *                   properties:
+ *                     street:
+ *                       type: string
+ *                     city:
+ *                       type: string
+ *                     state:
+ *                       type: string
+ *                     postal_code:
+ *                       type: integer
+ *                     country:
+ *                       type: string
  *       404:
  *         description: User not found
  */
