@@ -27,6 +27,8 @@ const skillsController = require("./skills/controller");
 const app = express();
 const port = 3000;
 
+app.use('/uploads/recipes', express.static('uploads/recipes'));
+
 // Transforme le JSON en un objet utilisable dans le code
 app.use(bodyParser.json());
 app.use(cors({
