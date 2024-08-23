@@ -1,6 +1,9 @@
 const { Router } = require("express");
 const skillsService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const controller = Router();
 
@@ -281,5 +284,71 @@ controller.patch(
             .catch((err) => next(err));
     },
 );
+
+// Ajouter une compétence à un utilisateur
+// Configuration de multer pour gérer les fichiers uploadés
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadPath = path.join(__dirname, 'uploads', 'justificatif', req.params.userId);
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+        cb(null, uploadPath);
+    },
+    filename: function (req, file, cb) {
+        const ext = path.extname(file.originalname);
+        cb(null, `${req.body.skill_id}${ext}`);
+    },
+});
+
+const upload = multer({ storage });
+
+/**
+ * @swagger
+ * /skills/{userId}/skills:
+ *   post:
+ *     summary: Add a new skill to a user
+ *     tags: [Skills]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The user ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               skill_id:
+ *                 type: integer
+ *                 description: The skill ID to add
+ *               document:
+ *                 type: string
+ *                 format: binary
+ *                 description: The optional document to upload
+ *     responses:
+ *       201:
+ *         description: Skill added to the user
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+controller.post('/:userId/skills', upload.single('document'), async (req, res, next) => {
+    try {
+        const { skill_id } = req.body;
+        const userId = req.params.userId;
+        const documentPath = req.file ? req.file.filename : null;
+
+        const result = await skillsService.addSkillForUser(userId, skill_id, documentPath);
+        res.status(201).json(result);
+    } catch (error) {
+        next(error);
+    }
+});
 
 module.exports = controller;
