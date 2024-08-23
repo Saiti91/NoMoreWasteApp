@@ -34,7 +34,10 @@ async function getAll() {
 // Fonction de récupération de toutes les compétences validées pour un utilisateur spécifique
 async function getAllForUser(userId) {
     const userSkills = await Repository.getAllForUser(userId);
-    if (!userSkills.length) {
+    console.log('User skills from service:', userSkills);
+    console.log('User skills length:', userSkills.length);
+    if (userSkills.length === 0) {
+        console.error(`No skills found for user with id ${userId}. Throwing NotFoundError.`);
         throw new NotFoundError(`Aucune compétence trouvée pour l'utilisateur avec l'id ${userId}.`);
     }
     return userSkills;

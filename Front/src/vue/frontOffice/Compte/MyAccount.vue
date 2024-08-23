@@ -53,10 +53,9 @@ const fetchSkills = async () => {
       axios.get(`/skills/user/${route.params.id}`)
     ]);
     skills.value = skillsResponse.data;
-    console.log(skills.value);
-    console.log(skillsResponse.data);
+    console.log("Liste des skills",skills.value);
     userSkills.value = userSkillsResponse.data;
-    console.log(userSkills.value);
+    console.log("Les skills de l'utilisateur: ",userSkills.value);
   } catch (error) {
     console.error('Error fetching skills:', error);
   }

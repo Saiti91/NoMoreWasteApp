@@ -118,14 +118,14 @@ controller.get(
  *       404:
  *         description: No skills found for the user
  */
-controller.get(
-    "/user/:userId",
-    (req, res, next) => {
-        skillsService.getAllForUser(Number(req.params.userId))
-            .then((data) => res.json(data))
-            .catch((err) => next(err));
-    },
-);
+controller.get("/user/:userId", (req, res, next) => {
+    skillsService.getAllForUser(Number(req.params.userId))
+        .then((data) => res.json(data))
+        .catch((err) => {
+            next(err);
+        });
+});
+
 
 /**
  * @swagger
