@@ -1,4 +1,4 @@
-const { Router } = require("express");
+const {Router} = require("express");
 const stocksService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
 const authorize = require("../common/middlewares/authorize_middleware");
@@ -65,6 +65,29 @@ controller.get(
 
 /**
  * @swagger
+ * /stocks/IDs:
+ *   get:
+ *     summary: Retrieve a list of stocksID
+ *     tags: [Stocks]
+ *     responses:
+ *       200:
+ *         description: A list of stocksID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Stock'
+ */
+controller.get("/IDs", (req, res, next) => {
+    stocksService.getAllIDs()
+        .then((data) => res.json(data))
+        .catch((err) => next(err));
+});
+
+
+/**
+ * @swagger
  * /stocks/{id}:
  *   get:
  *     summary: Get a stock by ID
@@ -128,7 +151,7 @@ controller.get(
     "/product/:id",
     (req, res, next) => {
         console.log("Id produits demandé dans le controller : ", req.params.id)
-        stocksService.getOneBy('Product_ID',Number(req.params.id))
+        stocksService.getOneBy('Product_ID', Number(req.params.id))
             .then((data) => {
                 if (data === null) {
                     throw new NotFoundError(`Stock with Product_ID ${req.params.id} not found`);
@@ -235,7 +258,7 @@ controller.delete(
 controller.patch(
     "/:id",
     (req, res, next) => {
-        const { Quantity, Storage_Date } = req.body;
+        const {Quantity, Storage_Date} = req.body;
         stocksService.updateOne(Number(req.params.id), Quantity, Storage_Date)
             .then((data) => {
                 if (data === null) {

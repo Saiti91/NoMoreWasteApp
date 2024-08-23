@@ -66,6 +66,17 @@ async function getOneBy(attribute, value) {
     return rows || null;
 }
 
+async function getAllStockIDs() { // Renamed to clarify it's for IDs
+    const connection = await getConnection(); // Assumes `getConnection` provides a DB connection
+    const query = `
+        SELECT Product_ID
+        FROM Stocks
+    `;
+    const [rows] = await connection.execute(query);
+    await connection.end();
+    return rows.map(row => row.Product_ID); // Extract only the IDs
+}
+
 // Récupère tous les stocks
 async function getAll() {
     const connection = await getConnection();
@@ -106,4 +117,4 @@ async function deleteOne(id) {
     return result.affectedRows > 0;
 }
 
-module.exports = { createOne, getAll, getOne, updateOne, deleteOne, getOneBy };
+module.exports = { createOne, getAll, getAllStockIDs, getOne, updateOne, deleteOne, getOneBy };

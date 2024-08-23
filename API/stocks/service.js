@@ -45,6 +45,14 @@ async function getAll() {
     return Object.values(groupedStocks);
 }
 
+async function getAllIDs() {
+    try {
+        const stockIDs = await stockRepository.getAllStockIDs(); // Call the repository function
+        return stockIDs; // Return the result to the controller
+    } catch (error) {
+        throw new Error("Failed to retrieve stock IDs");
+    }
+}
 
 // Fonction de mise à jour d'un utilisateur en fonction de son ID
 async function updateOne(id, quantity, storageDate) {
@@ -76,4 +84,4 @@ async function deleteOne(id, issuer) {
 }
 
 
-module.exports = { createOne, getOne,getOneBy, getAll, updateOne, deleteOne };
+module.exports = { createOne, getOne, getAllIDs, getOneBy, getAll, updateOne, deleteOne };
