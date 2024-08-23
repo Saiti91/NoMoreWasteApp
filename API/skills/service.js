@@ -43,6 +43,12 @@ async function getAllForUser(userId) {
     return userSkills;
 }
 
+//Fonction pour une supprimer une compétence d'un utilisateur
+async function deleteSkillForUser(userId, skillId) {
+    return await Repository.deleteSkillForUser(userId, skillId);
+}
+
+
 // Fonction de mise à jour d'une compétence en fonction de son ID
 async function updateOne(id, skill) {
     const { value, error } = updateSkillSchema.validate(skill);
@@ -81,4 +87,4 @@ async function deleteOne(id) {
     return await Repository.deleteOne(id);
 }
 
-module.exports = { createOne, getOne, getAll, getAllForUser, updateOne, deleteOne };
+module.exports = { createOne, getOne, getAll, getAllForUser, updateOne, deleteOne, deleteSkillForUser };

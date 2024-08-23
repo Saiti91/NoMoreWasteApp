@@ -126,6 +126,52 @@ controller.get("/user/:userId", (req, res, next) => {
         });
 });
 
+/**
+ * @swagger
+ * /skills/user/{userId}/{skillId}:
+ *   delete:
+ *     summary: Delete a specific skill for a user
+ *     tags: [Skills]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The user ID
+ *       - in: path
+ *         name: skillId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The skill ID
+ *     responses:
+ *       204:
+ *         description: Skill successfully deleted.
+ *       404:
+ *         description: Skill not found for the user.
+ *       400:
+ *         description: Bad request, invalid user ID or skill ID.
+ */
+controller.delete("/user/:userId/:skillId", (req, res, next) => {
+    const userId = Number(req.params.userId);
+    const skillId = Number(req.params.skillId);
+
+    if (isNaN(userId) || isNaN(skillId)) {
+        return res.status(400).json({ error: "Invalid user ID or skill ID" });
+    }
+
+    skillsService.deleteSkillForUser(userId, skillId)
+        .then((deleted) => {
+            if (deleted) {
+                res.status(204).end();
+            } else {
+                res.status(404).json({ error: "Skill not found for the user" });
+            }
+        })
+        .catch((err) => next(err));
+});
+
 
 /**
  * @swagger

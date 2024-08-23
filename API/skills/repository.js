@@ -56,6 +56,27 @@ async function getAllForUser(userId) {
     return rows;
 }
 
+//Fonction pour supprimer une compétence d'un utilisateur
+async function deleteSkillForUser(userId, skillId) {
+    const connection = await getConnection();
+
+    // Supprimer la compétence pour l'utilisateur s'il existe
+    const [result] = await connection.execute(
+        `DELETE FROM User_Skills WHERE User_ID = ? AND Skill_ID = ?`,
+        [userId, skillId]
+    );
+
+    await connection.end();
+
+    // Vérifiez si une ligne a été affectée (donc si la compétence a été supprimée)
+    if (result.affectedRows === 0) {
+        throw new NotFoundError("Skill not found for this user");
+    }
+
+    return result;
+}
+
+
 // Fonction pour vérifier si un utilisateur possède une compétence spécifique
 async function verifySkill(userId, skillName) {
     const connection = await getConnection();
@@ -120,5 +141,6 @@ module.exports = {
     verifySkill,
     updateOne,
     deleteOne,
-    getOneBy
+    getOneBy,
+    deleteSkillForUser
 };
