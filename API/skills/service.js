@@ -1,6 +1,9 @@
 const { createSkillSchema, updateSkillSchema } = require("./model");
 const Repository = require("./repository");
 const { InvalidArgumentError, NotFoundError } = require("../common/service_errors");
+const fs = require('fs');
+const path = require('path');
+
 
 // Fonction de création d'une compétence
 async function createOne(skill) {
@@ -87,4 +90,20 @@ async function deleteOne(id) {
     return await Repository.deleteOne(id);
 }
 
-module.exports = { createOne, getOne, getAll, getAllForUser, updateOne, deleteOne, deleteSkillForUser };
+//Ajouter une compétence à un utilisateur
+async function addSkillForUser(userId, skillId, documentPath) {
+    // Ajouter la compétence pour l'utilisateur
+    const result = await Repository.addSkillForUser(userId, skillId, documentPath);
+    if (!result) {
+        throw new Error('Failed to add skill for user.');
+    }
+
+    return {
+        message: 'Skill added successfully',
+        skillId: skillId,
+        documentPath: documentPath,
+    };
+}
+
+
+module.exports = { createOne, getOne, getAll, getAllForUser, updateOne, deleteOne, deleteSkillForUser, addSkillForUser };

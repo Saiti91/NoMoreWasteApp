@@ -1,6 +1,7 @@
 const getConnection = require("../common/db_handler");
 
 
+
 // Fonction pour créer une nouvelle compétence
 async function createOne(skill) {
     const connection = await getConnection();
@@ -133,6 +134,21 @@ async function getOneBy(attribute, value) {
     return rows.length > 0 ? rows[0] : null;
 }
 
+//Ajouter une compétence à un utilisateur
+// Ajouter une compétence pour un utilisateur
+async function addSkillForUser(userId, skillId, documentPath) {
+    const connection = await getConnection();
+
+    const [result] = await connection.execute(
+        `INSERT INTO User_Skills (User_ID, Skill_ID, Document_Path) VALUES (?, ?, ?)`,
+        [userId, skillId, documentPath]
+    );
+
+    await connection.end();
+    return result.affectedRows > 0;
+}
+
+
 module.exports = {
     createOne,
     getOne,
@@ -142,5 +158,6 @@ module.exports = {
     updateOne,
     deleteOne,
     getOneBy,
-    deleteSkillForUser
+    deleteSkillForUser,
+    addSkillForUser
 };

@@ -188,9 +188,9 @@ const addSkill = async () => {
   if (documentFile.value) {
     formData.append('document', documentFile.value);
   }
-
+  console.log(formData);
   try {
-    await axios.post(`/users/${route.params.id}/skills`, formData);
+    await axios.post(`/skills/${route.params.id}/skills`, formData);
     await fetchSkills();
     Swal.fire({
       icon: 'success',
