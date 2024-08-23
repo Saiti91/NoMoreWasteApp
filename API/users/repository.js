@@ -1,4 +1,6 @@
 const getConnection = require("../common/db_handler");
+const {join} = require("node:path");
+const {mkdirSync} = require("node:fs");
 
 // Création d'un utilisateur classique et de son adresse
 async function createOne(user) {
@@ -17,21 +19,36 @@ async function createOne(user) {
 
     const connection = await getConnection();
 
-    // Insérer l'adresse dans la table Addresses et récupérer l'ID généré
-    const [addressResult] = await connection.execute(
-        'INSERT INTO Address (Street, City, State, Postal_Code, Country) VALUES (?, ?, ?, ?, ?)',
-        [address.street, address.city, address.state, address.postal_code, address.country]
-    );
-    const address_id = addressResult.insertId;
+    try {
+        // Insérer l'adresse dans la table Addresses et récupérer l'ID généré
+        const [addressResult] = await connection.execute(
+            'INSERT INTO Address (Street, City, State, Postal_Code, Country) VALUES (?, ?, ?, ?, ?)',
+            [address.street, address.city, address.state, address.postal_code, address.country]
+        );
+        const address_id = addressResult.insertId;
 
-    // Insérer l'utilisateur dans la table Users avec l'Address_ID
-    const [result] = await connection.execute(
-        'INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, Current_Subscription) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [name, firstname, address_id, phone, email, password, birthdate, current_subscription]
-    );
+        // Insérer l'utilisateur dans la table Users avec l'Address_ID
+        const [result] = await connection.execute(
+            'INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, Current_Subscription) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, firstname, address_id, phone, email, password, birthdate, current_subscription]
+        );
 
-    await connection.end();
-    return result.insertId;
+        const user_id = result.insertId;
+
+        // Créer le dossier pour l'utilisateur
+        const userDir = join(__dirname, '..', 'uploads', 'justificatif', String(user_id));
+        mkdirSync(userDir, { recursive: true });
+
+        console.log(`Directory created at: ${userDir}`);
+
+        await connection.end();
+        return user_id;
+
+    } catch (error) {
+        await connection.end();
+        console.error("Error creating user and directory:", error);
+        throw error;
+    }
 }
 
 
