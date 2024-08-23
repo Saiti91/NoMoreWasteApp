@@ -55,7 +55,8 @@ CREATE TABLE IF NOT EXISTS User_Skills
 (
     User_ID         INT,
     Skill_ID        INT,
-    Validation_Date DATE,
+    Validation_Date DATE DEFAULT NULL,
+    Document_Path   VARCHAR(255) DEFAULT NULL,
     PRIMARY KEY (User_ID, Skill_ID),
     FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE,
     FOREIGN KEY (Skill_ID) REFERENCES Skills (Skill_ID) ON DELETE CASCADE
@@ -186,22 +187,6 @@ CREATE TABLE IF NOT EXISTS Donations
     FOREIGN KEY (Donor_User_ID) REFERENCES Users (User_ID) ON DELETE SET NULL    -- If the user is deleted, delete the donation
 );
 
-CREATE TABLE IF NOT EXISTS SkillsCategories
-(
-    Category_ID INT AUTO_INCREMENT PRIMARY KEY,
-    Name        VARCHAR(100),
-    Skill_ID    INT,
-    FOREIGN KEY (Skill_ID) REFERENCES Skills (Skill_ID) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS Category_Skills
-(
-    Category_ID INT,
-    Skill_ID    INT,
-    FOREIGN KEY (Category_ID) REFERENCES SkillsCategories (Category_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Skill_ID) REFERENCES Skills (Skill_ID) ON DELETE CASCADE,
-    PRIMARY KEY (Category_ID, Skill_ID)
-);
 
 CREATE TABLE IF NOT EXISTS Statuses
 (
@@ -214,7 +199,6 @@ CREATE TABLE IF NOT EXISTS Tickets
     Ticket_ID         INT AUTO_INCREMENT PRIMARY KEY,
     Title             VARCHAR(50),
     Direction         BOOLEAN,
-    Category_ID       INT,
     Start_Date        DATE,
     Duration          INT,
     Places            INT,
@@ -226,7 +210,6 @@ CREATE TABLE IF NOT EXISTS Tickets
     Image             VARCHAR(50),
     Status_ID         INT,
     Owner_User_ID     INT,
-    FOREIGN KEY (Category_ID) REFERENCES SkillsCategories (Category_ID) ON DELETE CASCADE,
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID),
     FOREIGN KEY (Status_ID) REFERENCES Statuses (Status_ID),
     FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
@@ -626,25 +609,6 @@ VALUES ('Inscription Ouverte'),
        ('Inscription Fermée'),
        ('Terminé');
 
--- Données de test pour la table SkillsCategories
-INSERT INTO SkillsCategories (Name, Skill_ID)
-VALUES ('Plomberie', 1),
-       ('Électricité', 2),
-       ('Maçonnerie', 3),
-       ('Peinture', 4),
-       ('Jardinage', 5);
-
--- Associer des compétences aux catégories
-INSERT INTO Category_Skills (Category_ID, Skill_ID)
-VALUES (1, 8), -- Plomberie avec Plomberie
-       (1, 7), -- Plomberie avec Électricité
-       (1, 3), -- Plomberie avec Bricolage
-       (2, 7), -- Électricité avec Électricité
-       (2, 6), -- Électricité avec Services de réparation
-       (3, 3), -- Maçonnerie avec Bricolage
-       (4, 4), -- Peinture avec Conseils anti-gaspi
-       (5, 9);
--- Jardinage avec Jardinage
 
 -- Insérer les recettes dans la table Recipes
 INSERT INTO Recipes (Name, Instructions)
