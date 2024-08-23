@@ -47,19 +47,28 @@ const fetchUserDetails = async () => {
 // Récupérer toutes les compétences et celles de l'utilisateur
 const fetchSkills = async () => {
   try {
-    console.log(`/skills/user/${route.params.id}`);
-    const [skillsResponse, userSkillsResponse] = await Promise.all([
-      axios.get('/skills'),
-      axios.get(`/skills/user/${route.params.id}`)
-    ]);
+    // Récupérer toutes les compétences disponibles
+    const skillsResponse = await axios.get('/skills');
     skills.value = skillsResponse.data;
-    console.log("Liste des skills",skills.value);
-    userSkills.value = userSkillsResponse.data;
-    console.log("Les skills de l'utilisateur: ",userSkills.value);
   } catch (error) {
     console.error('Error fetching skills:', error);
   }
+
+  try {
+    // Récupérer les compétences de l'utilisateur
+    const userSkillsResponse = await axios.get(`/skills/user/${route.params.id}`);
+    userSkills.value = userSkillsResponse.data;
+    console.log("Les skills de l'utilisateur: ", userSkills.value);
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      console.warn('No skills found for user:', route.params.id);
+      userSkills.value = [];
+    } else {
+      console.error('Error fetching user skills:', error);
+    }
+  }
 };
+
 
 // Valider les champs avant enregistrement
 const validateFields = () => {
@@ -185,38 +194,55 @@ const addSkill = async () => {
     await fetchSkills();
     Swal.fire({
       icon: 'success',
-      title: t('successAddSkillTitle'),
-      text: t('successAddSkillTxt'),
+      title: t('orderSuccess'),
+      text: t('orderSuccessMsg'),
     });
   } catch (error) {
     console.error('Error adding skill:', error);
     Swal.fire({
       icon: 'error',
-      title: t('errorAddSkillTitle'),
-      text: t('errorAddSkillTxt'),
+      title: t('orderError'),
+      text: t('orderErrorMessage'),
     });
   }
 };
 
 // Supprimer une compétence
 const deleteSkill = async (skillId) => {
-  try {
-    await axios.delete(`/users/${route.params.id}/skills/${skillId}`);
-    await fetchSkills();
-    Swal.fire({
-      icon: 'success',
-      title: t('successDeleteSkillTitle'),
-      text: t('successDeleteSkillTxt'),
-    });
-  } catch (error) {
-    console.error('Error deleting skill:', error);
-    Swal.fire({
-      icon: 'error',
-      title: t('errorDeleteSkillTitle'),
-      text: t('errorDeleteSkillTxt'),
-    });
-  }
+  Swal.fire({
+    title: t('popupDelSkillTitle'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: t('yesDel'),
+    cancelButtonText: t('cancel'),
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`/skills/user/${route.params.id}/${skillId}`);
+        await fetchSkills();
+        validateSkillSuppression();
+      } catch (error) {
+        console.error('Error deleting skill:', error);
+        Swal.fire({
+          icon: 'error',
+          title: t('anErrorOccurred'),
+          text: t('orderErrorMessage'),
+        });
+      }
+    }
+  });
 };
+
+const validateSkillSuppression = () => {
+  Swal.fire({
+    icon: 'success',
+    title: t('deleted'),
+    text: t('successDeleteSkillTxt'),
+  });
+};
+
 
 onMounted(() => {
   fetchUserDetails();
@@ -233,6 +259,7 @@ onMounted(() => {
     <div class="ui grid">
       <UserMenuFO />
       <div class="content-area">
+        <!-- Partie info utilisateur -->
         <div class="header-section">
           <h2>{{ t('userDetails') }}</h2>
           <button @click="deleteUser" class="ui red button">{{ t('delete') }}</button>
@@ -305,7 +332,9 @@ onMounted(() => {
               <ul>
                 <li v-for="skill in userSkills" :key="skill.Skill_ID">
                   {{ skill.Name }} -
-                  <a v-if="skill.Document_Path" :href="`/API/uploads/justificatif/${route.params.id}/${skill.Document_Path}`" target="_blank">
+                  <a v-if="skill.Document_Path"
+                     :href="`/API/uploads/justificatif/${route.params.id}/${skill.Document_Path}`"
+                     :download="skill.Document_Path">
                     {{ t('viewDocument') }}
                   </a>
                   <button @click="deleteSkill(skill.Skill_ID)" class="ui red button small">{{ t('delete') }}</button>
