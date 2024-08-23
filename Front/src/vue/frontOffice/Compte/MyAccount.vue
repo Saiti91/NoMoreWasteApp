@@ -8,12 +8,16 @@ import Swal from "sweetalert2";
 import { useI18n } from 'vue-i18n';
 
 const user = ref(null);
-const originalUser = ref(null);  // Pour stocker les valeurs originales
+const originalUser = ref(null);
 const newPassword = ref('');
 const confirmPassword = ref('');
 const showNewPassword = ref(false);
 const showCurrentPassword = ref(false);
 const showConfirmPassword = ref(false);
+const skills = ref([]);
+const userSkills = ref([]);
+const selectedSkill = ref(null);
+const documentFile = ref(null);
 const t = useI18n().t;
 const route = useRoute();
 const router = useRouter();
@@ -33,16 +37,33 @@ const fetchUserDetails = async () => {
   try {
     const response = await axios.get(`/users/${route.params.id}`);
     user.value = response.data;
-    originalUser.value = { ...response.data }; // Stocker les valeurs originales
+    originalUser.value = { ...response.data };
     user.value.Birthdate = formatDateForInput(user.value.Birthdate);
   } catch (error) {
     console.error('Error fetching user details:', error);
   }
 };
 
-//Vérification des champs
+// Récupérer toutes les compétences et celles de l'utilisateur
+const fetchSkills = async () => {
+  try {
+    console.log(`/skills/user/${route.params.id}`);
+    const [skillsResponse, userSkillsResponse] = await Promise.all([
+      axios.get('/skills'),
+      axios.get(`/skills/user/${route.params.id}`)
+    ]);
+    skills.value = skillsResponse.data;
+    console.log(skills.value);
+    console.log(skillsResponse.data);
+    userSkills.value = userSkillsResponse.data;
+    console.log(userSkills.value);
+  } catch (error) {
+    console.error('Error fetching skills:', error);
+  }
+};
+
+// Valider les champs avant enregistrement
 const validateFields = () => {
-  // Vérifier si tous les champs qui avaient une valeur initiale en ont toujours une
   for (const key in originalUser.value) {
     if (originalUser.value[key] && !user.value[key]) {
       Swal.fire({
@@ -54,7 +75,6 @@ const validateFields = () => {
     }
   }
 
-  // Vérifier la correspondance des mots de passe
   if (newPassword.value !== confirmPassword.value) {
     Swal.fire({
       icon: 'error',
@@ -144,10 +164,67 @@ const validateSuppression = () => {
   });
 };
 
+// Ajouter une nouvelle compétence
+const addSkill = async () => {
+  if (!selectedSkill.value) {
+    Swal.fire({
+      icon: 'error',
+      title: t('errorAddSkillTitle'),
+      text: t('errorAddSkillTxt'),
+    });
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('skill_id', selectedSkill.value);
+  if (documentFile.value) {
+    formData.append('document', documentFile.value);
+  }
+
+  try {
+    await axios.post(`/users/${route.params.id}/skills`, formData);
+    await fetchSkills();
+    Swal.fire({
+      icon: 'success',
+      title: t('successAddSkillTitle'),
+      text: t('successAddSkillTxt'),
+    });
+  } catch (error) {
+    console.error('Error adding skill:', error);
+    Swal.fire({
+      icon: 'error',
+      title: t('errorAddSkillTitle'),
+      text: t('errorAddSkillTxt'),
+    });
+  }
+};
+
+// Supprimer une compétence
+const deleteSkill = async (skillId) => {
+  try {
+    await axios.delete(`/users/${route.params.id}/skills/${skillId}`);
+    await fetchSkills();
+    Swal.fire({
+      icon: 'success',
+      title: t('successDeleteSkillTitle'),
+      text: t('successDeleteSkillTxt'),
+    });
+  } catch (error) {
+    console.error('Error deleting skill:', error);
+    Swal.fire({
+      icon: 'error',
+      title: t('errorDeleteSkillTitle'),
+      text: t('errorDeleteSkillTxt'),
+    });
+  }
+};
+
 onMounted(() => {
   fetchUserDetails();
+  fetchSkills();
 });
 </script>
+
 
 
 <template>
@@ -219,11 +296,41 @@ onMounted(() => {
                  @click="showConfirmPassword = !showConfirmPassword"></i>
             </p>
           </div>
-
           <button @click="updateUserDetails" class="ui teal button">{{ t('saveChanges') }}</button>
         </div>
+          <!-- Section des compétences -->
+          <div class="skills-section">
+            <h3>{{ t('skills') }}</h3>
+            <div v-if="userSkills.length">
+              <h4>{{ t('validatedSkills') }}</h4>
+              <ul>
+                <li v-for="skill in userSkills" :key="skill.Skill_ID">
+                  {{ skill.Name }} -
+                  <a v-if="skill.Document_Path" :href="`/API/uploads/justificatif/${route.params.id}/${skill.Document_Path}`" target="_blank">
+                    {{ t('viewDocument') }}
+                  </a>
+                  <button @click="deleteSkill(skill.Skill_ID)" class="ui red button small">{{ t('delete') }}</button>
+                </li>
+              </ul>
+            </div>
 
-        <router-view />
+            <h4>{{ t('addSkill') }}</h4>
+            <div class="ui form">
+              <div class="field">
+                <label>{{ t('selectSkill') }}</label>
+                <select v-model="selectedSkill" class="ui dropdown">
+                  <option v-for="skill in skills" :key="skill.Skill_ID" :value="skill.Skill_ID">{{ skill.Name }}</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>{{ t('uploadDocument') }}</label>
+                <input type="file" @change="e => documentFile.value = e.target.files[0]" />
+              </div>
+              <button @click="addSkill" class="ui teal button">{{ t('addSkillButton') }}</button>
+            </div>
+          </div>
+
+          <router-view />
       </div>
     </div>
   </div>
@@ -313,5 +420,39 @@ onMounted(() => {
 .ui.teal.button {
   background-color: #00b5ad;
   color: white;
+}
+
+.skills-section {
+  margin-top: 30px;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #eef4f7;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.skills-section h3,
+.skills-section h4 {
+  color: #333;
+}
+
+.skills-section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.skills-section ul li {
+  margin: 10px 0;
+}
+
+.ui.form {
+  margin-top: 20px;
+}
+
+.ui.dropdown {
+  width: 100%;
+}
+
+.ui.form .field {
+  margin-bottom: 15px;
 }
 </style>
