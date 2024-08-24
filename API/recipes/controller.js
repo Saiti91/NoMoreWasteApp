@@ -155,7 +155,7 @@ controller.get(
 controller.post('/add', upload.single('image'), checkFileProvided, async (req, res, next) => {
     try {
         const { name, instructions, ingredients } = req.body;
-        const file = req.file; // Pass the file to the service
+        const file = req.file;
         const recipeResult = await recipeService.createRecipe({ name, instructions, ingredients, file });
 
         res.status(201).json({ message: 'Recipe created successfully', recipeId: recipeResult.Recipes_ID });

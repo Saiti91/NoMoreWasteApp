@@ -1,11 +1,11 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import axios from '@/utils/Axios.js';
-import { useRoute } from 'vue-router';
+import {useRoute} from 'vue-router';
 import Header from "@/components/HeaderFrontOffice.vue";
 import UserMenuFO from "@/components/UserDetailsLeftMenuFO.vue";
 import Swal from "sweetalert2";
-import { useI18n } from 'vue-i18n';
+import {useI18n} from 'vue-i18n';
 
 const t = useI18n().t;
 const route = useRoute();
@@ -124,7 +124,7 @@ onMounted(() => {
   <div class="spacer_perso"></div>
   <div class="ui container full-width no-center">
     <div class="ui grid">
-      <UserMenuFO />
+      <UserMenuFO/>
       <div class="content-area">
         <h2>{{ t('skillsmanagement') }}</h2>
         <div class="skills-section">
@@ -156,7 +156,7 @@ onMounted(() => {
             </div>
             <div class="field">
               <label>{{ t('uploadDocument') }}</label>
-              <input type="file" @change="onDocumentFileChange" />
+              <input type="file" @change="onDocumentFileChange"/>
             </div>
             <button @click="addSkill" class="ui teal button">{{ t('addSkillButton') }}</button>
           </div>

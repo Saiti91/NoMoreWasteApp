@@ -25,7 +25,7 @@ async function getAllRoutesForUser(id) {
     if (id === undefined) {
         throw new Error("getOneProduct: Product_ID must be defined");
     }
-    const tour = await tourRepository.getAllRoutesForUser(id);
+    const tour = tourRepository.getAllRoutesForUser(id);
     if (!tour) {
         throw new InvalidArgumentError(`Tour with ID ${id} not found`);
     }
@@ -33,22 +33,19 @@ async function getAllRoutesForUser(id) {
 }
 
 async function getAll() {
-    const tours = await tourRepository.getAll();
-    return tours;
+    return tourRepository.getAll();
 }
 
 async function updateOne(id, data) {
-    const updatedTour = await tourRepository.updateOne(id, data);
-    return updatedTour;
+    return await tourRepository.updateOne(id, data);
 }
 
 async function deleteOne(id) {
-    const result = await tourRepository.deleteOne(id);
-    return result;
+    return tourRepository.deleteOne(id);
 }
 
 async function addDestination(routeId, destinationData) {
-    const destinationId = await tourRepository.addDestination(routeId, destinationData);
+    const destinationId = tourRepository.addDestination(routeId, destinationData);
     return { destinationId };
 }
 

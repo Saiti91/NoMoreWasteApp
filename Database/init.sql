@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS User_Skills
 (
     User_ID         INT,
     Skill_ID        INT,
-    Validation_Date DATE DEFAULT NULL,
+    Validation_Date DATE         DEFAULT NULL,
     Document_Path   VARCHAR(255) DEFAULT NULL,
     PRIMARY KEY (User_ID, Skill_ID),
     FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE,
@@ -196,23 +196,33 @@ CREATE TABLE IF NOT EXISTS Statuses
 
 CREATE TABLE IF NOT EXISTS Tickets
 (
-    Ticket_ID         INT AUTO_INCREMENT PRIMARY KEY,
-    Title             VARCHAR(50),
-    Direction         BOOLEAN,
-    Start_Date        DATE,
-    Duration          INT,
-    Places            INT,
-    Tools             VARCHAR(50),
-    Address_ID        INT,
-    Address_needs     BOOLEAN,
-    Customers_Address VARCHAR(100),
-    Description       TEXT,
-    Image             VARCHAR(50),
-    Status_ID         INT,
-    Owner_User_ID     INT,
+    Ticket_ID           INT AUTO_INCREMENT PRIMARY KEY,
+    Title               VARCHAR(255),
+    Direction           BOOLEAN,      -- true for 'proposition', false for 'demande'
+    Start_Date          DATE,         -- date de débuts de l'activité
+    End_Of_Subscription DATE,         -- date de fin des inscriptions
+    Duration            INT,          -- durée de l'activité en minutes
+    Places              INT,          -- nombre de places disponibles maximum
+    Tools               VARCHAR(255),
+    Address_ID          INT,
+    Address_needs       BOOLEAN,      -- Si l'adresse est nécessaire
+    Customers_Address   VARCHAR(100), -- faire une table intermediaire avec user par exemple
+    Description         TEXT,
+    Image               VARCHAR(255),
+    Status_ID           INT,          -- status de la proposition ou demande
+    Owner_User_ID       INT,          -- personne qui crée le ticket
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID),
     FOREIGN KEY (Status_ID) REFERENCES Statuses (Status_ID),
     FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Ticket_Users
+(
+    Ticket_ID INT,
+    User_ID   INT,
+    PRIMARY KEY (Ticket_ID, User_ID),
+    FOREIGN KEY (Ticket_ID) REFERENCES Tickets (Ticket_ID) ON DELETE CASCADE,
+    FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE Recipes

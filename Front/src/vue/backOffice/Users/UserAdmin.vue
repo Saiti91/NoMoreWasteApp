@@ -107,7 +107,6 @@ onMounted(() => {
             <option value="all">Tous les rôles</option>
             <option value="admin">Admin</option>
             <option value="volunteer">{{ t('volunteer') }}</option>
-            <!-- Ajoutez d'autres rôles si nécessaire -->
           </select>
         </div>
         <div class="field">

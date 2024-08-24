@@ -55,8 +55,7 @@ async function getRecipeById(id) {
 
 // Fonction de récupération de toutes les recettes
 async function getAllRecipes() {
-    const recipes = await recipeRepository.getAllRecipes();
-    return recipes;
+    return await recipeRepository.getAllRecipes();
 }
 
 async function filterRecipesByProducts(productIds) {
@@ -64,13 +63,11 @@ async function filterRecipesByProducts(productIds) {
     const allRecipes = await recipeRepository.getAllRecipes();
 
     // Filtrer les recettes réalisables avec les produits disponibles
-    const filteredRecipes = allRecipes.filter(recipe =>
+    return allRecipes.filter(recipe =>
         recipe.Ingredients.every(ingredient =>
             productIds.includes(ingredient.Product_ID)
         )
     );
-
-    return filteredRecipes;
 }
 
 // Fonction de mise à jour d'une recette par ID

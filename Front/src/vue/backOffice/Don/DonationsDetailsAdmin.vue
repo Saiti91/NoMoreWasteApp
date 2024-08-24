@@ -1,11 +1,11 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import {useRouter} from 'vue-router';
+import {useI18n} from 'vue-i18n';
 
-const { t } = useI18n();
+const {t} = useI18n();
 const donations = ref([]);
 const currentPage = ref(1); // Page actuelle
 const itemsPerPage = 10; // Nombre d'éléments par page
@@ -93,16 +93,16 @@ const fetchDonations = async () => {
 };
 
 const formatDate = (dateString) => {
-  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  const options = {day: '2-digit', month: '2-digit', year: 'numeric'};
   return new Date(dateString).toLocaleDateString('fr-FR', options);
 };
 
 const goToUserDetails = (user_id) => {
-  router.push({ name: 'UserDetails', params: { id: user_id } });
+  router.push({name: 'UserDetails', params: {id: user_id}});
 };
 
 const goToCreateTour = () => {
-  router.push({ name: 'DonationsCreateTour' });
+  router.push({name: 'DonationsCreateTour'});
 };
 
 // Function to reset the date range
@@ -162,7 +162,10 @@ onMounted(() => {
           <div class="date-range-inputs">
             <input type="date" v-model="selectedDateRange[0]">
             <input type="date" v-model="selectedDateRange[1]">
-            <button class="ui button" v-if="isDateSelected" @click="resetDateRange">{{ t('reinitialiserLaPeriode') }}</button>
+            <button class="ui button" v-if="isDateSelected" @click="resetDateRange">{{
+                t('reinitialiserLaPeriode')
+              }}
+            </button>
           </div>
         </div>
       </div>
@@ -173,9 +176,9 @@ onMounted(() => {
       <thead>
       <tr>
         <th>{{ t('productName') }}</th>
-        <th>{{t('quantité')}}</th>
+        <th>{{ t('quantité') }}</th>
         <th>Date</th>
-        <th>{{t('category')}}</th>
+        <th>{{ t('category') }}</th>
         <th>{{ t('donoremail') }}</th>
         <th>{{ t('statutDeCollecte') }}</th>
       </tr>
