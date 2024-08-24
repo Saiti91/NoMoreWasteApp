@@ -134,7 +134,7 @@ onMounted(() => {
               <li v-for="skill in userSkills" :key="skill.Skill_ID">
                 {{ skill.Name }} -
                 <a v-if="skill.Document_Path"
-                   :href="`http://localhost:3000/uploads/justificatif/${route.params.id}/${skill.Document_Path}`"
+                   :href="`http://${axios.defaults.baseURL}:3000/uploads/justificatif/${route.params.id}/${skill.Document_Path}`"
                    :download="skill.Document_Path">
                   {{ t('viewDocument') }}
                 </a>
