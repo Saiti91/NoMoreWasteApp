@@ -10,7 +10,7 @@ async function createOne(category) {
 
     const connection = await getConnection();
     const [result] = await connection.execute(
-        'INSERT INTO SkillsCategories (Name, Diploma_ID) VALUES (?, ?)',
+        'INSERT INTO Skills (Name, Diploma_ID) VALUES (?, ?)',
         [name, diploma_id]
     );
     await connection.end();
@@ -24,7 +24,7 @@ async function getOne(id) {
     }
 
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT * FROM SkillsCategories WHERE Category_ID = ?', [id]);
+    const [rows] = await connection.execute('SELECT * FROM Skills WHERE Category_ID = ?', [id]);
     await connection.end();
     return rows[0] || null;
 }
@@ -32,7 +32,7 @@ async function getOne(id) {
 // Récupère toutes les catégories
 async function getAll() {
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT * FROM SkillsCategories');
+    const [rows] = await connection.execute('SELECT * FROM Skills');
     await connection.end();
     return rows;
 }
@@ -50,7 +50,7 @@ async function updateOne(id, category) {
 
     const values = [...Object.values(category), id];
     const [result] = await connection.execute(
-        `UPDATE SkillsCategories SET ${attrsStr} WHERE Category_ID = ?`,
+        `UPDATE Skills SET ${attrsStr} WHERE Category_ID = ?`,
         values
     );
     await connection.end();
@@ -64,7 +64,7 @@ async function deleteOne(id) {
     }
 
     const connection = await getConnection();
-    const [result] = await connection.execute('DELETE FROM SkillsCategories WHERE Category_ID = ?', [id]);
+    const [result] = await connection.execute('DELETE FROM Skills WHERE Category_ID = ?', [id]);
     await connection.end();
     return result.affectedRows > 0;
 }

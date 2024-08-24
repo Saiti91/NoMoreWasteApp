@@ -19,6 +19,8 @@ const description = ref('');
 const image = ref(null);
 
 const categories = ref([]);
+const error = ref(null);
+const success = ref(null);
 
 const fetchCategories = async () => {
   try {
@@ -51,31 +53,41 @@ function handleFileUpload(event) {
 // Fonction pour sauvegarder le ticket
 const saveTicket = async () => {
   const formData = new FormData();
-  formData.append('title', title.value);
-  formData.append('propose', propose.value);
-  formData.append('category', category.value);
-  formData.append('startDate', startDate.value);
-  formData.append('startTime', startTime.value);
-  formData.append('duration', duration.value);
-  formData.append('format', format.value);
-  formData.append('places', places.value);
-  formData.append('address', address.value);
-  formData.append('needsCustomerAddress', needsCustomerAddress.value);
-  formData.append('description', description.value);
+  formData.append('title', title.value.trim() || '');
+  formData.append('propose', propose.value || ''); // Assurez-vous que propose a une valeur valide
+  formData.append('category', category.value || '');
+  formData.append('startDate', startDate.value || '');
+  formData.append('startTime', startTime.value || '');
+  formData.append('duration', duration.value.trim() || '');
+  formData.append('format', format.value || '');
+  formData.append('places', places.value.trim() || ''); // Peut être vide si non utilisé
+  formData.append('address', address.value.trim() || ''); // Peut être vide si non utilisé
+  formData.append('needsCustomerAddress', needsCustomerAddress.value ? 'true' : 'false');
+  formData.append('description', description.value.trim() || '');
   if (image.value) {
     formData.append('image', image.value);
   }
 
   try {
-    const response = await axios.post('/api/tickets', formData, {
+    const response = await axios.post('/tickets', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
-    console.log('Ticket sauvegardé:', response.data);
-    // Optionally, redirect or reset form after successful save
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde du ticket:', error);
+
+    if (response.status === 200 || response.status === 201) {
+      success.value = t('ticketSavedSuccessfully');
+      console.log('Ticket sauvegardé:', response.data);
+    } else {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (err) {
+    if (err.response) {
+      error.value = err.response.data?.message || t('something_went_wrong');
+    } else {
+      error.value = t('networkError');
+    }
+    console.error('Erreur lors de la sauvegarde du ticket:', err);
   }
 };
 </script>
@@ -213,6 +225,10 @@ const saveTicket = async () => {
         <label>Image</label>
         <input type="file" @change="handleFileUpload" multiple/>
       </div>
+
+      <!-- Messages d'erreur et de succès -->
+      <div v-if="error" class="ui negative message">{{ error }}</div>
+      <div v-if="success" class="ui positive message">{{ success }}</div>
 
       <!-- Boutons -->
       <div class="ui buttons">
