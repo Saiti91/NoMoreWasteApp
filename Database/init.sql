@@ -187,6 +187,22 @@ CREATE TABLE IF NOT EXISTS Donations
     FOREIGN KEY (Donor_User_ID) REFERENCES Users (User_ID) ON DELETE SET NULL    -- If the user is deleted, delete the donation
 );
 
+-- Pour les tickets
+CREATE TABLE IF NOT EXISTS SkillsCategories
+(
+    Category_ID       INT AUTO_INCREMENT PRIMARY KEY,
+    Name              VARCHAR(100),
+    Skill_ID    INT,
+    FOREIGN KEY (Skill_ID) REFERENCES Skills(Skill_ID)
+    );
+
+CREATE TABLE IF NOT EXISTS Category_Skills (
+                                               Category_ID INT,
+                                               Skill_ID INT,
+                                               FOREIGN KEY (Category_ID) REFERENCES Categories (Category_ID),
+    FOREIGN KEY (Skill_ID) REFERENCES Skills (Skill_ID),
+    PRIMARY KEY (Category_ID, Skill_ID)
+    );
 
 CREATE TABLE IF NOT EXISTS Statuses
 (
@@ -214,7 +230,7 @@ CREATE TABLE IF NOT EXISTS Tickets
     FOREIGN KEY (Status_ID) REFERENCES Statuses (Status_ID),
     FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
 );
-
+-- Fin des tickets
 CREATE TABLE Recipes
 (
     Recipes_ID   INT PRIMARY KEY AUTO_INCREMENT,
@@ -233,7 +249,7 @@ CREATE TABLE Recipes_Ingredients
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
 );
 
--- Fin des tickets
+
 
 ## 2.2.2. Insertion of data
 
@@ -708,3 +724,27 @@ VALUES (10, (SELECT Product_ID FROM Products WHERE Barcode = '1234567890124'), 1
        (10, (SELECT Product_ID FROM Products WHERE Barcode = '4234567890123'), 200, 'ml', NULL),  -- Lait
        (10, (SELECT Product_ID FROM Products WHERE Barcode = '9234567890126'), 1, 'cuillère à soupe',
         'Facultatif'); -- Miel
+
+
+INSERT INTO SkillsCategories (Name, Skill_ID)
+VALUES
+    ('Plomberie', 1),
+    ('Électricité', 2),
+    ('Maçonnerie', 3),
+    ('Peinture', 4),
+    ('Jardinage', 5);
+
+
+
+-- Associer des compétences aux catégories
+INSERT INTO Category_Skills (Category_ID, Skill_ID)
+VALUES
+    (1, 8), -- Plomberie avec Plomberie
+    (1, 7), -- Plomberie avec Electricité
+    (1, 3), -- Plomberie avec Bricolage
+    (2, 7), -- Électricité avec Electricité
+    (2, 6), -- Électricité avec Services de réparation
+    (3, 3), -- Maçonnerie avec Bricolage
+    (4, 4), -- Peinture avec Conseils anti-gaspi
+    (5, 9); -- Jardinage avec Jardinage
+
