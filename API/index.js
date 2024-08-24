@@ -32,7 +32,7 @@ app.use('/uploads/recipes', express.static('uploads/recipes'));
 // Transforme le JSON en un objet utilisable dans le code
 app.use(bodyParser.json());
 app.use(cors({
-    origin: 'http://localhost:5173', // Remplacez par le domaine de votre application front-end
+    origin: '*',
     methods: 'GET,POST,PUT,DELETE,OPTIONS,PATCH',
     allowedHeaders: 'Content-Type,Authorization',
     exposedHeaders: 'Authorization'
