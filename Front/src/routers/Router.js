@@ -12,6 +12,7 @@ import MyAccountDonation from "@/vue/frontOffice/Compte/MyAccountDonation.vue";
 import MyAccountRecievedProduct from "@/vue/frontOffice/Compte/MyAccountRecievedProduct.vue";
 import MyAccountRoutes from "@/vue/frontOffice/Compte/MyAccountRoutes.vue";
 import MyAccountRoutesDetails from "@/vue/frontOffice/Compte/MyAccountRoutesDetails.vue";
+import MyAccountSkillsDetails from "@/vue/frontOffice/Compte/MyAccountSkills.vue";
 
 import CreateTicket from "@/vue/frontOffice/Tickets/CreateTicket.vue";
 
@@ -107,6 +108,12 @@ const routes = [
         path: '/my-account-routes/details/:id',
         name: 'MyAccountRoutesDetails',
         component: MyAccountRoutesDetails,
+        /*beforeEnter: useAuthGuard(['volunteer'])*/
+    },
+    {
+        path: '/my-account-skills/:id',
+        name: 'MyAccountSkillsDetails',
+        component: MyAccountSkillsDetails,
         /*beforeEnter: useAuthGuard(['volunteer'])*/
     },
 

@@ -6,12 +6,10 @@ const fs = require('fs');
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let uploadPath;
-        if (req.path.includes('serviceProvider')) {
-            uploadPath = path.join(__dirname, '../../assets/serviceProviders');
-        } else if (req.path.includes('apartment')) {
-            uploadPath = path.join(__dirname, '../../assets/apartments');
-        } else {
-            uploadPath = path.join(__dirname, '../../assets/tmp');
+        if (req.path.includes('skill')) {
+            uploadPath = path.join(__dirname, '../../uploads/justificatif');
+        } else if (req.path.includes('recipes')) {
+            uploadPath = path.join(__dirname, '../../uploads/recipes');
         }
         if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true });
@@ -19,7 +17,7 @@ const storage = multer.diskStorage({
         cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
-        cb(null, `${Date.now()}${path.extname(file.originalname)}`); // Use original file extension
+        cb(null, `${Date.now()}${path.extname(file.originalname)}`);
     }
 });
 
@@ -31,6 +29,14 @@ const upload = multer({
         checkFileType(file, cb);
     }
 });
+
+function checkFileProvided(req, res, next) {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+    }
+    next();
+}
+
 
 // Check file type
 function checkFileType(file, cb) {
@@ -48,4 +54,7 @@ function checkFileType(file, cb) {
     }
 }
 
-module.exports = upload;
+module.exports = {
+    upload,
+    checkFileProvided
+};

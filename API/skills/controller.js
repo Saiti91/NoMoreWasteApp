@@ -1,9 +1,8 @@
-const { Router } = require("express");
+const {Router} = require("express");
 const skillsService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const {upload,checkFileProvided} = require('../common/middlewares/uploads_middleware');
+
 
 const controller = Router();
 
@@ -161,7 +160,7 @@ controller.delete("/user/:userId/:skillId", (req, res, next) => {
     const skillId = Number(req.params.skillId);
 
     if (isNaN(userId) || isNaN(skillId)) {
-        return res.status(400).json({ error: "Invalid user ID or skill ID" });
+        return res.status(400).json({error: "Invalid user ID or skill ID"});
     }
 
     skillsService.deleteSkillForUser(userId, skillId)
@@ -169,7 +168,7 @@ controller.delete("/user/:userId/:skillId", (req, res, next) => {
             if (deleted) {
                 res.status(204).end();
             } else {
-                res.status(404).json({ error: "Skill not found for the user" });
+                res.status(404).json({error: "Skill not found for the user"});
             }
         })
         .catch((err) => next(err));
@@ -285,24 +284,6 @@ controller.patch(
     },
 );
 
-// Ajouter une compétence à un utilisateur
-// Configuration de multer pour gérer les fichiers uploadés
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadPath = path.join(__dirname, 'uploads', 'justificatif', req.params.userId);
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: function (req, file, cb) {
-        const ext = path.extname(file.originalname);
-        cb(null, `${req.body.skill_id}${ext}`);
-    },
-});
-
-const upload = multer({ storage });
-
 /**
  * @swagger
  * /skills/{userId}/skills:
@@ -338,11 +319,16 @@ const upload = multer({ storage });
  *       500:
  *         description: Internal server error
  */
-controller.post('/:userId/skills', upload.single('document'), async (req, res, next) => {
+controller.post('/:userId/skills', upload.single('image'), checkFileProvided, async (req, res, next) => {
     try {
+        console.log('req.body:', req.body);
+        console.log('req.file:', req.file);
+
         const { skill_id } = req.body;
         const userId = req.params.userId;
-        const documentPath = req.file ? req.file.filename : null;
+        const documentPath = req.file.filename;
+
+        console.log('documentPath:', documentPath);
 
         const result = await skillsService.addSkillForUser(userId, skill_id, documentPath);
         res.status(201).json(result);
@@ -350,5 +336,6 @@ controller.post('/:userId/skills', upload.single('document'), async (req, res, n
         next(error);
     }
 });
+
 
 module.exports = controller;
