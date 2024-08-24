@@ -4,11 +4,12 @@ const { InvalidArgumentError, NotFoundError } = require('../common/service_error
 
 // Fonction de création d'un ticket
 async function createOne(ticket) {
-    const { value, error } = createTicketSchema.validate(ticket);
-    if (error) {
-        throw error;
-    }
-
+    // const { value, error } = createTicketSchema.validate(ticket);
+    // if (error) {
+    //     throw error;
+    //}
+console.log("ticket from service",ticket);
+    
     const newTicketId = await Repository.createOne(value);
     return { ...value, ticket_id: newTicketId };
 }

@@ -139,6 +139,7 @@ const controller = Router();
  */
 controller.post("/", async (req, res, next) => {
     try {
+        console.log("controller :",req.body);
         const newTicket = await ticketsService.createOne(req.body);
         res.status(201).json(newTicket);
     } catch (err) {

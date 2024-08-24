@@ -1,7 +1,7 @@
 <script setup>
 import { nextTick, onMounted, ref } from 'vue';
 import axios from '@/utils/Axios.js';
-import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
+import HeaderBackOffice from "@/components/HeaderFrontOffice.vue";
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -78,11 +78,7 @@ const saveTicket = async () => {
   }
 
   try {
-    const response = await axios.post('/api/tickets', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    const response = await axios.post('/tickets', formData);
     console.log('Ticket sauvegardé:', response.data);
     // Optionally, redirect or reset form after successful save
   } catch (error) {
