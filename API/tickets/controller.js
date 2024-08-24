@@ -6,6 +6,12 @@ const controller = Router();
 
 /**
  * @swagger
+ * tags:
+ *   name: Tickets
+ *   description: Gestion des tickets
+ */
+/**
+ * @swagger
  * components:
  *   schemas:
  *     Ticket:

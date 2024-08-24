@@ -8,10 +8,10 @@ async function createOne(ticket) {
     // if (error) {
     //     throw error;
     //}
-console.log("ticket from service",ticket);
+    console.log("ticket from service",ticket);
     
-    const newTicketId = await Repository.createOne(value);
-    return { ...value, ticket_id: newTicketId };
+    const newTicketId = await Repository.createOne(ticket);
+    return { ...ticket, ticket_id: newTicketId };
 }
 
 // Fonction de récupération d'un ticket en fonction de son ID

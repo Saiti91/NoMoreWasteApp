@@ -10,7 +10,7 @@ const options = {
         info: {
             title: "NoMoreWasteAPI",
             version: "1.0.0",
-            description: "This API allows managing apartments for a company renting private people's properties.",
+            description: "API for NoMoreWaste",
         },
     },
     apis: [
@@ -27,10 +27,12 @@ const options = {
         path.join(basePath, "productCategories", "*.js"),
         path.join(basePath, "trucks", "*.js"),
         path.join(basePath, "recipes", "*.js"),
-        path.join(basePath, "skills", "*.js"),],
+        path.join(basePath, "skills", "*.js"),
+        path.join(basePath, "tickets", "*.js"),
+    ],
 
 };
 
 const specs = swaggerJsdoc(options);
 
-module.exports = { specs };
+module.exports = {specs};
