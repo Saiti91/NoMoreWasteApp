@@ -24,6 +24,7 @@ function logout() {
       <router-link class="item" to="/stocks">{{ t('stocks') }}</router-link>
       <router-link class="item" to="/donation-admin">{{ t('don') }}</router-link>
       <router-link class="item" to="/tour-admin">{{ t('tours') }}</router-link>
+      <router-link class="item" to="/recipes-admin">{{ t('recettes') }}</router-link>
 <!--      //TODO: Ajouter la Gestion des services-->
       <router-link class="item" to="/service-admin">{{ t('services') }}</router-link>
     </template>

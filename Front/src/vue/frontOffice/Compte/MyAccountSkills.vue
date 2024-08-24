@@ -49,7 +49,6 @@ const addSkill = async () => {
 
   const formData = new FormData();
   formData.append('skill_id', selectedSkill.value);
-
   if (documentFile.value) {
     formData.append('document', documentFile.value);
   }
@@ -57,6 +56,8 @@ const addSkill = async () => {
   try {
     await axios.post(`/skills/${route.params.id}/skills`, formData);
     await fetchSkills();
+
+    // Show success message
     Swal.fire({
       icon: 'success',
       title: t('orderSuccess'),
@@ -71,6 +72,7 @@ const addSkill = async () => {
     });
   }
 };
+
 
 // Delete a skill
 const deleteSkill = async (skillId) => {
@@ -104,13 +106,21 @@ const deleteSkill = async (skillId) => {
   });
 };
 
+// File input change handler
+const onDocumentFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    documentFile.value = file;
+  }
+};
+
 onMounted(() => {
   fetchSkills();
 });
 </script>
 
 <template>
-  <Header />
+  <Header/>
   <div class="spacer_perso"></div>
   <div class="ui container full-width no-center">
     <div class="ui grid">
@@ -146,7 +156,7 @@ onMounted(() => {
             </div>
             <div class="field">
               <label>{{ t('uploadDocument') }}</label>
-              <input type="file" @change="e => { if(e.target && e.target.files) documentFile.value = e.target.files[0]; }" />
+              <input type="file" @change="onDocumentFileChange" />
             </div>
             <button @click="addSkill" class="ui teal button">{{ t('addSkillButton') }}</button>
           </div>

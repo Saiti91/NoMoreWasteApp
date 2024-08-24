@@ -1,22 +1,28 @@
 const { createRecipeSchema, updateRecipeSchema } = require("./model");
 const recipeRepository = require("./repository");
 const { InvalidArgumentError, UnauthorizedError } = require("../common/service_errors");
+const fs = require("fs");
+const path = require("path");
 
 // Fonction de création d'une recette
 async function createRecipe(recipeData) {
-    // Validation des données de la recette
-    const { error } = createRecipeSchema.validate(recipeData);
+    // Separate file from the rest of the recipe data
+    const { file, ...recipeWithoutFile } = recipeData;
+
+    // Validate recipe data without the file field
+    const { error } = createRecipeSchema.validate(recipeWithoutFile);
     if (error) {
         throw new InvalidArgumentError(error.details[0].message);
     }
 
-    // Extraction des données
-    const { name, instructions, ingredients } = recipeData;
+    // Proceed with the rest of the logic
+    const { name, instructions, ingredients } = recipeWithoutFile;
 
-    // Création de la recette et récupération de l'ID
+    // Create the recipe and get the ID
     const recipeId = await recipeRepository.createRecipe(name, instructions);
+    console.log("Created recipe with ID:", recipeId);
 
-    // Ajout des ingrédients associés à la recette
+    // Add the ingredients to the recipe
     for (const ingredient of ingredients) {
         await recipeRepository.addIngredient(
             recipeId,
@@ -27,7 +33,17 @@ async function createRecipe(recipeData) {
         );
     }
 
-    // Retour de l'ID de la recette créée
+    // Handle the image file if it exists
+    if (file) {
+        const ext = path.extname(file.originalname).toLowerCase();
+        const newFilename = `${recipeId}${ext}`;
+        const newPath = path.join(path.dirname(file.path), newFilename);
+        console.log("Renaming file to:", newPath);
+        // Rename the file
+        fs.renameSync(file.path, newPath);
+    }
+
+    // Return the recipe ID
     return { Recipes_ID: recipeId };
 }
 

@@ -319,7 +319,7 @@ controller.patch(
  *       500:
  *         description: Internal server error
  */
-controller.post('/:userId/skills', upload.single('image'), checkFileProvided, async (req, res, next) => {
+controller.post('/:userId/skills', upload.single('document'), checkFileProvided, async (req, res, next) => {
     try {
         console.log('req.body:', req.body);
         console.log('req.file:', req.file);
