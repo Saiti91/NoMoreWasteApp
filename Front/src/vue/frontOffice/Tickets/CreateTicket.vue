@@ -19,8 +19,6 @@ const description = ref('');
 const image = ref(null);
 
 const categories = ref([]);
-const error = ref(null);
-const success = ref(null);
 
 const fetchCategories = async () => {
   try {
@@ -33,14 +31,7 @@ const fetchCategories = async () => {
 
 onMounted(async () => {
   await fetchCategories();
-  await nextTick(() => {
-    initializeDropdowns();
-  });
 });
-
-function initializeDropdowns() {
-  $('.ui.dropdown').dropdown();
-}
 
 function handleFileUpload(event) {
   const file = event.target.files[0];
@@ -53,41 +44,49 @@ function handleFileUpload(event) {
 // Fonction pour sauvegarder le ticket
 const saveTicket = async () => {
   const formData = new FormData();
-  formData.append('title', title.value.trim() || '');
-  formData.append('propose', propose.value || ''); // Assurez-vous que propose a une valeur valide
-  formData.append('category', category.value || '');
-  formData.append('startDate', startDate.value || '');
-  formData.append('startTime', startTime.value || '');
-  formData.append('duration', duration.value.trim() || '');
-  formData.append('format', format.value || '');
-  formData.append('places', places.value.trim() || ''); // Peut être vide si non utilisé
-  formData.append('address', address.value.trim() || ''); // Peut être vide si non utilisé
-  formData.append('needsCustomerAddress', needsCustomerAddress.value ? 'true' : 'false');
-  formData.append('description', description.value.trim() || '');
+  formData.append('title', title.value);
+  formData.append('propose', propose.value);
+  formData.append('category', category.value);
+  formData.append('startDate', startDate.value);
+  formData.append('startTime', startTime.value);
+  formData.append('duration', duration.value);
+  formData.append('format', format.value);
+  formData.append('places', places.value);
+  formData.append('address', address.value);
+  formData.append('needsCustomerAddress', needsCustomerAddress.value);
+  formData.append('description', description.value);
   if (image.value) {
     formData.append('image', image.value);
   }
 
+  // Console log pour chaque donnée
+  console.log('Titre:', title.value);
+  console.log('Je souhaite:', propose.value);
+  console.log('Catégorie:', category.value);
+  console.log('Date de début:', startDate.value);
+  console.log('Heure de début:', startTime.value);
+  console.log('Durée:', duration.value);
+  console.log('Format:', format.value);
+  console.log('Nombre de places:', places.value);
+  console.log('Adresse du service:', address.value);
+  console.log('Besoin d\'adresse du client:', needsCustomerAddress.value);
+  console.log('Description:', description.value);
+  if (image.value) {
+    console.log('Image:', image.value.name); // Affiche le nom du fichier
+  } else {
+    console.log('Aucune image sélectionnée');
+  }
+
   try {
-    const response = await axios.post('/tickets', formData, {
+    const response = await axios.post('/api/tickets', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
-
-    if (response.status === 200 || response.status === 201) {
-      success.value = t('ticketSavedSuccessfully');
-      console.log('Ticket sauvegardé:', response.data);
-    } else {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-  } catch (err) {
-    if (err.response) {
-      error.value = err.response.data?.message || t('something_went_wrong');
-    } else {
-      error.value = t('networkError');
-    }
-    console.error('Erreur lors de la sauvegarde du ticket:', err);
+    console.log('Ticket sauvegardé:', response.data);
+    // Optionally, redirect or reset form after successful save
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du ticket:', error);
   }
 };
 </script>
@@ -112,15 +111,11 @@ const saveTicket = async () => {
             <label>Je souhaite</label>
           </div>
           <div class="two wide column">
-            <div class="ui compact selection dropdown" ref="proposeDropdown">
-              <input type="hidden" v-model="propose"/>
-              <i class="dropdown icon"></i>
-              <div class="text">Choisir</div>
-              <div class="menu">
-                <div class="item" data-value="Proposer">Proposer</div>
-                <div class="item" data-value="Demander">Demander</div>
-              </div>
-            </div>
+            <select v-model="propose" class="ui dropdown">
+              <option value="" disabled>Choisir</option>
+              <option value="Proposer">Proposer</option>
+              <option value="Demander">Demander</option>
+            </select>
           </div>
           <div class="two wide column">
             <label>un service</label>
@@ -131,16 +126,12 @@ const saveTicket = async () => {
       <!-- Catégorie -->
       <div class="field">
         <label>Catégorie</label>
-        <div class="ui compact selection dropdown" ref="categoryDropdown">
-          <input type="hidden" v-model="category"/>
-          <i class="dropdown icon"></i>
-          <div class="text">Choisir</div>
-          <div class="menu">
-            <div v-for="cat in categories" :key="cat.Category_ID" class="item" :data-value="cat.Category_ID">
-              {{ cat.Name }}
-            </div>
-          </div>
-        </div>
+        <select v-model="category" class="ui dropdown">
+          <option value="" disabled>Choisir</option>
+          <option v-for="cat in categories" :key="cat.Skill_ID" :value="cat.Skill_ID">
+            {{ cat.Name }}
+          </option>
+        </select>
       </div>
 
       <!-- Date et Heure de début -->
@@ -178,16 +169,12 @@ const saveTicket = async () => {
             <input v-model="duration" type="text" maxlength="3" placeholder="Durée"/>
           </div>
           <div class="four wide column">
-            <div class="ui compact selection dropdown" ref="formatDropdown">
-              <input type="hidden" v-model="format"/>
-              <i class="dropdown icon"></i>
-              <div class="text">Format</div>
-              <div class="menu">
-                <div class="item" data-value="Minutes">Minutes</div>
-                <div class="item" data-value="Heures">Heures</div>
-                <div class="item" data-value="Jours">Jours</div>
-              </div>
-            </div>
+            <select v-model="format" class="ui dropdown">
+              <option value="" disabled>Format</option>
+              <option value="Minutes">Minutes</option>
+              <option value="Heures">Heures</option>
+              <option value="Jours">Jours</option>
+            </select>
           </div>
         </div>
       </div>
@@ -225,10 +212,6 @@ const saveTicket = async () => {
         <label>Image</label>
         <input type="file" @change="handleFileUpload" multiple/>
       </div>
-
-      <!-- Messages d'erreur et de succès -->
-      <div v-if="error" class="ui negative message">{{ error }}</div>
-      <div v-if="success" class="ui positive message">{{ success }}</div>
 
       <!-- Boutons -->
       <div class="ui buttons">
