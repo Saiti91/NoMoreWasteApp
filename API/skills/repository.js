@@ -74,8 +74,10 @@ async function deleteSkillForUser(userId, skillId) {
         throw new NotFoundError("Skill not found for this user");
     }
 
-    return result;
+    // Retourner l'ID de l'utilisateur et l'ID de la compétence
+    return { userId, skillId };
 }
+
 
 
 // Fonction pour vérifier si un utilisateur possède une compétence spécifique

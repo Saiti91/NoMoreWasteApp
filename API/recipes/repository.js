@@ -17,6 +17,7 @@ async function createRecipe(name, instructions) {
         const [result] = await connection.execute(query, [name, instructions]);
 
         await connection.commit();
+        console.log('result from repository:', result.insertId);
         return result.insertId;
     } catch (error) {
         await connection.rollback();
@@ -38,7 +39,15 @@ async function addIngredient(recipeId, productId, quantity, unit, description) {
             INSERT INTO Recipes_Ingredients (Recipes_ID, Product_ID, Quantity, Unit, Description)
             VALUES (?, ?, ?, ?, ?)
         `;
-        await connection.execute(query, [recipeId, productId, quantity, unit, description]);
+
+        // Replace undefined with null
+        await connection.execute(query, [
+            recipeId,
+            productId,
+            quantity,
+            unit !== undefined ? unit : null,           // Unit should be null if undefined
+            description !== undefined ? description : null // Description should be null if undefined
+        ]);
     } finally {
         await connection.end();
     }

@@ -65,6 +65,14 @@ const isRouteActive = (route) => activeRoute.value === route;
       <i class="box icon"></i>
       {{ t('tournee') }}
     </router-link>
+
+    <router-link
+        :to="`/my-account-skills/${route.params.id}`"
+        class="item"
+        :class="{ active: isRouteActive(`/my-account-skills/${route.params.id}`) }">
+      <i class="box icon"></i>
+      {{ t('skills') }}
+    </router-link>
   </div>
 </template>
 

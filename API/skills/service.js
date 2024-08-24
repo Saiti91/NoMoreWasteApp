@@ -1,13 +1,13 @@
-const { createSkillSchema, updateSkillSchema } = require("./model");
+const {createSkillSchema, updateSkillSchema} = require("./model");
 const Repository = require("./repository");
-const { InvalidArgumentError, NotFoundError } = require("../common/service_errors");
+const {InvalidArgumentError, NotFoundError} = require("../common/service_errors");
 const fs = require('fs');
 const path = require('path');
 
 
 // Fonction de création d'une compétence
 async function createOne(skill) {
-    const { value, error } = createSkillSchema.validate(skill);
+    const {value, error} = createSkillSchema.validate(skill);
     if (error) {
         throw error;
     }
@@ -48,13 +48,42 @@ async function getAllForUser(userId) {
 
 //Fonction pour une supprimer une compétence d'un utilisateur
 async function deleteSkillForUser(userId, skillId) {
-    return await Repository.deleteSkillForUser(userId, skillId);
-}
+    const deletedSkill = await Repository.deleteSkillForUser(userId, skillId);
+    if (!deletedSkill) {
+        throw new NotFoundError('Compétence non trouvée pour cet utilisateur');
+    }
 
+    const { userId: returnedUserId, skillId: returnedSkillId } = deletedSkill;
+    console.log(`Deleted skill for user with id ${returnedUserId} and skill with id ${returnedSkillId}.`);
+
+    const userIdStr = String(returnedUserId);
+    const skillIdStr = String(returnedSkillId);
+
+    const fileExtensions = ['.pdf', '.jpg', '.jpeg', '.png'];
+
+    // Iterate over each file extension and attempt to delete the corresponding file
+    fileExtensions.forEach(extension => {
+        const documentPath = path.join(__dirname, '../uploads/justificatif', userIdStr, `${skillIdStr}${extension}`);
+        console.log(`Checking path: ${documentPath}`);
+
+        // Lowercase the documentPath and compare with lowercase directory content (only for debugging)
+        const directory = path.join(__dirname, '../uploads/justificatif', userIdStr);
+        fs.readdirSync(directory).forEach(file => {
+            if (file.toLowerCase() === `${skillIdStr}${extension}`.toLowerCase()) {
+                const exactDocumentPath = path.join(directory, file);
+                console.log(`Exact file found: ${exactDocumentPath}`);
+                fs.unlinkSync(exactDocumentPath);
+                console.log(`Document for skill ${skillIdStr} with extension ${extension} deleted successfully.`);
+            }
+        });
+    });
+
+    return { userId: returnedUserId, skillId: returnedSkillId };
+}
 
 // Fonction de mise à jour d'une compétence en fonction de son ID
 async function updateOne(id, skill) {
-    const { value, error } = updateSkillSchema.validate(skill);
+    const {value, error} = updateSkillSchema.validate(skill);
     if (error) {
         throw error;
     }
@@ -106,4 +135,4 @@ async function addSkillForUser(userId, skillId, documentPath) {
 }
 
 
-module.exports = { createOne, getOne, getAll, getAllForUser, updateOne, deleteOne, deleteSkillForUser, addSkillForUser };
+module.exports = {createOne, getOne, getAll, getAllForUser, updateOne, deleteOne, deleteSkillForUser, addSkillForUser};

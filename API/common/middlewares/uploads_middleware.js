@@ -2,50 +2,82 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Set storage engine
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let uploadPath;
-        if (req.path.includes('serviceProvider')) {
-            uploadPath = path.join(__dirname, '../../assets/serviceProviders');
-        } else if (req.path.includes('apartment')) {
-            uploadPath = path.join(__dirname, '../../assets/apartments');
+
+        // Log the incoming request path
+        console.log('Incoming request path:', req.path);
+
+        if (req.path.includes('add')) {
+            uploadPath = path.join(__dirname, '../../uploads/recipes');
+            console.log('Set upload path for recipes:', uploadPath);
+        } else if (req.path.includes('skill')) {
+            const userId = req.params.userId;
+            if (!userId) {
+                return cb(new Error('User ID is required for skill uploads'));
+            }
+            uploadPath = path.join(__dirname, '../../uploads/justificatif', userId);
+            console.log('Set upload path for skill:', uploadPath);
         } else {
-            uploadPath = path.join(__dirname, '../../assets/tmp');
+            console.error('Invalid upload path for request path:', req.path);
+            return cb(new Error('Invalid upload path'));
         }
+
+        // Ensure the directory exists
         if (!fs.existsSync(uploadPath)) {
+            console.log('Directory does not exist, creating:', uploadPath);
             fs.mkdirSync(uploadPath, { recursive: true });
         }
+
         cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
-        cb(null, `${Date.now()}${path.extname(file.originalname)}`); // Use original file extension
+        let filename;
+
+        if (req.path.includes('add')) {
+            filename = `${Date.now()}${path.extname(file.originalname)}`;
+            console.log('Generated filename for recipes:', filename);
+        } else if (req.path.includes('skill')) {
+            filename = `${req.body.skill_id}${path.extname(file.originalname)}`;
+            console.log('Generated filename for skill:', filename);
+        } else {
+            filename = `${Date.now()}${path.extname(file.originalname)}`;
+            console.log('Generated fallback filename:', filename);
+        }
+
+        cb(null, filename);
     }
 });
 
-// Initialize upload
+function checkFileType(file, cb) {
+    const filetypes = /jpeg|jpg|png/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+        cb(null, true);
+    } else {
+        cb(new Error('Error: Only images are allowed!'));
+    }
+}
+
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5000000 }, // Limit file size to 5MB
+    limits: { fileSize: 5000000 },  // Limit file size to 5MB
     fileFilter: (req, file, cb) => {
         checkFileType(file, cb);
     }
 });
 
-// Check file type
-function checkFileType(file, cb) {
-    // Allowed ext
-    const filetypes = /jpeg|jpg|png/;
-    // Check ext
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    // Check mime
-    const mimetype = filetypes.test(file.mimetype);
-
-    if (mimetype && extname) {
-        return cb(null, true);
-    } else {
-        cb('Error: Images Only!');
+function checkFileProvided(req, res, next) {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
     }
+    next();
 }
 
-module.exports = upload;
+module.exports = {
+    upload,
+    checkFileProvided
+};

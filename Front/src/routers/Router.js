@@ -12,6 +12,7 @@ import MyAccountDonation from "@/vue/frontOffice/Compte/MyAccountDonation.vue";
 import MyAccountRecievedProduct from "@/vue/frontOffice/Compte/MyAccountRecievedProduct.vue";
 import MyAccountRoutes from "@/vue/frontOffice/Compte/MyAccountRoutes.vue";
 import MyAccountRoutesDetails from "@/vue/frontOffice/Compte/MyAccountRoutesDetails.vue";
+import MyAccountSkillsDetails from "@/vue/frontOffice/Compte/MyAccountSkills.vue";
 
 import CreateTicket from "@/vue/frontOffice/Tickets/CreateTicket.vue";
 
@@ -37,6 +38,10 @@ import StocksAdmin from '@/vue/backOffice/Stocks/StocksAdmin.vue';
 import Stocks from "@/vue/backOffice/Stocks/Stocks.vue";
 import CatalogueAdmin from "@/vue/backOffice/Stocks/Catalogue.vue";
 import StocksDetails from '@/vue/backOffice/Stocks/StocksDetails.vue';
+
+//***** Recipes
+import RecipesAdmin from '@/vue/backOffice/Recipes/RecipesAdmin.vue';
+import RecipesAdminAdd from "@/vue/backOffice/Recipes/RecipesAdminAdd.vue";
 
 //***** Donations
 import DonationAdmin from '@/vue/backOffice/Don/DonationsAdmin.vue';
@@ -107,6 +112,12 @@ const routes = [
         path: '/my-account-routes/details/:id',
         name: 'MyAccountRoutesDetails',
         component: MyAccountRoutesDetails,
+        /*beforeEnter: useAuthGuard(['volunteer'])*/
+    },
+    {
+        path: '/my-account-skills/:id',
+        name: 'MyAccountSkillsDetails',
+        component: MyAccountSkillsDetails,
         /*beforeEnter: useAuthGuard(['volunteer'])*/
     },
 
@@ -239,7 +250,7 @@ const routes = [
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {
-      path: '/donations-select-truck',
+        path: '/donations-select-truck',
         name: 'DonationsSelectTruck',
         component: DonationsSelectTruck,
         /*beforeEnter: useAuthGuard(['admin'])*/
@@ -286,6 +297,20 @@ const routes = [
         component: TourDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
+    //Recipes
+    {
+        path: '/recipes-admin',
+        name: 'RecipesAdmin',
+        component: RecipesAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/recipes-admin-add',
+        name: 'RecipesAdminAdd',
+        component: RecipesAdminAdd,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    //Categories
     {path: '/categories', name: 'Categories', component: Categories, /*beforeEnter: useAuthGuard(['admin'])*/},
 ];
 

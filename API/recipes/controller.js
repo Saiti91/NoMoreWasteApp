@@ -2,6 +2,9 @@ const {Router} = require("express");
 const recipeService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
 const authorize = require("../common/middlewares/authorize_middleware");
+const {upload, checkFileProvided} = require("../common/middlewares/uploads_middleware");
+const fs = require("fs");
+const path = require("path");
 
 const controller = Router();
 
@@ -149,14 +152,17 @@ controller.get(
  *       400:
  *         description: Invalid input
  */
-controller.post(
-    "/",
-    (req, res, next) => {
-        recipeService.createRecipe(req.body)
-            .then((data) => res.status(201).json({message: 'Recipe created successfully', recipeId: data}))
-            .catch((err) => next(err));
-    },
-);
+controller.post('/add', upload.single('image'), checkFileProvided, async (req, res, next) => {
+    try {
+        const { name, instructions, ingredients } = req.body;
+        const file = req.file; // Pass the file to the service
+        const recipeResult = await recipeService.createRecipe({ name, instructions, ingredients, file });
+
+        res.status(201).json({ message: 'Recipe created successfully', recipeId: recipeResult.Recipes_ID });
+    } catch (error) {
+        next(error);
+    }
+});
 
 /**
  * @swagger

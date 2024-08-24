@@ -1,8 +1,8 @@
 <script setup>
-import { computed, ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import {ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
 import 'fomantic-ui-css/semantic.min.css';
-import { useI18n } from 'vue-i18n';
+import {useI18n} from 'vue-i18n';
 
 const t = useI18n().t;
 const router = useRouter();
@@ -70,13 +70,13 @@ const isRouteActive = (route) => activeRoute.value === route;
 
 <style scoped>
 .account-menu {
-  width: 30%; /* Augmenter la largeur à 25% */
-  max-width: 300px; /* Augmenter la largeur maximale */
-  padding: 20px; /* Augmenter le padding pour plus d'espace intérieur */
+  width: 30%;
+  max-width: 300px;
+  padding: 20px;
   background-color: #f4f4f4;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   min-height: 100vh;
-  margin-left: -15px; /* Déplacer le menu plus à gauche */
+  margin-left: -15px;
 }
 
 
@@ -88,13 +88,13 @@ const isRouteActive = (route) => activeRoute.value === route;
 .ui.vertical.menu .item {
   display: flex;
   align-items: center;
-  padding: 15px; /* Augmenter le padding pour des éléments plus grands */
-  margin: 10px 0; /* Augmenter l'espacement entre les éléments */
-  font-size: 1.2em; /* Augmenter la taille de la police */
+  padding: 15px;
+  margin: 10px 0;
+  font-size: 1.2em;
 }
 
 .ui.vertical.menu .item i.icon {
-  margin-right: 15px; /* Augmenter l'espace entre l'icône et le texte */
-  font-size: 1.5em; /* Augmenter la taille des icônes */
+  margin-right: 15px;
+  font-size: 1.5em;
 }
 </style>
