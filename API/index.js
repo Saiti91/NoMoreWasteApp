@@ -82,6 +82,7 @@ app.use("/products/:id", idParamGuard);
 app.use("/productsCategories/:id", idParamGuard);
 app.use("/trucks/:id", idParamGuard);
 app.use("/recipes/:id", idParamGuard);
+app.use("/skills/:id", idParamGuard);
 
 //Stripe
 app.use('/stripe', stripeRoutes);

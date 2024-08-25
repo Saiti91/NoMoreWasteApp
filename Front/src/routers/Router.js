@@ -281,7 +281,7 @@ const routes = [
     },
     {
         path: '/distribution-tours-details/:id',
-        name: 'DistributionTourDetailsDistributionTourDetails',
+        name: 'DistributionTourDetails',
         component: DistributionTourDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },

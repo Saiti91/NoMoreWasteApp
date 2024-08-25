@@ -26,6 +26,7 @@ const fetchSkills = async () => {
   try {
     const userSkillsResponse = await axios.get(`/skills/user/${route.params.id}`);
     userSkills.value = userSkillsResponse.data;
+    console.log('User skills:', userSkills.value);
   } catch (error) {
     if (error.response && error.response.status === 404) {
       console.warn('No skills found for user:', route.params.id);
@@ -133,11 +134,18 @@ onMounted(() => {
             <ul>
               <li v-for="skill in userSkills" :key="skill.Skill_ID">
                 {{ skill.Name }} -
+                <!-- Check if Validation_Date is null -->
+                <span v-if="!skill.Validation_Date">{{ t('awaitingvalidation') }}</span>
+                <span v-else>{{ t('validatedon') }} {{ new Date(skill.Validation_Date).toLocaleDateString('fr-FR') }}</span>
+
+                <!-- Document Link: Display the link even if validation is pending -->
                 <a v-if="skill.Document_Path"
                    :href="`http://${axios.defaults.baseURL}:3000/uploads/justificatif/${route.params.id}/${skill.Document_Path}`"
                    :download="skill.Document_Path">
                   {{ t('viewDocument') }}
                 </a>
+
+                <!-- Delete Button -->
                 <button @click="deleteSkill(skill.Skill_ID)" class="ui red button small">{{ t('delete') }}</button>
               </li>
             </ul>
@@ -208,5 +216,115 @@ h2 {
 p {
   font-size: 1.2em;
   color: #666;
+}
+.spacer_perso {
+  margin: 7%;
+}
+
+.content-area {
+  padding: 20px;
+  margin-left: 50px;
+  width: calc(70% - 50px);
+}
+
+.skills-section {
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #f4f4f4;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 1.1em;
+}
+
+h2 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+h4 {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  color: #444;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+li {
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+li span {
+  font-weight: bold;
+  color: #555;
+}
+
+li a {
+  color: #4183c4;
+  text-decoration: none;
+  margin-right: 10px;
+}
+
+li a:hover {
+  text-decoration: underline;
+}
+
+.ui.form .field {
+  margin-bottom: 20px;
+}
+
+.ui.red.button {
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.9em;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.ui.red.button:hover {
+  background-color: #c0392b;
+}
+
+.ui.teal.button {
+  background-color: #1abc9c;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.9em;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.ui.teal.button:hover {
+  background-color: #16a085;
+}
+
+.ui.dropdown {
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 8px 10px;
+  font-size: 1em;
+}
+
+input[type="file"] {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  cursor: pointer;
+  width: 100%;
+}
+
+p {
+  font-size: 1.2em;
+  color: #777;
 }
 </style>

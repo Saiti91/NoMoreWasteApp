@@ -41,6 +41,36 @@ async function getAll() {
     return rows;
 }
 
+async function getUnvalidatedSkillsForUser(userId) {
+    const connection = await getConnection();
+
+    const [rows] = await connection.execute(
+        `SELECT Skills.Skill_ID, Skills.Name, User_Skills.Validation_Date, User_Skills.Document_Path
+         FROM User_Skills
+         JOIN Skills ON User_Skills.Skill_ID = Skills.Skill_ID
+         WHERE User_Skills.User_ID = ? AND User_Skills.Validation_Date IS NULL`,
+        [userId]
+    );
+
+    await connection.end();
+    return rows;
+}
+
+async function getAllUnvalidatedSkills() {
+    const connection = await getConnection();
+
+    const [rows] = await connection.execute(
+        `SELECT User_Skills.User_ID, Users.Name as User_Name, Users.Email as User_Email, Skills.Skill_ID, Skills.Name as Skill_Name, User_Skills.Document_Path
+         FROM User_Skills
+         JOIN Skills ON User_Skills.Skill_ID = Skills.Skill_ID
+         JOIN Users ON User_Skills.User_ID = Users.User_ID
+         WHERE User_Skills.Validation_Date IS NULL`
+    );
+
+    await connection.end();
+    return rows;
+}
+
 // Fonction pour récupérer toutes les compétences validées d'un utilisateur
 async function getAllForUser(userId) {
     const connection = await getConnection();
@@ -156,6 +186,8 @@ module.exports = {
     getOne,
     getAll,
     getAllForUser,
+    getUnvalidatedSkillsForUser,
+    getAllUnvalidatedSkills,
     verifySkill,
     updateOne,
     deleteOne,

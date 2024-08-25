@@ -5,6 +5,8 @@ import HeaderBackOffice from '@/components/HeaderBackOffice.vue';
 import axios from '@/utils/Axios.js';
 import Swal from 'sweetalert2';
 import { useI18n } from 'vue-i18n';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -50,6 +52,30 @@ const deleteTour = async () => {
   }
 };
 
+const generatePDF = () => {
+  const doc = new jsPDF();
+
+  doc.text('Détails de la Tournée', 10, 10);
+  doc.text(`Date: ${new Date(tourDetails.value.Route_Date).toLocaleDateString('fr-FR')}`, 10, 20);
+  doc.text(`Heure: ${tourDetails.value.Route_Time}`, 10, 30);
+  doc.text(`Chauffeur: ${tourDetails.value.Driver?.Driver_Name || 'Pas de conducteur inscrit'}`, 10, 40);
+  doc.text(`Camion: ${tourDetails.value.Truck.Truck_Model} (${tourDetails.value.Truck.Truck_Registration})`, 10, 50);
+
+  doc.text('Destinations:', 10, 60);
+  const destinations = tourDetails.value.Destinations.map(destination => [
+    `${destination.Address.Street}, ${destination.Address.City}`,
+    destination.Products.map(product => `${product.Product_Name} - Quantité: ${product.Quantity}`).join(', ')
+  ]);
+
+  doc.autoTable({
+    head: [['Adresse', 'Produits']],
+    body: destinations,
+    startY: 70,
+  });
+
+  doc.save(`Tournee_${route.params.id}.pdf`);
+};
+
 onMounted(() => {
   fetchTourDetails();
 });
@@ -61,7 +87,10 @@ onMounted(() => {
   <div class="ui container full-width no-center">
     <div class="header-actions">
       <h1>Détails de la Tournée</h1>
-      <button class="ui red button" @click="deleteTour">Supprimer la Tournée</button>
+      <div>
+        <button class="ui red button" @click="deleteTour">Supprimer la Tournée</button>
+        <button class="ui teal button" @click="generatePDF">Générer le PDF</button>
+      </div>
     </div>
 
     <div v-if="loading">Chargement...</div>
@@ -73,7 +102,6 @@ onMounted(() => {
         <h3>Informations Générales</h3>
         <p><strong>Date:</strong> {{ new Date(tourDetails.Route_Date).toLocaleDateString('fr-FR') }}</p>
         <p><strong>Heure:</strong> {{ tourDetails.Route_Time }}</p>
-        <!-- Check if Driver information is null -->
         <p><strong>Chauffeur:</strong>
           <span v-if="tourDetails.Driver && tourDetails.Driver.Driver_Name">
             {{ tourDetails.Driver.Driver_Name }}
@@ -109,7 +137,7 @@ onMounted(() => {
         </table>
       </div>
 
-      <button class="ui button" @click="router.push({ name: 'PickUpTours' })">Retour aux Tournées</button>
+      <button class="ui button" @click="router.push({ name: 'DistributionTourAdmin' })">Retour aux Tournées</button>
     </div>
   </div>
 </template>
@@ -147,5 +175,14 @@ onMounted(() => {
 
 .ui.red.button:hover {
   background-color: #c82323;
+}
+
+.ui.teal.button {
+  background-color: #00b5ad;
+  color: white;
+}
+
+.ui.teal.button:hover {
+  background-color: #009c9a;
 }
 </style>
