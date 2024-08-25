@@ -260,4 +260,65 @@ onMounted(() => {
   width: 150px;
   color: #333;
 }
+
+.status-active {
+  color : green;
+}
+
+.status-inactive {
+  color : red;
+}
+
+.styled-input {
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 4px;
+  width: calc(100% - 160px);
+  margin-left: 10px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.styled-input:focus {
+  border-color: #00b5ad;
+  box-shadow: 0 0 5px rgba(0, 181, 173, 0.5);
+  outline: none;
+}
+
+.password-section p {
+  display: flex;
+  align-items: center;
+}
+
+.password-input {
+  width: auto;
+  flex-grow: 1;
+  margin-left: 10px;
+}
+
+.eye.icon,
+.eye.slash.icon {
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.ui.red.button {
+  background-color: #db2828;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.ui.red.button:hover {
+  background-color: #c52222;
+}
+
+.ui.teal.button {
+  background-color: #00b5ad;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.ui.teal.button:hover {
+  background-color: #009a93;
+}
 </style>
