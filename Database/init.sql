@@ -386,12 +386,12 @@ VALUES ('Permis de conduire'),
 
 -- Données de test pour la table User_Skills
 INSERT INTO User_Skills (User_ID, Skill_ID, Validation_Date, Document_Path)
-VALUES (1, 1, '2023-01-01', '1.png'),
+VALUES (1, 1, '2024-08-25', '1.png'),
        (1, 2, NULL, '2.png'),
-       (2, 3, '2023-03-01', '3.png'),
-       (3, 4, '2023-04-01', '4.png'),
-       (4, 5, '2023-05-01', '5.png'),
-       (5, 6, '2023-06-01', '6.png');
+       (2, 3, NULL, '3.png'),
+       (3, 4, NULL, '4.png'),
+       (4, 5, NULL, '5.png'),
+       (5, 6, NULL, '6.png');
 
 -- Données de test pour la table Trucks
 INSERT INTO Trucks (Registration, Capacity, Model, Conditions)

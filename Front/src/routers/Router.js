@@ -61,11 +61,16 @@ import DistributionTourUpdate from "@/vue/backOffice/Tournee/DistributionTour/To
 
 import DonationsCreateTour from "@/vue/backOffice/Tournee/PickUpTour/PickUpTourCreation/TourCreation.vue";
 import DonationsSelectTruck from "@/vue/backOffice/Tournee/PickUpTour/PickUpTourCreation/SelectTruck.vue";
-import DonationsReviewAndConfirmTour from "@/vue/backOffice/Tournee/PickUpTour/PickUpTourCreation/ReviewAndConfirmTour.vue";
+import DonationsReviewAndConfirmTour
+    from "@/vue/backOffice/Tournee/PickUpTour/PickUpTourCreation/ReviewAndConfirmTour.vue";
 
 import RequestsCreateTour from "@/vue/backOffice/Tournee/DistributionTour/DistributionTourCreation/TourCreation.vue";
 import RequestsSelectTruck from "@/vue/backOffice/Tournee/DistributionTour/DistributionTourCreation/SelectTruck.vue";
-import RequestsReviewAndConfirmTour from "@/vue/backOffice/Tournee/DistributionTour/DistributionTourCreation/ReviewAndConfirmTour.vue";
+import RequestsReviewAndConfirmTour
+    from "@/vue/backOffice/Tournee/DistributionTour/DistributionTourCreation/ReviewAndConfirmTour.vue";
+
+//***** Skills
+import SkillsAdmin from "@/vue/backOffice/Skills/SkillsAdmin.vue";
 
 
 const routes = [
@@ -329,6 +334,12 @@ const routes = [
         name: 'RecipesAdminAdd',
         component: RecipesAdminAdd,
         /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    //Skills
+    {
+        path: '/skills-admin',
+        name: 'SkillsAdmin',
+        component: SkillsAdmin,
     },
     //Categories
     {path: '/categories', name: 'Categories', component: Categories, /*beforeEnter: useAuthGuard(['admin'])*/},

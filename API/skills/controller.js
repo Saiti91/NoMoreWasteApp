@@ -1,7 +1,7 @@
-const { Router } = require("express");
+const {Router} = require("express");
 const skillsService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
-const { upload, checkFileProvided } = require('../common/middlewares/uploads_middleware');
+const {upload, checkFileProvided} = require('../common/middlewares/uploads_middleware');
 
 const controller = Router();
 
@@ -264,7 +264,7 @@ controller.delete("/user/:userId/:skillId", (req, res, next) => {
     const skillId = Number(req.params.skillId);
 
     if (isNaN(userId) || isNaN(skillId)) {
-        return res.status(400).json({ error: "Invalid user ID or skill ID" });
+        return res.status(400).json({error: "Invalid user ID or skill ID"});
     }
 
     skillsService.deleteSkillForUser(userId, skillId)
@@ -272,7 +272,7 @@ controller.delete("/user/:userId/:skillId", (req, res, next) => {
             if (deleted) {
                 res.status(204).end();
             } else {
-                res.status(404).json({ error: "Skill not found for the user" });
+                res.status(404).json({error: "Skill not found for the user"});
             }
         })
         .catch((err) => next(err));
@@ -427,7 +427,7 @@ controller.post('/:userId/skills', upload.single('document'), checkFileProvided,
         console.log('req.body:', req.body);
         console.log('req.file:', req.file);
 
-        const { skill_id } = req.body;
+        const {skill_id} = req.body;
         const userId = req.params.userId;
         const documentPath = req.file.filename;
 
