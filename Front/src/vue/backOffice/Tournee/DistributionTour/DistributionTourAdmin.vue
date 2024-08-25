@@ -1,17 +1,17 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import axios from '@/utils/Axios.js';
-import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import HeaderBackOffice from '@/components/HeaderBackOffice.vue';
+import {useRouter} from 'vue-router';
+import {useI18n} from 'vue-i18n';
 
-const { t } = useI18n();
+const router = useRouter();
+const {t} = useI18n();
 const tours = ref([]);
 const currentPage = ref(1); // Page actuelle
 const itemsPerPage = 10; // Nombre d'éléments par page
 
 // Variables pour les filtres
-const selectedDriver = ref('all');
 const selectedTruck = ref('all');
 const selectedDateRange = ref([null, null]);
 
@@ -19,15 +19,22 @@ const fetchTours = async () => {
   try {
     const response = await axios.get('/tours');
 
-    // Filtrer les tournées de type 1 (ramassage) et trier par date décroissante
+    // Filtrer les tournées de type 0 (distribution) et trier par date décroissante
     tours.value = response.data
-        .filter(tour => tour.Route_Type === 1)
+        .filter(tour => tour.Route_Type === 0)
         .sort((a, b) => new Date(b.Route_Date) - new Date(a.Route_Date)); // Tri décroissant par date
 
     console.log(tours.value);
   } catch (error) {
     console.error('Error fetching tours:', error);
   }
+};
+
+const formatDateTime = (date, time) => {
+  if (!date || !time) return t('noInfo');
+  const options = {year: 'numeric', month: 'long', day: 'numeric'};
+  const formattedDate = new Date(date).toLocaleDateString('fr-FR', options);
+  return `${formattedDate} à ${time.slice(0, 5)}`; // Formater l'heure au format HH:MM
 };
 
 // Fonction pour normaliser une chaîne (supprimer les accents)
@@ -38,11 +45,6 @@ const normalizeString = (str) => {
 // Propriété calculée pour filtrer les tournées
 const filteredTours = computed(() => {
   let filtered = tours.value;
-
-  // Filtrer par chauffeur
-  if (selectedDriver.value !== 'all') {
-    filtered = filtered.filter(tour => normalizeString(tour.Driver.Driver_Name) === normalizeString(selectedDriver.value));
-  }
 
   // Filtrer par camion
   if (selectedTruck.value !== 'all') {
@@ -74,7 +76,7 @@ const totalPages = computed(() => {
 });
 
 const goToDetails = (tourId) => {
-  router.push({name: 'tourDetails', params: {id: tourId}});
+  router.push({name: 'DistributionTourDetails', params: {id: tourId}});
 };
 
 const calculateTotalQuantity = (destinations) => {
@@ -94,7 +96,7 @@ const isDateSelected = computed(() => {
 });
 
 // Watchers pour réinitialiser currentPage lorsque les filtres changent
-watch([selectedDriver, selectedTruck, selectedDateRange], () => {
+watch([selectedTruck, selectedDateRange], () => {
   currentPage.value = 1;
 });
 
@@ -107,20 +109,11 @@ onMounted(() => {
   <HeaderBackOffice/>
   <div class="spacer"></div>
   <div class="ui container full-width no-center">
-    <h1>{{ t('tourneesDeCollecte') }}</h1>
+    <h1>{{ t('distributionTour') }}</h1>
 
     <!-- Filters -->
     <div class="ui form">
       <div class="fields">
-        <div class="field">
-          <label>{{ t('chauffeur') }}</label>
-          <select v-model="selectedDriver" class="ui dropdown">
-            <option value="all">{{ t('alldrivers') }}</option>
-            <option v-for="tour in tours" :key="tour.Driver.Driver_Name" :value="tour.Driver.Driver_Name">
-              {{ tour.Driver.Driver_Name }}
-            </option>
-          </select>
-        </div>
         <div class="field">
           <label>{{ t('camion') }}</label>
           <select v-model="selectedTruck" class="ui dropdown">
@@ -148,7 +141,7 @@ onMounted(() => {
       <thead>
       <tr>
         <th>{{ t('numeroDeTournee') }}</th>
-        <th>Date</th>
+        <th>Date et Heure</th> <!-- Modification de l'en-tête -->
         <th>{{ t('chauffeur') }}</th>
         <th>{{ t('camion') }}</th>
         <th>{{ t('capaciteDuCamion') }}</th>
@@ -160,7 +153,7 @@ onMounted(() => {
       <tbody>
       <tr v-for="tour in paginatedTours" :key="tour.Route_ID" class="clickable-row" @click="goToDetails(tour.Route_ID)">
         <td>{{ tour.Route_ID }}</td>
-        <td>{{ new Date(tour.Route_Date).toLocaleDateString() }}</td>
+        <td>{{ formatDateTime(tour.Route_Date, tour.Route_Time) }}</td> <!-- Affichage de la date et de l'heure -->
         <td>{{ tour.Driver.Driver_Name }}</td>
         <td>{{ tour.Truck.Truck_Registration }} - {{ tour.Truck.Truck_Model }}</td>
         <td>{{ tour.Truck.Truck_Capacity }}</td>
@@ -199,6 +192,13 @@ onMounted(() => {
   width: 100%;
 }
 
+.pagination-controls {
+  display: flex;
+  justify-content: center; /* Centre les boutons horizontalement */
+  align-items: center; /* Centre les éléments verticalement */
+  margin-top: 20px;
+}
+
 .ui.celled.table tr.clickable-row {
   cursor: pointer;
 }
@@ -233,12 +233,5 @@ onMounted(() => {
 
 .date-range-inputs button {
   margin-left: 10px;
-}
-
-.pagination-controls {
-  display: flex;
-  justify-content: center; /* Centre les boutons horizontalement */
-  align-items: center; /* Centre les éléments verticalement */
-  margin-top: 20px;
 }
 </style>

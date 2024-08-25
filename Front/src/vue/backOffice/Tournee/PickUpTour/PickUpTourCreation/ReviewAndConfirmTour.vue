@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import HeaderBackOffice from '@/components/HeaderBackOffice.vue';
@@ -8,28 +8,15 @@ import axios from '@/utils/Axios.js';
 
 const store = useStore();
 const router = useRouter();
+const selectedTime = ref('');
 
 const selectedTruck = computed(() => store.getters.selectedTruck);
 const selectedDestinations = computed(() => store.getters.selectedDestinations);
 
-// Compute the total donations and quantity for each destination
-const computedDestinations = computed(() => {
-  return selectedDestinations.value.map(destination => {
-    const totalDonations = destination.Requests.length;
-    const totalQuantity = destination.Requests.reduce((sum, request) => sum + request.Quantity, 0);
-
-    return {
-      ...destination,
-      Total_Donations: totalDonations,
-      Total_Quantity: totalQuantity,
-    };
-  });
-});
-
 // Ensure selectedTruck and selectedDestinations are properly initialized
 onMounted(() => {
-  console.log('Selected Truck:', selectedTruck.value); // Added log
-  console.log('Computed Destinations:', computedDestinations.value); // Added log
+  console.log('Selected Truck:', selectedTruck.value);
+  console.log('Selected Destinations:', selectedDestinations.value);
 
   if (!selectedTruck.value || !selectedDestinations.value) {
     Swal.fire({
@@ -37,10 +24,11 @@ onMounted(() => {
       title: 'Erreur',
       text: 'Veuillez sélectionner un camion et des destinations avant de continuer.',
     });
-    router.push({ name: 'RequestsAdmin' });
+    router.push({ name: 'CreateTour' });
   }
 });
 
+// Define the getConditionText function
 const getConditionText = (condition) => {
   switch (condition) {
     case 1:
@@ -58,29 +46,34 @@ const getConditionText = (condition) => {
   }
 };
 
+// Vérifier si l'heure est sélectionnée
+const isTimeSelected = computed(() => selectedTime.value !== '');
+
 const confirmTour = async () => {
   try {
-    if (!selectedTruck.value || !computedDestinations.value?.length) {
-      throw new Error('Missing truck or destinations data.');
+    if (!selectedTruck.value || !selectedDestinations.value?.length || !selectedTime.value) {
+      throw new Error('Missing truck, destinations data, or time.');
     }
 
     const tourData = {
       Date: new Date().toISOString().split('T')[0],
+      Time: selectedTime.value,
       User_ID: null,
       Truck_ID: selectedTruck.value.Truck_ID,
-      Type: false,
-      Destinations: computedDestinations.value.map(destination => ({
+      Type: true,
+      Destinations: selectedDestinations.value.map(destination => ({
         Address_ID: destination.Address_ID,
-        Products: destination.Requests.map(request => ({
-          Request_ID: request.Request_ID,
-          Product_ID: request.Product_ID,
-          Quantity: request.Quantity,
+        Products: destination.Products.map(product => ({
+          Donation_ID: product.Donation_ID,
+          Product_ID: product.Product_ID,
+          Quantity: product.Quantity,
         }))
       }))
     };
 
-    console.log('Tour Data:', tourData); // Added log
+    console.log('Tour Data:', tourData);
 
+    // Post request to create the tour
     const response = await axios.post('/tours', tourData);
 
     Swal.fire({
@@ -90,7 +83,7 @@ const confirmTour = async () => {
     });
 
     store.dispatch('clearTourData');
-    router.push({ name: 'RequestsAdmin' });
+    router.push({ name: 'DonationsAdmin' });
 
   } catch (error) {
     console.error('Error confirming tour:', error);
@@ -127,7 +120,7 @@ const cancelTour = () => {
   <div class="ui container full-width no-center">
     <h1>Confirmer la Tournée</h1>
 
-    <div v-if="selectedTruck && computedDestinations?.length">
+    <div v-if="selectedTruck && selectedDestinations?.length">
       <h2>Détails de la Tournée</h2>
 
       <div class="ui segment">
@@ -136,6 +129,11 @@ const cancelTour = () => {
         <p><strong>Modèle:</strong> {{ selectedTruck?.Model || 'N/A' }}</p>
         <p><strong>Capacité:</strong> {{ selectedTruck?.Capacity || 'N/A' }} m³</p>
         <p><strong>État:</strong> {{ getConditionText(selectedTruck?.Conditions) }}</p>
+      </div>
+
+      <div class="ui segment">
+        <h3>Heure de la Tournée</h3>
+        <input type="time" v-model="selectedTime" class="ui input" />
       </div>
 
       <div class="ui segment">
@@ -149,7 +147,7 @@ const cancelTour = () => {
           </tr>
           </thead>
           <tbody>
-          <tr v-for="destination in computedDestinations" :key="destination.Address_ID">
+          <tr v-for="destination in selectedDestinations" :key="destination.Address_ID">
             <td>
               <strong>{{ destination?.Street || 'Adresse inconnue' }},
                 {{ destination?.Postal_Code || '' }}
@@ -162,7 +160,7 @@ const cancelTour = () => {
             <td colspan="2">
               <table class="nested-table">
                 <tbody>
-                <tr v-for="(product, index) in destination?.Requests || []" :key="index">
+                <tr v-for="(product, index) in destination?.Products || []" :key="index">
                   <td>{{ product?.Product_Name || 'Produit inconnu' }}</td>
                   <td>{{ product?.Quantity || 0 }}</td>
                 </tr>
@@ -177,13 +175,12 @@ const cancelTour = () => {
       <div class="ui buttons">
         <button class="ui button" @click="cancelTour">Annuler</button>
         <div class="or"></div>
-        <button class="ui teal button" @click="confirmTour">Confirmer la Tournée</button>
+        <button class="ui teal button" @click="confirmTour" :disabled="!isTimeSelected">Confirmer la Tournée</button>
       </div>
     </div>
     <div v-else>
       <p>Aucun camion ou destination sélectionné.</p>
     </div>
-
   </div>
 </template>
 

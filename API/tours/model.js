@@ -3,6 +3,7 @@ const Joi = require("joi");
 // Schéma de validation pour créer une tournée
 const createTourSchema = Joi.object({
     Date: Joi.date().required(),
+    Time: Joi.string().pattern(/^([01]\d|2[0-3]):?([0-5]\d)$/).required(),
     User_ID: Joi.number().integer().optional().allow(null),
     Truck_ID: Joi.number().integer().required(),
     Type: Joi.boolean().required(), // true pour 'collect', false pour 'distribute'
@@ -19,6 +20,7 @@ const createTourSchema = Joi.object({
         })
     ).required()
 });
+
 
 // Schéma de validation pour mettre à jour une tournée
 const updateTourSchema = Joi.object({

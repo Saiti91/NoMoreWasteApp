@@ -14,6 +14,7 @@ const fetchTourDetails = async () => {
   try {
     const response = await axios.get(`/tours/${route.params.id}`);
     tour.value = response.data;
+    console.log('Tour details:', tour.value);
   } catch (error) {
     console.error('Error fetching tour details:', error);
   }

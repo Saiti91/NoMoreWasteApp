@@ -15,10 +15,17 @@ const fetchUserTours = async () => {
   try {
     const response = await axios.get(`/tours/users/${route.params.id}`);
     tours.value = response.data;
+    console.log('User tours:', tours.value);
   } catch (error) {
     console.error('Error fetching user tours:', error);
   }
 };
+
+const formatTime = (time) => {
+  if (!time) return t('noInfo');
+  return time.slice(0, 5);  // Formater l'heure au format HH:MM
+};
+
 
 const formatDate = (date) => {
   if (!date) return t('noInfo');
@@ -48,6 +55,7 @@ onMounted(() => {
             <thead>
             <tr>
               <th>{{ t('tourDate') }}</th>
+              <th>{{ t('tourtime') }}</th>
               <th>{{ t('camion') }}</th>
               <th>{{ t('destinations') }}</th>
             </tr>
@@ -55,6 +63,7 @@ onMounted(() => {
             <tbody>
             <tr v-for="tour in tours" :key="tour.Route_ID" class="clickable-row" @click="goToDetails(tour.Route_ID)">
               <td>{{ formatDate(tour.Route_Date) }}</td>
+              <td>{{ formatTime(tour.Route_Time) }}</td> <!-- Affichage de l'heure -->
               <td>{{ tour.Truck.Truck_Model }} ({{ tour.Truck.Truck_Registration }})</td>
               <td>
                 <ul>

@@ -1,16 +1,16 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import {ref} from 'vue';
+import {useRouter} from 'vue-router';
 import Cookies from 'js-cookie';
 import VueJwtDecode from 'vue-jwt-decode';
 import axiosInstance from "../utils/Axios.js";
-import { useI18n } from 'vue-i18n';
+import {useI18n} from 'vue-i18n';
 
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
 const router = useRouter();
-const { t } = useI18n();
+const {t} = useI18n();
 
 const validateEmail = (email) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

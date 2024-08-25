@@ -51,15 +51,21 @@ import RequestsAdmin from "@/vue/backOffice/Don/RequestDetails.vue";
 //***** Tounrée
 import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
 import TourDetails from "@/vue/backOffice/Tournee/TourDetails.vue";
-import DistributionTourAdmin from "@/vue/backOffice/Tournee/DistributionTourAdmin.vue";
-import PickupTourAdmin from "@/vue/backOffice/Tournee/PickUpTourAdmin.vue";
-import DonationsCreateTour from "@/vue/backOffice/Tournee/PickUpTourCreation/TourCreation.vue";
-import DonationsSelectTruck from "@/vue/backOffice/Tournee/PickUpTourCreation/SelectTruck.vue";
-import DonationsReviewAndConfirmTour from "@/vue/backOffice/Tournee/PickUpTourCreation/ReviewAndConfirmTour.vue";
+import DistributionTourAdmin from "@/vue/backOffice/Tournee/DistributionTour/DistributionTourAdmin.vue";
+import PickupTourAdmin from "@/vue/backOffice/Tournee/PickUpTour/PickUpTourAdmin.vue";
+import PickUpTourDetails from "@/vue/backOffice/Tournee/PickUpTour/TourDetails.vue";
+import PickUpTourUpdate from "@/vue/backOffice/Tournee/PickUpTour/TourUpdate.vue";
 
-import RequestsCreateTour from "@/vue/backOffice/Tournee/DistributionTourCreation/TourCreation.vue";
-import RequestsSelectTruck from "@/vue/backOffice/Tournee/DistributionTourCreation/SelectTruck.vue";
-import RequestsReviewAndConfirmTour from "@/vue/backOffice/Tournee/DistributionTourCreation/ReviewAndConfirmTour.vue";
+import DistributionTourDetails from "@/vue/backOffice/Tournee/DistributionTour/TourDetails.vue";
+import DistributionTourUpdate from "@/vue/backOffice/Tournee/DistributionTour/TourUpdate.vue";
+
+import DonationsCreateTour from "@/vue/backOffice/Tournee/PickUpTour/PickUpTourCreation/TourCreation.vue";
+import DonationsSelectTruck from "@/vue/backOffice/Tournee/PickUpTour/PickUpTourCreation/SelectTruck.vue";
+import DonationsReviewAndConfirmTour from "@/vue/backOffice/Tournee/PickUpTour/PickUpTourCreation/ReviewAndConfirmTour.vue";
+
+import RequestsCreateTour from "@/vue/backOffice/Tournee/DistributionTour/DistributionTourCreation/TourCreation.vue";
+import RequestsSelectTruck from "@/vue/backOffice/Tournee/DistributionTour/DistributionTourCreation/SelectTruck.vue";
+import RequestsReviewAndConfirmTour from "@/vue/backOffice/Tournee/DistributionTour/DistributionTourCreation/ReviewAndConfirmTour.vue";
 
 
 const routes = [
@@ -155,19 +161,6 @@ const routes = [
         component: UserDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
-    //TODO: Ajouter les routes pour les détails des services coté admin
-    // {
-    //     path: '/user-services-proposed/:id',
-    //     name: 'TourDetails',
-    //     component: TourDetails,
-    //     /*beforeEnter: useAuthGuard(['admin'])*/
-    // },
-    // {
-    //     path: '/user-services-participated/:id',
-    //     name: 'TourDetails',
-    //     component: TourDetails,
-    //     /*beforeEnter: useAuthGuard(['admin'])*/
-    // },
     {
         path: '/user-donations/:id',
         name: 'UserDetailsDonations',
@@ -279,6 +272,7 @@ const routes = [
         component: RequestsReviewAndConfirmTour,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
+
     {
         path: '/distribution-tours',
         name: 'DistributionTourAdmin',
@@ -286,11 +280,37 @@ const routes = [
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {
+        path: '/distribution-tours-details/:id',
+        name: 'DistributionTourDetailsDistributionTourDetails',
+        component: DistributionTourDetails,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/distribution-tours-update/:id',
+        name: 'DistributionTourUpdate',
+        component: DistributionTourUpdate,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+
+    {
         path: '/pickup-tours',
         name: 'PickupTourAdmin',
         component: PickupTourAdmin,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
+    {
+        path: '/pickup-tours-details/:id',
+        name: 'PickUpTourDetails',
+        component: PickUpTourDetails,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/pickup-tours-update/:id',
+        name: 'PickUpTourUpdate',
+        component: PickUpTourUpdate,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+
     {
         path: '/tour-admin/:id',
         name: 'TourDetails',

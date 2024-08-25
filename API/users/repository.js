@@ -14,7 +14,7 @@ async function createOne(user) {
         email = null,
         password = null,
         birthdate = null,
-        current_subscription = null
+        currently_subscribe = null
     } = user;
 
     const connection = await getConnection();
@@ -29,8 +29,8 @@ async function createOne(user) {
 
         // Insérer l'utilisateur dans la table Users avec l'Address_ID
         const [result] = await connection.execute(
-            'INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, Current_Subscription) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, firstname, address_id, phone, email, password, birthdate, current_subscription]
+            'INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, Currently_Subscribe) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, firstname, address_id, phone, email, password, birthdate, currently_subscribe]
         );
 
         const user_id = result.insertId;
@@ -160,7 +160,7 @@ async function updateOne(id, user) {
             Phone,
             Email,
             Birthdate,
-            Current_Subscription,
+            Currently_Subscribe: Currently_Subscribe,
             address = {}
         } = user;
 
@@ -171,7 +171,7 @@ async function updateOne(id, user) {
             ...(Phone !== undefined && { Phone }),
             ...(Email !== undefined && { Email }),
             ...(Birthdate !== undefined && { Birthdate }),
-            ...(Current_Subscription !== undefined && { Current_Subscription })
+            ...(Currently_Subscribe !== undefined && { Currently_Subscribe })
         };
 
         console.log("User Details to Update:", userDetails);
@@ -251,5 +251,5 @@ async function deleteOne(id) {
     return result.affectedRows > 0;
 }
 
-module.exports = {createOne, getOne, getOneVerifBy, verifySkill, getAll, updateOne, deleteOne, getOneBy, checkPassword,
+module.exports = {createOne, getOne, getOneVerifBy, verifySkill, getAll, deleteOne, getOneBy, checkPassword,
     updateOne};
