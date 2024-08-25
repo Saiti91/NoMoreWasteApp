@@ -718,3 +718,120 @@ VALUES (10, (SELECT Product_ID FROM Products WHERE Barcode = '1234567890124'), 1
        (10, (SELECT Product_ID FROM Products WHERE Barcode = '4234567890123'), 200, 'ml', NULL),  -- Lait
        (10, (SELECT Product_ID FROM Products WHERE Barcode = '9234567890126'), 1, 'cuillère à soupe',
         'Facultatif'); -- Miel
+
+
+INSERT INTO Tickets (Title, Direction, Start_Date, End_Of_Subscription, Duration, Places, Tools, Address_ID, Address_needs, Customers_Address, Description, Image, Status_ID, Owner_User_ID)
+VALUES
+-- Conseils anti-gaspi (proposition)
+('Conseils anti-gaspi', true, '2024-09-01', '2024-08-25', 90, 10, 'Livrets', 1, false, NULL, 'Atelier pour apprendre à réduire le gaspillage alimentaire.', '1.jpg', 1, 2),
+
+-- Cours de cuisine (proposition)
+('Cours de cuisine', true, '2024-09-05', '2024-08-28', 120, 15, 'Couteaux, Ustensiles de cuisine', 2, false, NULL, 'Cours pratique pour apprendre des recettes anti-gaspillage.', '2.jpg', 1, 3),
+
+-- Partage de véhicules (proposition)
+('Partage de véhicules', true, '2024-09-10', '2024-09-03', 60, 5, 'Liste des véhicules disponibles', 3, true, 'Parking central', 'Service de partage de véhicules pour réduire l''empreinte carbone.', '3.jpg', 2, 4),
+
+-- Échange de services entre particuliers (proposition)
+('Échange de services entre particuliers', true, '2024-09-15', '2024-09-07', 180, 20, 'Outils de bricolage', 4, true, 'Chez le client', 'Échange de services comme le bricolage, l''électricité, la plomberie.', '4.jpg', 1, 5),
+
+-- Services de réparation (proposition)
+('Services de réparation', true, '2024-09-20', '2024-09-10', 180, 10, 'Outils de réparation', 5, true, 'Chez le client', 'Proposition de services pour réparer des objets du quotidien.', '5.jpg', 2, 2),
+
+-- Gardiennage (proposition)
+('Gardiennage', true, '2024-09-25', '2024-09-15', 240, 5, 'Liste des contacts', 1, true, 'Adresse du client', 'Service de gardiennage pour animaux ou biens.', '6.jpg', 1, 3),
+
+-- Demande de covoiturage (demande)
+('Demande de covoiturage', false, '2024-09-05', '2024-08-30', 60, 3, NULL, 2, true, 'Gare centrale', 'Je recherche un covoiturage pour le trajet Paris-Lyon.', '7.jpg', 2, 4),
+
+-- Demande de dépannage électrique (demande)
+('Demande de dépannage électrique', false, '2024-09-10', '2024-09-05', 120, 1, 'Outils d\'électricité', 3, true, 'Appartement 45', 'Mon appartement a besoin d\'une réparation électrique urgente.', '8.jpg', 1, 5),
+
+-- Demande de baby-sitting (demande)
+('Demande de baby-sitting', false, '2024-09-15', '2024-09-07', 240, 1, 'Jouets pour enfants', 4, true, 'Domicile personnel', 'Je recherche un baby-sitter pour le weekend.', '9.jpg', 1, 1),
+
+-- Demande d'aide pour déménagement (demande)
+('Demande d\'aide pour déménagement', false, '2024-09-20', '2024-09-15', 480, 5, 'Camion, Cartons', 5, true, 'Nouvelle adresse', 'Besoin d\'aide pour déménager des meubles lourds.', '10.jpg', 2, 2),
+
+-- Demande de tutorat en informatique (demande)
+('Demande de tutorat en informatique', false, '2024-09-25', '2024-09-18', 120, 1, 'Ordinateur', 1, true, 'Chez moi', 'Je recherche un tutorat pour apprendre les bases de l\'informatique.', '11.jpg', 1, 3),
+
+-- Demande de réparation de vélo (demande)
+('Demande de réparation de vélo', false, '2024-09-30', '2024-09-23', 90, 1, 'Outils de réparation', 2, true, 'Mon garage', 'Mon vélo a besoin d\'être réparé, chaîne cassée.', '12.jpg', 2, 4),
+
+-- Demande de jardinage (demande)
+('Demande de jardinage', false, '2024-10-01', '2024-09-25', 180, 2, 'Outils de jardinage', 3, true, 'Mon jardin', 'Je recherche de l\'aide pour l\'entretien de mon jardin.', '13.jpg', 1, 5),
+
+-- Demande de covoiturage pour le weekend (demande)
+('Demande de covoiturage pour le weekend', false, '2024-10-05', '2024-09-30', 120, 3, NULL, 4, true, 'Lieu de rendez-vous', 'Je cherche un covoiturage pour aller à la campagne ce weekend.', '14.jpg', 2, 1),
+
+-- Demande de service de réparation d'électroménager (demande)
+('Demande de réparation d\'électroménager', false, '2024-10-10', '2024-10-05', 180, 1, 'Outils de réparation', 5, true, 'Chez moi', 'Mon lave-linge est en panne, besoin de réparation.', '15.jpg', 1, 2);
+
+
+INSERT INTO Ticket_Users (Ticket_ID, User_ID)
+VALUES
+-- Participants pour "Conseils anti-gaspi"
+(1, 2),
+(1, 3),
+(1, 4),
+
+-- Participants pour "Cours de cuisine"
+(2, 3),
+(2, 4),
+(2, 5),
+
+-- Participants pour "Partage de véhicules"
+(3, 4),
+(3, 5),
+(3, 1),
+
+-- Participants pour "Échange de services entre particuliers"
+(4, 5),
+(4, 1),
+(4, 2),
+
+-- Participants pour "Services de réparation"
+(5, 2),
+(5, 3),
+(5, 4),
+
+-- Participants pour "Gardiennage"
+(6, 3),
+(6, 4),
+(6, 5),
+
+-- Participants pour "Demande de covoiturage"
+(7, 1),
+(7, 2),
+
+-- Participants pour "Demande de dépannage électrique"
+(8, 3),
+(8, 4),
+
+-- Participants pour "Demande de baby-sitting"
+(9, 5),
+(9, 1),
+
+-- Participants pour "Demande d'aide pour déménagement"
+(10, 2),
+(10, 3),
+
+-- Participants pour "Demande de tutorat en informatique"
+(11, 4),
+(11, 5),
+
+-- Participants pour "Demande de réparation de vélo"
+(12, 1),
+(12, 3),
+
+-- Participants pour "Demande de jardinage"
+(13, 2),
+(13, 4),
+
+-- Participants pour "Demande de covoiturage pour le weekend"
+(14, 5),
+(14, 1),
+
+-- Participants pour "Demande de service de réparation d'électroménager"
+(15, 2),
+(15, 3);
