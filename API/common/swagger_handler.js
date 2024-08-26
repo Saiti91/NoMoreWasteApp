@@ -16,6 +16,7 @@ const options = {
     apis: [
         path.join(basePath, "auth", "*.js"),
         path.join(basePath, "users", "*.js"),
+        path.join(basePath, "Subscriptions", "*.js"),
         path.join(basePath, "index.js"),
         path.join(basePath, "stocks", "*.js"),
         path.join(basePath, "donations", "*.js"),
