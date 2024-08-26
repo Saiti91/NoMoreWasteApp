@@ -163,6 +163,58 @@ controller.get("/unvalidated/:userId", (req, res, next) => {
 
 /**
  * @swagger
+ * /skills/user/{userId}/skill/{skillId}/validate:
+ *   patch:
+ *     summary: Validate a specific skill for a user
+ *     tags: [Skills]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The user ID
+ *       - in: path
+ *         name: skillId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The skill ID
+ *     responses:
+ *       200:
+ *         description: Skill validated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Confirmation message
+ *                 userId:
+ *                   type: integer
+ *                   description: The user ID
+ *                 skillId:
+ *                   type: integer
+ *                   description: The skill ID
+ *                 validationDate:
+ *                   type: string
+ *                   format: date
+ *                   description: The date of validation
+ *       404:
+ *         description: No skill found for user with the given IDs
+ */
+controller.patch('/user/:userId/skill/:skillId/validate', (req, res, next) => {
+    const userId = Number(req.params.userId);
+    const skillId = Number(req.params.skillId);
+
+    skillsService.validateUserSkill(userId, skillId)
+        .then(data => res.json(data))
+        .catch(err => next(err));
+});
+
+/**
+ * @swagger
  * /skills/user/{userId}:
  *   get:
  *     summary: Get all skills for a specific user by user ID

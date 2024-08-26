@@ -62,12 +62,31 @@ async function updateTruck(truckId, truck) {
     return result.affectedRows > 0;
 }
 
-async function deleteTruck(truckId) {
+async function getRoutesByTruckId(truckId) {
     const connection = await getConnection();
+    const [rows] = await connection.execute('SELECT * FROM Routes WHERE Truck_ID = ?', [truckId]);
+    await connection.end();
+    return rows;
+}
+
+async function deleteTruck(truckId, forceDelete = false) {
+    const connection = await getConnection();
+
+    if (!forceDelete) {
+        // Vérifier s'il y a des routes associées
+        const [routes] = await connection.execute('SELECT 1 FROM Routes WHERE Truck_ID = ?', [truckId]);
+        if (routes.length > 0) {
+            throw new Error(`Cannot delete truck with ID ${truckId} as it is still referenced by routes.`);
+        }
+    } else {
+        // Supprimer toutes les routes associées avant de supprimer le camion
+        await connection.execute('DELETE FROM Routes WHERE Truck_ID = ?', [truckId]);
+    }
+
     const query = `DELETE FROM Trucks WHERE Truck_ID = ?`;
     const [result] = await connection.execute(query, [truckId]);
     await connection.end();
     return result.affectedRows > 0;
 }
 
-module.exports = { createTruck, getAvailableTrucksToday, getAllTrucks, getTruckById, updateTruck, deleteTruck };
+module.exports = { createTruck, getAvailableTrucksToday, getRoutesByTruckId, getAllTrucks, getTruckById, updateTruck, deleteTruck };

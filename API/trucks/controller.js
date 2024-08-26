@@ -223,15 +223,23 @@ controller.patch("/:id", (req, res, next) => {
  *     security:
  *       - bearerAuth: []
  */
-controller.delete("/:id", authorize(["admin"]), (req, res, next) => {
-    trucksService.deleteTruck(Number(req.params.id), req.user)
+controller.delete("/:id", (req, res, next) => {
+    const forceDelete = req.query.force === 'true';
+
+    trucksService.deleteTruck(Number(req.params.id), forceDelete)
         .then((deleted) => {
             if (!deleted) {
                 throw new NotFoundError(`Truck with ID ${req.params.id} not found`);
             }
             res.status(204).json();
         })
-        .catch((err) => next(err));
+        .catch((err) => {
+            if (err.message.includes("Cannot delete truck with ID")) {
+                res.status(400).json({ error: err.message });
+            } else {
+                next(err);
+            }
+        });
 });
 
 module.exports = controller;

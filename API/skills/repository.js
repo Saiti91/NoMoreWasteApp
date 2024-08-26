@@ -16,6 +16,31 @@ async function createOne(skill) {
     return result.insertId;
 }
 
+async function validateUserSkill(userId, skillId) {
+    const connection = await getConnection();
+
+    // Mettre à jour la Validation_Date à la date d'aujourd'hui
+    const [result] = await connection.execute(
+        `UPDATE User_Skills 
+         SET Validation_Date = CURDATE() 
+         WHERE User_ID = ? AND Skill_ID = ?`,
+        [userId, skillId]
+    );
+
+    await connection.end();
+
+    if (result.affectedRows === 0) {
+        throw new NotFoundError(`No skill found for user with ID ${userId} and skill ID ${skillId}`);
+    }
+
+    return {
+        message: 'Skill validated successfully',
+        userId,
+        skillId,
+        validationDate: new Date().toISOString().split('T')[0] // Retourner la date de validation
+    };
+}
+
 // Fonction pour récupérer une compétence par son ID
 async function getOne(id) {
     const connection = await getConnection();
@@ -188,6 +213,7 @@ module.exports = {
     getAllForUser,
     getUnvalidatedSkillsForUser,
     getAllUnvalidatedSkills,
+    validateUserSkill,
     verifySkill,
     updateOne,
     deleteOne,

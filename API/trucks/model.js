@@ -10,6 +10,7 @@ const createTruckSchema = Joi.object({
 
 // Schéma de validation pour mettre à jour un camion (Truck)
 const updateTruckSchema = Joi.object({
+    Truck_ID: Joi.number().integer().optional(),
     Registration: Joi.string().max(50).optional(),
     Capacity: Joi.number().integer().optional(),
     Model: Joi.string().max(100).optional(),

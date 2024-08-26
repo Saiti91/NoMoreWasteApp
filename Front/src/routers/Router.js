@@ -22,7 +22,7 @@ import PaymentSuccess from "@/vue/frontOffice/Join/PaymentSuccess.vue";
 
 
 //***** BACK OFFICE
-import BackOfficeHome from '../vue/backOffice/Home.vue';
+import BackOfficeHome from '../vue/backOffice/HomePage.vue';
 import Categories from "@/vue/backOffice/Categorie/CategoriesAdmin.vue";
 
 //***** Users
@@ -72,6 +72,8 @@ import RequestsReviewAndConfirmTour
 //***** Skills
 import SkillsAdmin from "@/vue/backOffice/Skills/SkillsAdmin.vue";
 
+//***** Trucks
+import TrucksAdmin from "@/vue/backOffice/Trucks/TrucksAdmin.vue";
 
 const routes = [
     {path: '/login', name: 'Login', component: LoginPage},
@@ -340,6 +342,14 @@ const routes = [
         path: '/skills-admin',
         name: 'SkillsAdmin',
         component: SkillsAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    //Trucks
+    {
+        path: '/trucks-admin',
+        name: 'TrucksAdmin',
+        component: TrucksAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
     },
     //Categories
     {path: '/categories', name: 'Categories', component: Categories, /*beforeEnter: useAuthGuard(['admin'])*/},

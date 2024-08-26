@@ -20,6 +20,7 @@ function logout() {
 <template>
   <HeaderComponent :logoSrc="logoSrc" logoAlt="Back Office Logo" logoText="Back Office" :profileSrc="profileSrc" profile-alt="icon profile">
     <template #nav>
+      <router-link class="item" to="/trucks-admin">{{ t('trucks') }}</router-link>
       <router-link class="item" to="/users">{{ t('users') }}</router-link>
       <router-link class="item" to="/stocks">{{ t('stocks') }}</router-link>
       <router-link class="item" to="/donation-admin">{{ t('don') }}</router-link>
