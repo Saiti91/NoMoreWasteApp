@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS Users
     Email               VARCHAR(255),
     Password            VARCHAR(255),
     Birthdate           DATE,
-    Currently_Subscribe BOOLEAN,
+    IsRegistered        BOOLEAN,
     Role                ENUM ('admin', 'volunteer') NOT NULL DEFAULT 'volunteer',
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID) ON DELETE SET NULL
 );
@@ -74,10 +74,10 @@ CREATE TABLE IF NOT EXISTS Trucks
 CREATE TABLE IF NOT EXISTS Subscriptions
 (
     User_ID      INT,
-    Payment_Date DATE,
+    End_Date     DATE,
     Amount       DECIMAL(10, 2),
     Status       BOOLEAN, -- true for 'paid', false for 'pending'
-    PRIMARY KEY (User_ID, Payment_Date),
+    PRIMARY KEY (User_ID, End_Date),
     FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
 );
 
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS Routes
     Truck_ID INT,
     Type     BOOLEAN, -- true for 'collect', false for 'distribute'
     FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Truck_ID) REFERENCES Trucks (Truck_ID)
+    FOREIGN KEY (Truck_ID) REFERENCES Trucks (Truck_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Schedule_Routes
@@ -364,7 +364,7 @@ VALUES
 ('15234567890127', 'Thermomètre', 15);
 
 -- Données de test pour la table Users
-INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, Currently_Subscribe, Role)
+INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, IsRegistered, Role)
 VALUES ('admin', 'admin', 1, '0102030405', 'admin@user.com', 'password', '1985-05-15', true, 'admin'),
        ('Martin', 'Lucie', 2, '0607080910', 'l.martin@user.com', 'password', '1990-07-22', false, 'volunteer'),
        ('Lefèvre', 'Pierre', 3, '0708091011', 'p.lefevre@user.com', 'password', '1980-02-17', true, 'volunteer'),
@@ -402,12 +402,12 @@ VALUES ('ABC123', 10, 'Renault', 2),
        ('MNO345', 30, 'Scania', 1);
 
 -- Données de test pour la table Subscriptions
-INSERT INTO Subscriptions (User_ID, Payment_Date, Amount, Status)
-VALUES (1, '2023-01-10', 29.99, true),
-       (2, '2023-02-10', 29.99, false),
-       (3, '2023-03-10', 29.99, true),
-       (4, '2023-04-10', 29.99, false),
-       (5, '2023-05-10', 29.99, true);
+INSERT INTO Subscriptions (User_ID, End_Date, Amount, Status)
+VALUES (1, '2024-08-29', 9.99, true),
+       (2, '2024-09-07', 9.99, false),
+       (3, '2024-08-29', 9.99, true),
+       (4, '2023-04-10', 9.99, false),
+       (5, '2024-09-07', 9.99, true);
 
 -- Données de test pour la table Schedules
 INSERT INTO Schedules (User_ID, Date, Type)

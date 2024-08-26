@@ -15,13 +15,13 @@ const fetchUnvalidatedSkills = async () => {
   }
 };
 
-const validateSkill = async (userId, skillId, validated) => {
+const validateSkill = async (userId, skillId) => {
   try {
-    await axios.patch(`/skills/user/${userId}/skill/${skillId}/validate`, {validated});
+    await axios.patch(`/skills/user/${userId}/skill/${skillId}/validate`);
     Swal.fire({
       icon: 'success',
       title: 'Success',
-      text: validated ? 'Skill approved!' : 'Skill rejected!',
+      text: 'Skill validated successfully!',
     });
     fetchUnvalidatedSkills(); // Refresh the list after action
   } catch (error) {
@@ -34,13 +34,32 @@ const validateSkill = async (userId, skillId, validated) => {
   }
 };
 
+const rejectSkill = async (userId, skillId) => {
+  try {
+    await axios.delete(`/skills/user/${userId}/${skillId}`);
+    Swal.fire({
+      icon: 'success',
+      title: 'Rejected',
+      text: 'Skill rejected and removed successfully!',
+    });
+    fetchUnvalidatedSkills(); // Refresh the list after action
+  } catch (error) {
+    console.error('Error rejecting skill:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'There was an error rejecting the skill.',
+    });
+  }
+};
+
 onMounted(() => {
   fetchUnvalidatedSkills();
 });
 </script>
 
 <template>
-  <HeaderBackOffice/>
+  <HeaderBackOffice />
   <div class="spacer"></div>
   <div class="content-container">
     <div class="header-row">
@@ -59,8 +78,8 @@ onMounted(() => {
             </a>
           </p>
           <div class="actions">
-            <button @click="validateSkill(skill.User_ID, skill.Skill_ID, true)" class="approve-button">Approve</button>
-            <button @click="validateSkill(skill.User_ID, skill.Skill_ID, false)" class="reject-button">Reject</button>
+            <button @click="validateSkill(skill.User_ID, skill.Skill_ID)" class="approve-button">Approve</button>
+            <button @click="rejectSkill(skill.User_ID, skill.Skill_ID)" class="reject-button">Reject</button>
           </div>
         </div>
       </div>
