@@ -139,7 +139,7 @@ controller.get(
  *             properties:
  *               param:
  *                 type: string
- *                 description: The name of the column to verify (e.g., 'Current_Subscription', 'Role').
+ *                 description: The name of the column to verify (e.g., 'IsRegistered', 'Role').
  *                 example: role
  *               value:
  *                 type: string
@@ -426,7 +426,7 @@ controller.delete(
  *                 birthdate:
  *                   type: string
  *                   format: date
- *                 current_subscription:
+ *                 IsRegistered:
  *                   type: boolean
  *                 address:
  *                   type: object

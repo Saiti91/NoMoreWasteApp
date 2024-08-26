@@ -14,7 +14,7 @@ async function createOne(user) {
         email = null,
         password = null,
         birthdate = null,
-        currently_subscribe = null
+        isRegistered = null
     } = user;
 
     const connection = await getConnection();
@@ -29,8 +29,8 @@ async function createOne(user) {
 
         // Insérer l'utilisateur dans la table Users avec l'Address_ID
         const [result] = await connection.execute(
-            'INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, Currently_Subscribe) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, firstname, address_id, phone, email, password, birthdate, currently_subscribe]
+            'INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, IsRegistered) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, firstname, address_id, phone, email, password, birthdate, isRegistered]
         );
 
         const user_id = result.insertId;
@@ -160,7 +160,7 @@ async function updateOne(id, user) {
             Phone,
             Email,
             Birthdate,
-            Currently_Subscribe: Currently_Subscribe,
+            IsRegistered: IsRegistered,
             address = {}
         } = user;
 
@@ -171,7 +171,7 @@ async function updateOne(id, user) {
             ...(Phone !== undefined && { Phone }),
             ...(Email !== undefined && { Email }),
             ...(Birthdate !== undefined && { Birthdate }),
-            ...(Currently_Subscribe !== undefined && { Currently_Subscribe })
+            ...(IsRegistered !== undefined && { IsRegistered })
         };
 
         console.log("User Details to Update:", userDetails);
