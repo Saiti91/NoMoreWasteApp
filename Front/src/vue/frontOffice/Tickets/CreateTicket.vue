@@ -3,10 +3,12 @@ import { nextTick, onMounted, ref } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderFrontOffice.vue";
 import { useI18n } from 'vue-i18n';
+import Cookies from 'js-cookie';
+import VueJwtDecode from 'vue-jwt-decode';
 
 const { t } = useI18n();
 const title = ref('');
-const propose = ref('');
+const direction = ref(null);
 const category = ref('');
 const startDate = ref('');
 const startTime = ref('');
@@ -17,7 +19,6 @@ const address = ref('');
 const needsCustomerAddress = ref(false);
 const description = ref('');
 const image = ref(null);
-
 const categories = ref([]);
 
 const fetchCategories = async () => {
@@ -41,16 +42,36 @@ function handleFileUpload(event) {
   }
 }
 
-// Fonction pour sauvegarder le ticket
 const saveTicket = async () => {
   const formData = new FormData();
+
+  // Calcul de la durée en minutes
+  let calculatedDuration = parseInt(duration.value, 10);
+  if (format.value === 'Heures') {
+    calculatedDuration *= 60;
+  } else if (format.value === 'Jours') {
+    calculatedDuration *= 1440;
+  }
+
+  // Récupération du token et extraction du uid
+  const token = Cookies.get('token');
+  if (token) {
+    const decodedToken = VueJwtDecode.decode(token);
+    const userId = decodedToken.uid;
+    console.log('User ID (uid) from token:', userId); // Vérification de la récupération du uid
+    formData.append('Owner_User_ID', userId);
+  } else {
+    console.error('Token non trouvé');
+    return; // Arrête la fonction si le token n'est pas disponible
+  }
+
+  // Ajout des autres données au FormData
   formData.append('title', title.value);
-  formData.append('propose', propose.value);
+  formData.append('direction', direction.value);
   formData.append('category', category.value);
   formData.append('startDate', startDate.value);
   formData.append('startTime', startTime.value);
-  formData.append('duration', duration.value);
-  formData.append('format', format.value);
+  formData.append('duration', calculatedDuration);
   formData.append('places', places.value);
   formData.append('address', address.value);
   formData.append('needsCustomerAddress', needsCustomerAddress.value);
@@ -61,18 +82,17 @@ const saveTicket = async () => {
 
   // Console log pour chaque donnée
   console.log('Titre:', title.value);
-  console.log('Je souhaite:', propose.value);
+  console.log('Je souhaite:', direction.value);
   console.log('Catégorie:', category.value);
   console.log('Date de début:', startDate.value);
   console.log('Heure de début:', startTime.value);
-  console.log('Durée:', duration.value);
-  console.log('Format:', format.value);
+  console.log('Durée (en minutes):', calculatedDuration);
   console.log('Nombre de places:', places.value);
   console.log('Adresse du service:', address.value);
   console.log('Besoin d\'adresse du client:', needsCustomerAddress.value);
   console.log('Description:', description.value);
   if (image.value) {
-    console.log('Image:', image.value.name); // Affiche le nom du fichier
+    console.log('Image:', image.value.name);
   } else {
     console.log('Aucune image sélectionnée');
   }
@@ -100,17 +120,17 @@ const saveTicket = async () => {
         <div v-if="!title" class="ui pointing red basic label">Le titre est requis</div>
       </div>
 
-      <!-- Propose ou Demande -->
+      <!-- Direction -->
       <div class="field">
         <div class="ui grid">
-          <div class="two wide column">
+          <div class="one wide column">
             <label>Je souhaite</label>
           </div>
           <div class="two wide column">
-            <select v-model="propose" class="ui dropdown">
+            <select v-model="direction" class="ui dropdown">
               <option value="" disabled>Choisir</option>
-              <option value="Proposer">Proposer</option>
-              <option value="Demander">Demander</option>
+              <option :value="true">Proposer</option>
+              <option :value="false">Demander</option>
             </select>
           </div>
           <div class="two wide column">
@@ -132,7 +152,6 @@ const saveTicket = async () => {
 
       <!-- Date et Heure de début -->
       <div class="two fields">
-        <!-- Date de début -->
         <div class="field">
           <label>Date de début</label>
           <div class="ui calendar" id="startdate">
@@ -143,7 +162,6 @@ const saveTicket = async () => {
           </div>
         </div>
 
-        <!-- Heure de début -->
         <div class="field">
           <label>Heure de début</label>
           <div class="ui calendar" id="starttime">
@@ -176,7 +194,7 @@ const saveTicket = async () => {
       </div>
 
       <!-- Nombre de personnes -->
-      <div v-if="propose === 'Proposer'" class="field">
+      <div v-if="direction === true" class="field">
         <label>Combien de personnes peuvent participer</label>
         <input v-model="places" type="text" maxlength="3" placeholder="Nombre de places"/>
       </div>
@@ -188,7 +206,7 @@ const saveTicket = async () => {
       </div>
 
       <!-- Besoin d'adresse du client -->
-      <div v-if="propose === 'Proposer'" class="ui segment">
+      <div v-if="direction === true" class="ui segment">
         <div class="field">
           <div class="ui toggle checkbox">
             <input type="checkbox" v-model="needsCustomerAddress" tabindex="0" class="hidden"/>

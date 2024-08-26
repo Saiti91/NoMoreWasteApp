@@ -197,24 +197,27 @@ CREATE TABLE IF NOT EXISTS Statuses
 CREATE TABLE IF NOT EXISTS Tickets
 (
     Ticket_ID           INT AUTO_INCREMENT PRIMARY KEY,
-    Title               VARCHAR(255),
-    Direction           BOOLEAN,      -- true for 'proposition', false for 'demande'
-    Start_Date          DATE,         -- date de débuts de l'activité
-    End_Of_Subscription DATE,         -- date de fin des inscriptions
-    Duration            INT,          -- durée de l'activité en minutes
-    Places              INT,          -- nombre de places disponibles maximum
-    Tools               VARCHAR(255),
+    Title               VARCHAR(255) NOT NULL,
+    Direction           BOOLEAN NOT NULL,      -- true for 'proposition', false for 'demande'
+    Start_Date          DATE NOT NULL,         -- date de début de l'activité
+    End_Of_Subscription DATE NOT NULL,         -- date de fin des inscriptions
+    Duration            INT NOT NULL,          -- durée de l'activité en minutes
+    Places              INT,                   -- nombre de places disponibles maximum, optionnel
+    Tools               VARCHAR(255),          -- optionnel
     Address_ID          INT,
-    Address_needs       BOOLEAN,      -- Si l'adresse est nécessaire
-    Customers_Address   VARCHAR(100), -- faire une table intermediaire avec user par exemple
-    Description         TEXT,
-    Image               VARCHAR(255),
-    Status_ID           INT,          -- status de la proposition ou demande
-    Owner_User_ID       INT,          -- personne qui crée le ticket
+    Address_needs       BOOLEAN NOT NULL,      -- Si l'adresse des inscrits est nécessaire
+    Customers_Address   VARCHAR(100),          -- faire une table intermédiaire avec user par exemple, optionnel
+    Description         TEXT NOT NULL,
+    Image               VARCHAR(255),          -- optionnel
+    Status_ID           INT,                   -- statut de la proposition ou demande
+    Owner_User_ID       INT NOT NULL,          -- personne qui crée le ticket
+    Category_ID         INT,                   -- clé étrangère vers Skills
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID),
     FOREIGN KEY (Status_ID) REFERENCES Statuses (Status_ID),
     FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
-);
+    FOREIGN KEY (Category_ID) REFERENCES Skills (Skill_ID)
+    );
+
 
 CREATE TABLE IF NOT EXISTS Ticket_Users
 (
