@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS Routes
     Truck_ID INT,
     Type     BOOLEAN, -- true for 'collect', false for 'distribute'
     FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Truck_ID) REFERENCES Trucks (Truck_ID)
+    FOREIGN KEY (Truck_ID) REFERENCES Trucks (Truck_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Schedule_Routes

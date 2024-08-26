@@ -41,6 +41,7 @@ async function getAvailableTrucksToday() {
 // Fonction de mise à jour d'un camion par son ID
 async function updateTruck(id, truckData) {
     // Valider les données du camion
+    console.log("Received data for update:", truckData);
     const { error } = updateTruckSchema.validate(truckData);
     if (error) {
         throw new InvalidArgumentError(error.details[0].message);
@@ -58,15 +59,16 @@ async function updateTruck(id, truckData) {
 }
 
 // Fonction de suppression d'un camion
-async function deleteTruck(id, issuer) {
+async function deleteTruck(id, forceDelete = false) {
     const truck = await getOneTruck(id);
     if (!truck) {
         throw new Error(`Truck with ID ${id} does not exist`);
     }
-    if (issuer?.role !== "admin") {
-        throw new UnauthorizedError("You cannot delete a truck unless you are an administrator.");
-    }
-    return await truckRepository.deleteTruck(id);
+
+    // Appel à la fonction repository avec forceDelete
+    return await truckRepository.deleteTruck(id, forceDelete);
 }
+
+
 
 module.exports = { createTruck, getOneTruck, getAvailableTrucksToday, getAllTrucks, updateTruck, deleteTruck };

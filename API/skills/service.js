@@ -34,6 +34,10 @@ async function getOne(id) {
     return skill;
 }
 
+async function validateUserSkill(userId, skillId) {
+    return await Repository.validateUserSkill(userId, skillId);
+}
+
 async function getAllUnvalidatedSkills() {
     return await Repository.getAllUnvalidatedSkills();
 }
@@ -144,4 +148,4 @@ async function addSkillForUser(userId, skillId, documentPath) {
 }
 
 
-module.exports = {createOne, getOne, getAll, getAllUnvalidatedSkills, getUnvalidatedSkillsForUser, getAllForUser, updateOne, deleteOne, deleteSkillForUser, addSkillForUser};
+module.exports = {createOne, getOne, getAll, getAllUnvalidatedSkills, validateUserSkill, getUnvalidatedSkillsForUser, getAllForUser, updateOne, deleteOne, deleteSkillForUser, addSkillForUser};
