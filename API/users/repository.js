@@ -160,7 +160,7 @@ async function updateOne(id, user) {
             Phone,
             Email,
             Birthdate,
-            IsRegistered: IsRegistered,
+            IsRegistered,
             address = {}
         } = user;
 
