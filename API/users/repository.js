@@ -251,5 +251,22 @@ async function deleteOne(id) {
     return result.affectedRows > 0;
 }
 
+//Mettre à jour si l'utilisateur est abonné ou non
+async function updateIsRegistered(userId, isRegistered) {
+    const connection = await getConnection();
+    try {
+        const [result] = await connection.execute(
+            'UPDATE Users SET IsRegistered = ? WHERE User_ID = ?',
+            [isRegistered, userId]
+        );
+        return result.affectedRows > 0;
+    } catch (error) {
+        console.error('Error updating IsRegistered:', error);
+        throw error;
+    } finally {
+        await connection.end();
+    }
+}
+
 module.exports = {createOne, getOne, getOneVerifBy, verifySkill, getAll, deleteOne, getOneBy, checkPassword,
-    updateOne};
+    updateOne, updateIsRegistered};
