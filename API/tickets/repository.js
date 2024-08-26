@@ -4,46 +4,72 @@ const getConnection = require('../common/db_handler');
 async function createOne(ticket) {
     const {
         title,
-        propose,
-        category,
+        direction,
         startDate,
-        startTime,
+        endOfSubscription,
         duration,
-        format,
         places,
         tools,
-        toolsOther,
-        extraTools,
-        address,
-        needsCustomerAddress,
+        addressId,
+        addressNeeds,
+        customersAddress,
         description,
-        image
+        image,
+        statusId,
+        ownerUserId
     } = ticket;
 
     const connection = await getConnection();
     const [result] = await connection.execute(
-        'INSERT INTO Tickets (Title, Propose, Category, Start_Date, Start_Time, Duration, Format, Places, Tools, Tools_Other, Extra_Tools, Address, Needs_Customer_Address, Description, Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [title, propose, category, startDate, startTime, duration, format, places, tools, toolsOther, JSON.stringify(extraTools), address, needsCustomerAddress, description, image]
+        'INSERT INTO Tickets (Title, Direction, Start_Date, End_Of_Subscription, Duration, Places, Tools, Address_ID, Address_needs, Customers_Address, Description, Image, Status_ID, Owner_User_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [title, direction, startDate, endOfSubscription, duration, places, tools, addressId, addressNeeds, customersAddress, description, image, statusId, ownerUserId]
     );
     await connection.end();
     return result.insertId;
 }
 
-// Récupère un ticket en fonction de son ID
+// Récupère un ticket en fonction de son ID avec les données de l'utilisateur et de l'adresse
 async function getOne(id) {
     if (id === undefined) {
         throw new Error("getOne: id must be defined");
     }
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT * FROM Tickets WHERE Ticket_ID = ?', [id]);
+    const [rows] = await connection.execute(`
+        SELECT t.*,
+               u.Name      AS OwnerName,
+               u.Firstname AS OwnerFirstname,
+               u.Email     AS OwnerEmail,
+               a.Street,
+               a.City,
+               a.State,
+               a.Postal_Code,
+               a.Country
+        FROM Tickets t
+                 JOIN Users u ON t.Owner_User_ID = u.User_ID
+                 LEFT JOIN Address a ON t.Address_ID = a.Address_ID
+        WHERE t.Ticket_ID = ?
+    `, [id]);
     await connection.end();
     return rows[0] || null;
 }
 
-// Récupère tous les tickets
+// Récupère tous les tickets avec les données de l'utilisateur et de l'adresse
 async function getAll() {
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT * FROM Tickets');
+    const [rows] = await connection.execute(`
+        SELECT t.*,
+               u.Name      AS OwnerName,
+               u.Firstname AS OwnerFirstname,
+               u.Email     AS OwnerEmail,
+               a.Street,
+               a.City,
+               a.State,
+               a.Postal_Code,
+               a.Country
+        FROM Tickets t
+                 JOIN Users u ON t.Owner_User_ID = u.User_ID
+                 LEFT JOIN Address a ON t.Address_ID = a.Address_ID
+    `);
     await connection.end();
     return rows;
 }
@@ -54,11 +80,26 @@ async function updateOne(id, ticket) {
         throw new Error("updateOne: id must be defined");
     }
     const connection = await getConnection();
-    const { title, propose, category, startDate, startTime, duration, format, places, tools, toolsOther, extraTools, address, needsCustomerAddress, description, image } = ticket;
+    const {
+        title,
+        direction,
+        startDate,
+        endOfSubscription,
+        duration,
+        places,
+        tools,
+        addressId,
+        addressNeeds,
+        customersAddress,
+        description,
+        image,
+        statusId,
+        ownerUserId
+    } = ticket;
 
     const [result] = await connection.execute(
-        'UPDATE Tickets SET Title = ?, Propose = ?, Category = ?, Start_Date = ?, Start_Time = ?, Duration = ?, Format = ?, Places = ?, Tools = ?, Tools_Other = ?, Extra_Tools = ?, Address = ?, Needs_Customer_Address = ?, Description = ?, Image = ? WHERE Ticket_ID = ?',
-        [title, propose, category, startDate, startTime, duration, format, places, tools, toolsOther, JSON.stringify(extraTools), address, needsCustomerAddress, description, image, id]
+        'UPDATE Tickets SET Title = ?, Direction = ?, Start_Date = ?, End_Of_Subscription = ?, Duration = ?, Places = ?, Tools = ?, Address_ID = ?, Address_needs = ?, Customers_Address = ?, Description = ?, Image = ?, Status_ID = ?, Owner_User_ID = ? WHERE Ticket_ID = ?',
+        [title, direction, startDate, endOfSubscription, duration, places, tools, addressId, addressNeeds, customersAddress, description, image, statusId, ownerUserId, id]
     );
     await connection.end();
     return result.affectedRows;
