@@ -1,4 +1,4 @@
-const { createSubscriptionSchema, updateSubscriptionSchema } = require("./SubscriptionModel");
+const { createSubscriptionSchema, updateSubscriptionSchema } = require("./model");
 const Repository = require("./repository");
 const UserRepository = require("../users/repository"); // Assurez-vous que ce chemin est correct
 const { InvalidArgumentError, NotFoundError } = require("../common/service_errors");
