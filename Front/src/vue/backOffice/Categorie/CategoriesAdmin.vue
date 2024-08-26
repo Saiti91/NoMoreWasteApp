@@ -5,6 +5,7 @@ import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 
+//test
 const { t } = useI18n();
 const categories = ref([]);
 const router = useRouter();
