@@ -14,7 +14,7 @@ async function createOne(user) {
         email = null,
         password = null,
         birthdate = null,
-        current_subscription = null
+        isRegistered = null
     } = user;
 
     const connection = await getConnection();
@@ -29,8 +29,8 @@ async function createOne(user) {
 
         // Insérer l'utilisateur dans la table Users avec l'Address_ID
         const [result] = await connection.execute(
-            'INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, Current_Subscription) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, firstname, address_id, phone, email, password, birthdate, current_subscription]
+            'INSERT INTO Users (Name, Firstname, Address_ID, Phone, Email, Password, Birthdate, IsRegistered) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, firstname, address_id, phone, email, password, birthdate, isRegistered]
         );
 
         const user_id = result.insertId;
@@ -160,7 +160,7 @@ async function updateOne(id, user) {
             Phone,
             Email,
             Birthdate,
-            Current_Subscription,
+            IsRegistered,
             address = {}
         } = user;
 
@@ -171,7 +171,7 @@ async function updateOne(id, user) {
             ...(Phone !== undefined && { Phone }),
             ...(Email !== undefined && { Email }),
             ...(Birthdate !== undefined && { Birthdate }),
-            ...(Current_Subscription !== undefined && { Current_Subscription })
+            ...(IsRegistered !== undefined && { IsRegistered })
         };
 
         console.log("User Details to Update:", userDetails);
@@ -251,5 +251,22 @@ async function deleteOne(id) {
     return result.affectedRows > 0;
 }
 
-module.exports = {createOne, getOne, getOneVerifBy, verifySkill, getAll, updateOne, deleteOne, getOneBy, checkPassword,
-    updateOne};
+//Mettre à jour si l'utilisateur est abonné ou non
+async function updateIsRegistered(userId, isRegistered) {
+    const connection = await getConnection();
+    try {
+        const [result] = await connection.execute(
+            'UPDATE Users SET IsRegistered = ? WHERE User_ID = ?',
+            [isRegistered, userId]
+        );
+        return result.affectedRows > 0;
+    } catch (error) {
+        console.error('Error updating IsRegistered:', error);
+        throw error;
+    } finally {
+        await connection.end();
+    }
+}
+
+module.exports = {createOne, getOne, getOneVerifBy, verifySkill, getAll, deleteOne, getOneBy, checkPassword,
+    updateOne, updateIsRegistered};

@@ -20,11 +20,13 @@ function logout() {
 <template>
   <HeaderComponent :logoSrc="logoSrc" logoAlt="Back Office Logo" logoText="Back Office" :profileSrc="profileSrc" profile-alt="icon profile">
     <template #nav>
+      <router-link class="item" to="/trucks-admin">{{ t('trucks') }}</router-link>
       <router-link class="item" to="/users">{{ t('users') }}</router-link>
       <router-link class="item" to="/stocks">{{ t('stocks') }}</router-link>
       <router-link class="item" to="/donation-admin">{{ t('don') }}</router-link>
       <router-link class="item" to="/tour-admin">{{ t('tours') }}</router-link>
       <router-link class="item" to="/recipes-admin">{{ t('recettes') }}</router-link>
+      <router-link class="item" to="/skills-admin">{{ t('competence') }}</router-link>
 <!--      //TODO: Ajouter la Gestion des services-->
       <router-link class="item" to="/service-admin">{{ t('services') }}</router-link>
     </template>

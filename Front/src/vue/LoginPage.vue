@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import Cookies from 'js-cookie';
 import VueJwtDecode from 'vue-jwt-decode';
 import axiosInstance from "../utils/Axios.js";
+import Swal from 'sweetalert2';
 import { useI18n } from 'vue-i18n';
 
 const email = ref('');
@@ -17,11 +18,77 @@ const validateEmail = (email) => {
   return re.test(email);
 };
 
+// Vérifier si l'utilisateur est abonné et si oui contrôler la date de fin
+const checkSubscription = async (userId) => {
+  try {
+    const response = await axiosInstance.get(`/subscriptions/${userId}`);
+    const subscription = response.data;
+
+    if (!subscription) {
+      // Pas d'abonnement trouvé, rediriger vers la page d'accueil
+      router.push('/');
+      return;
+    }
+
+    // Vérifier si l'abonnement est déjà expiré (statut false)
+    if (!subscription.Status) {
+      // Rediriger directement vers la page d'accueil
+      router.push('/');
+      return;
+    }
+
+    const endDate = new Date(subscription.End_Date);
+    const today = new Date();
+    const daysRemaining = Math.ceil((endDate - today) / (1000 * 3600 * 24));
+
+    if (daysRemaining <= 14 && daysRemaining > 0) {
+      // Afficher un message d'alerte selon les jours restants
+      let alertMessage;
+      if (daysRemaining > 7) {
+        alertMessage = t('subscriptionExpiringInTwoWeeks');
+      } else if (daysRemaining > 3) {
+        alertMessage = t('subscriptionExpiringInOneWeek');
+      } else if (daysRemaining > 1) {
+        alertMessage = t('subscriptionExpiringInThreeDays');
+      } else if (daysRemaining === 1) {
+        alertMessage = t('subscriptionExpiringTomorrow');
+      }
+
+      await Swal.fire({
+        icon: 'warning',
+        title: t('subscriptionAlertTitle'),
+        text: alertMessage,
+        confirmButtonText: 'OK',
+      });
+      router.push('/');
+    } else if (daysRemaining <= 0) {
+      // Abonnement expiré, mettre à jour le statut et la date dans l'API
+      await axiosInstance.patch(`/subscriptions/${userId}`, {
+        status: false,
+        end_date: today.toISOString().split('T')[0],
+      });
+      await Swal.fire({
+        icon: 'error',
+        title: t('subscriptionExpiredTitle'),
+        text: t('subscriptionExpiredMessage'),
+        confirmButtonText: 'OK',
+      });
+      router.push('/');
+    } else {
+      // Abonnement valide, rediriger vers la page d'accueil
+      router.push('/');
+    }
+  } catch (error) {
+    console.error('Error checking subscription:', error);
+    router.push('/');
+  }
+};
+
 const submitForm = async () => {
   errorMessage.value = '';
 
   if (!validateEmail(email.value)) {
-    errorMessage.value = t('$invalidEmailFormat');
+    errorMessage.value = t('invalidEmailFormat');
     console.log('Error Message:', errorMessage.value);
     return;
   }
@@ -44,11 +111,10 @@ const submitForm = async () => {
     if (token) {
       Cookies.set('token', token);
       const decodedToken = VueJwtDecode.decode(token);
-      if (decodedToken.urole === 'admin') {
-        router.push('/back-office');
-      } else {
-        router.push('/');
-      }
+
+      // Vérification de l'abonnement après la connexion
+      await checkSubscription(decodedToken.uid);
+
     } else {
       errorMessage.value = t('tokenNotFound');
       console.log('Error Message:', errorMessage.value);
@@ -57,7 +123,6 @@ const submitForm = async () => {
     if (error.response) {
       if (error.response.status === 401) {
         errorMessage.value = t('incorrectPasswordOrEmail');
-        // Redirect to login page if needed
         router.push('/login');
       } else if (error.response.status === 400) {
         errorMessage.value = t('badRequest');
@@ -73,6 +138,7 @@ const submitForm = async () => {
   }
 };
 </script>
+
 
 <template>
   <div class="ui middle aligned center aligned grid" style="height: 100vh;">

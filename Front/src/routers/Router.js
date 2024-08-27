@@ -20,9 +20,18 @@ import JoinUs from "@/vue/frontOffice/Join/JoinUs.vue";
 import PaymentCotisation from "@/vue/frontOffice/Join/PaymentCotisation.vue";
 import PaymentSuccess from "@/vue/frontOffice/Join/PaymentSuccess.vue";
 
+import Mission from "@/vue/frontOffice/Mission/Mission.vue";
+
+
+import Advice from "@/vue/frontOffice/Services/Advice.vue";
+import Security from "@/vue/frontOffice/Services/Security.vue";
+import Cooking from "@/vue/frontOffice/Services/Cooking.vue";
+import Car from "@/vue/frontOffice/Services/Car.vue";
+import Help from "@/vue/frontOffice/Services/Help.vue";
+
 
 //***** BACK OFFICE
-import BackOfficeHome from '../vue/backOffice/Home.vue';
+import BackOfficeHome from '../vue/backOffice/HomePage.vue';
 import Categories from "@/vue/backOffice/Categorie/CategoriesAdmin.vue";
 
 //***** Users
@@ -51,15 +60,29 @@ import RequestsAdmin from "@/vue/backOffice/Don/RequestDetails.vue";
 //***** Tounrée
 import TourAdmin from "@/vue/backOffice/Tournee/TourAdmin.vue";
 import TourDetails from "@/vue/backOffice/Tournee/TourDetails.vue";
-import DistributionTourAdmin from "@/vue/backOffice/Tournee/DistributionTourAdmin.vue";
-import PickupTourAdmin from "@/vue/backOffice/Tournee/PickUpTourAdmin.vue";
-import DonationsCreateTour from "@/vue/backOffice/Tournee/PickUpTourCreation/TourCreation.vue";
-import DonationsSelectTruck from "@/vue/backOffice/Tournee/PickUpTourCreation/SelectTruck.vue";
-import DonationsReviewAndConfirmTour from "@/vue/backOffice/Tournee/PickUpTourCreation/ReviewAndConfirmTour.vue";
+import DistributionTourAdmin from "@/vue/backOffice/Tournee/DistributionTour/DistributionTourAdmin.vue";
+import PickupTourAdmin from "@/vue/backOffice/Tournee/PickUpTour/PickUpTourAdmin.vue";
+import PickUpTourDetails from "@/vue/backOffice/Tournee/PickUpTour/TourDetails.vue";
+import PickUpTourUpdate from "@/vue/backOffice/Tournee/PickUpTour/TourUpdate.vue";
 
-import RequestsCreateTour from "@/vue/backOffice/Tournee/DistributionTourCreation/TourCreation.vue";
-import RequestsSelectTruck from "@/vue/backOffice/Tournee/DistributionTourCreation/SelectTruck.vue";
-import RequestsReviewAndConfirmTour from "@/vue/backOffice/Tournee/DistributionTourCreation/ReviewAndConfirmTour.vue";
+import DistributionTourDetails from "@/vue/backOffice/Tournee/DistributionTour/TourDetails.vue";
+import DistributionTourUpdate from "@/vue/backOffice/Tournee/DistributionTour/TourUpdate.vue";
+
+import DonationsCreateTour from "@/vue/backOffice/Tournee/PickUpTour/PickUpTourCreation/TourCreation.vue";
+import DonationsSelectTruck from "@/vue/backOffice/Tournee/PickUpTour/PickUpTourCreation/SelectTruck.vue";
+import DonationsReviewAndConfirmTour
+    from "@/vue/backOffice/Tournee/PickUpTour/PickUpTourCreation/ReviewAndConfirmTour.vue";
+
+import RequestsCreateTour from "@/vue/backOffice/Tournee/DistributionTour/DistributionTourCreation/TourCreation.vue";
+import RequestsSelectTruck from "@/vue/backOffice/Tournee/DistributionTour/DistributionTourCreation/SelectTruck.vue";
+import RequestsReviewAndConfirmTour
+    from "@/vue/backOffice/Tournee/DistributionTour/DistributionTourCreation/ReviewAndConfirmTour.vue";
+
+//***** Skills
+import SkillsAdmin from "@/vue/backOffice/Skills/SkillsAdmin.vue";
+
+//***** Trucks
+import TrucksAdmin from "@/vue/backOffice/Trucks/TrucksAdmin.vue";
 
 
 const routes = [
@@ -135,6 +158,47 @@ const routes = [
         //beforeEnter: useAuthGuard(['volunteer'])
     },
 
+    //Mission
+    {
+        path: '/mission',
+        name: 'Mission',
+        component: Mission,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+
+    //Services
+    {
+        path: '/advice',
+        name: 'Advice',
+        component: Advice,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+    {
+        path: '/cooking',
+        name: 'Cooking',
+        component: Cooking,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+    {
+        path: '/security',
+        name: 'Security',
+        component: Security,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+    {
+        path: '/car',
+        name: 'Car',
+        component: Car,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+    {
+        path: '/help',
+        name: 'Help',
+        component: Help,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+
+
 //***** BACK OFFICE
     {
         path: '/back-office',
@@ -155,19 +219,6 @@ const routes = [
         component: UserDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
-    //TODO: Ajouter les routes pour les détails des services coté admin
-    // {
-    //     path: '/user-services-proposed/:id',
-    //     name: 'TourDetails',
-    //     component: TourDetails,
-    //     /*beforeEnter: useAuthGuard(['admin'])*/
-    // },
-    // {
-    //     path: '/user-services-participated/:id',
-    //     name: 'TourDetails',
-    //     component: TourDetails,
-    //     /*beforeEnter: useAuthGuard(['admin'])*/
-    // },
     {
         path: '/user-donations/:id',
         name: 'UserDetailsDonations',
@@ -279,6 +330,7 @@ const routes = [
         component: RequestsReviewAndConfirmTour,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
+
     {
         path: '/distribution-tours',
         name: 'DistributionTourAdmin',
@@ -286,11 +338,37 @@ const routes = [
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {
+        path: '/distribution-tours-details/:id',
+        name: 'DistributionTourDetails',
+        component: DistributionTourDetails,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/distribution-tours-update/:id',
+        name: 'DistributionTourUpdate',
+        component: DistributionTourUpdate,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+
+    {
         path: '/pickup-tours',
         name: 'PickupTourAdmin',
         component: PickupTourAdmin,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
+    {
+        path: '/pickup-tours-details/:id',
+        name: 'PickUpTourDetails',
+        component: PickUpTourDetails,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/pickup-tours-update/:id',
+        name: 'PickUpTourUpdate',
+        component: PickUpTourUpdate,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+
     {
         path: '/tour-admin/:id',
         name: 'TourDetails',
@@ -308,6 +386,20 @@ const routes = [
         path: '/recipes-admin-add',
         name: 'RecipesAdminAdd',
         component: RecipesAdminAdd,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    //Skills
+    {
+        path: '/skills-admin',
+        name: 'SkillsAdmin',
+        component: SkillsAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    //Trucks
+    {
+        path: '/trucks-admin',
+        name: 'TrucksAdmin',
+        component: TrucksAdmin,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     //Categories

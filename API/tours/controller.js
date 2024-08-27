@@ -287,7 +287,7 @@ controller.put(
  *         description: Erreur interne du serveur
  */
 controller.delete(
-    "/:id", authorize(["admin"]), (req, res, next) => {
+    "/:id"/*, authorize(["admin"])*/, (req, res, next) => {
         toursService.deleteOne(Number(req.params.id))
             .then(deleted => {
                 if (!deleted) {

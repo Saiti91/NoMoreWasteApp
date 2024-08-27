@@ -1,4 +1,4 @@
-const { Router } = require("express");
+const {Router} = require("express");
 const requestsService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
 const authorize = require("../common/middlewares/authorize_middleware");
@@ -285,7 +285,7 @@ controller.post("/", (req, res, next) => {
  *     security:
  *       - bearerAuth: []
  */
-controller.delete("/:id", authorize(["admin"]), (req, res, next) => {
+controller.delete("/:id", (req, res, next) => {
     requestsService.deleteOne(Number(req.params.id), req.user)
         .then((deleted) => {
             if (!deleted) {

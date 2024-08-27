@@ -1,8 +1,7 @@
 const {Router} = require("express");
 const skillsService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
-const {upload,checkFileProvided} = require('../common/middlewares/uploads_middleware');
-
+const {upload, checkFileProvided} = require('../common/middlewares/uploads_middleware');
 
 const controller = Router();
 
@@ -60,40 +59,159 @@ controller.get(
 
 /**
  * @swagger
- * /skills/{id}:
+ * /skills/unvalidated:
  *   get:
- *     summary: Get a skill by ID
+ *     summary: Get all unvalidated skills along with user information.
+ *     tags: [Skills]
+ *     responses:
+ *       200:
+ *         description: A list of unvalidated skills along with associated user information.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   userId:
+ *                     type: integer
+ *                     description: The ID of the user associated with the skill.
+ *                   userName:
+ *                     type: string
+ *                     description: The name of the user.
+ *                   userEmail:
+ *                     type: string
+ *                     description: The email of the user.
+ *                   skillId:
+ *                     type: integer
+ *                     description: The ID of the skill.
+ *                   skillName:
+ *                     type: string
+ *                     description: The name of the skill.
+ *                   documentPath:
+ *                     type: string
+ *                     description: The path to the uploaded document (if any).
+ *       404:
+ *         description: No unvalidated skills found.
+ */
+controller.get("/unvalidated", (req, res, next) => {
+    console.log('Fetching all unvalidated skills');
+    skillsService.getAllUnvalidatedSkills()
+        .then((data) => {
+            if (data.length === 0) {
+                throw new NotFoundError("No unvalidated skills found");
+            }
+            res.json(data);
+        })
+        .catch((err) => {
+            next(err);
+        });
+});
+
+/**
+ * @swagger
+ * /skills/unvalidated/{userId}:
+ *   get:
+ *     summary: Get all unvalidated skills for a specific user by user ID
  *     tags: [Skills]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The user ID
+ *     responses:
+ *       200:
+ *         description: A list of unvalidated skills for the user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   Skill_ID:
+ *                     type: integer
+ *                     description: The ID of the skill
+ *                   Name:
+ *                     type: string
+ *                     description: The name of the skill
+ *                   Document_Path:
+ *                     type: string
+ *                     description: The path to the uploaded document
+ *                   Validation_Date:
+ *                     type: string
+ *                     format: date-time
+ *                     description: The validation date (null if not validated)
+ *       404:
+ *         description: No unvalidated skills found for the user
+ */
+controller.get("/unvalidated/:userId", (req, res, next) => {
+    console.log('controller /unvalidated/:userId req.params.userId:', req.params.userId);
+    skillsService.getUnvalidatedSkillsForUser(Number(req.params.userId))
+        .then((data) => {
+            if (data.length === 0) {
+                throw new NotFoundError(`No unvalidated skills found for user with id ${req.params.userId}`);
+            }
+            res.json(data);
+        })
+        .catch((err) => {
+            next(err);
+        });
+});
+
+/**
+ * @swagger
+ * /skills/user/{userId}/skill/{skillId}/validate:
+ *   patch:
+ *     summary: Validate a specific skill for a user
+ *     tags: [Skills]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The user ID
+ *       - in: path
+ *         name: skillId
  *         schema:
  *           type: integer
  *         required: true
  *         description: The skill ID
  *     responses:
  *       200:
- *         description: A single skill.
+ *         description: Skill validated successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Skill'
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Confirmation message
+ *                 userId:
+ *                   type: integer
+ *                   description: The user ID
+ *                 skillId:
+ *                   type: integer
+ *                   description: The skill ID
+ *                 validationDate:
+ *                   type: string
+ *                   format: date
+ *                   description: The date of validation
  *       404:
- *         description: Skill not found
+ *         description: No skill found for user with the given IDs
  */
-controller.get(
-    "/:id",
-    (req, res, next) => {
-        skillsService.getOne(Number(req.params.id))
-            .then((data) => {
-                if (data === null) {
-                    throw new NotFoundError(`Compétence avec l'id ${req.params.id} non trouvée`);
-                }
-                res.json(data);
-            })
-            .catch((err) => next(err));
-    },
-);
+controller.patch('/user/:userId/skill/:skillId/validate', (req, res, next) => {
+    const userId = Number(req.params.userId);
+    const skillId = Number(req.params.skillId);
+
+    skillsService.validateUserSkill(userId, skillId)
+        .then(data => res.json(data))
+        .catch(err => next(err));
+});
 
 /**
  * @swagger
@@ -127,6 +245,44 @@ controller.get("/user/:userId", (req, res, next) => {
             next(err);
         });
 });
+
+/**
+ * @swagger
+ * /skills/{id}:
+ *   get:
+ *     summary: Get a skill by ID
+ *     tags: [Skills]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The skill ID
+ *     responses:
+ *       200:
+ *         description: A single skill.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Skill'
+ *       404:
+ *         description: Skill not found
+ */
+controller.get(
+    "/:id",
+    (req, res, next) => {
+        console.log('controller /:id req.params.id:', req.params.id);
+        skillsService.getOne(Number(req.params.id))
+            .then((data) => {
+                if (data === null) {
+                    throw new NotFoundError(`Compétence avec l'id ${req.params.id} non trouvée`);
+                }
+                res.json(data);
+            })
+            .catch((err) => next(err));
+    },
+);
 
 /**
  * @swagger
@@ -173,7 +329,6 @@ controller.delete("/user/:userId/:skillId", (req, res, next) => {
         })
         .catch((err) => next(err));
 });
-
 
 /**
  * @swagger
@@ -324,7 +479,7 @@ controller.post('/:userId/skills', upload.single('document'), checkFileProvided,
         console.log('req.body:', req.body);
         console.log('req.file:', req.file);
 
-        const { skill_id } = req.body;
+        const {skill_id} = req.body;
         const userId = req.params.userId;
         const documentPath = req.file.filename;
 

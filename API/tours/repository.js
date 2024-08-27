@@ -10,6 +10,7 @@ async function createCollectOne(tourData) {
 
     const {
         Date,
+        Time,  // Ajout de l'heure
         User_ID = null,
         Truck_ID = null,
         Type = null,
@@ -23,9 +24,9 @@ async function createCollectOne(tourData) {
 
         // Insert the route into the Routes table
         const [result] = await connection.execute(`
-            INSERT INTO Routes (Date, User_ID, Truck_ID, Type)
-            VALUES (?, ?, ?, ?)
-        `, [Date, User_ID, Truck_ID, Type]);
+            INSERT INTO Routes (Date, Time, User_ID, Truck_ID, Type)
+            VALUES (?, ?, ?, ?, ?)
+        `, [Date, Time, User_ID, Truck_ID, Type]);  // Insertion de l'heure (Hours)
 
         const routeId = result.insertId;
 
@@ -47,21 +48,33 @@ async function createCollectOne(tourData) {
             for (const product of Products) {
                 const {
                     Donation_ID = null,  // Get Donation_ID to update the donation
-                    Product_ID = null,
                     Quantity = 0
                 } = product;
 
-                await connection.execute(`
-                    INSERT INTO Destination_Products (Destination_ID, Product_ID, Quantity)
-                    VALUES (?, ?, ?)
-                `, [destinationId, Product_ID, Quantity]);
-
-                // Update the donation to associate it with the route
-                await connection.execute(`
-                    UPDATE Donations
-                    SET Route_ID = ?
+                // Fetch the Product_ID using the Donation_ID
+                const [donationRow] = await connection.execute(`
+                    SELECT Product_ID
+                    FROM Donations
                     WHERE Donation_ID = ?
-                `, [routeId, Donation_ID]);
+                `, [Donation_ID]);
+
+                const Product_ID = donationRow.length > 0 ? donationRow[0].Product_ID : null;
+
+                if (Product_ID) {
+                    await connection.execute(`
+                        INSERT INTO Destination_Products (Destination_ID, Product_ID, Quantity)
+                        VALUES (?, ?, ?)
+                    `, [destinationId, Product_ID, Quantity]);
+
+                    // Update the donation to associate it with the route
+                    await connection.execute(`
+                        UPDATE Donations
+                        SET Route_ID = ?
+                        WHERE Donation_ID = ?
+                    `, [routeId, Donation_ID]);
+                } else {
+                    console.warn(`Product_ID not found for Donation_ID: ${Donation_ID}`);
+                }
             }
         }
 
@@ -80,6 +93,7 @@ async function createDistributionOne(tourData) {
 
     const {
         Date,
+        Hours,  // Ajout de l'heure
         User_ID = null,
         Truck_ID = null,
         Type = null,
@@ -93,9 +107,9 @@ async function createDistributionOne(tourData) {
 
         // Insert the route into the Routes table
         const [result] = await connection.execute(`
-            INSERT INTO Routes (Date, User_ID, Truck_ID, Type)
-            VALUES (?, ?, ?, ?)
-        `, [Date, User_ID, Truck_ID, Type]);
+            INSERT INTO Routes (Date, Time, User_ID, Truck_ID, Type)
+            VALUES (?, ?, ?, ?, ?)
+        `, [Date, Hours, User_ID, Truck_ID, Type]);  // Insertion de l'heure (Hours)
 
         const routeId = result.insertId;
 
@@ -117,21 +131,33 @@ async function createDistributionOne(tourData) {
             for (const product of Products) {
                 const {
                     Request_ID = null,  // Get Request_ID to update the request
-                    Product_ID = null,
                     Quantity = 0
                 } = product;
 
-                await connection.execute(`
-                    INSERT INTO Destination_Products (Destination_ID, Product_ID, Quantity)
-                    VALUES (?, ?, ?)
-                `, [destinationId, Product_ID, Quantity]);
-                console.log('Request_ID: ', Request_ID);
-                // Update the request to associate it with the route and mark it as processed
-                await connection.execute(`
-                    UPDATE Requests
-                    SET Route_ID = ?
+                // Fetch the Product_ID using the Request_ID
+                const [requestRow] = await connection.execute(`
+                    SELECT Product_ID
+                    FROM Requests
                     WHERE Request_ID = ?
-                `, [routeId, Request_ID]);
+                `, [Request_ID]);
+
+                const Product_ID = requestRow.length > 0 ? requestRow[0].Product_ID : null;
+
+                if (Product_ID) {
+                    await connection.execute(`
+                        INSERT INTO Destination_Products (Destination_ID, Product_ID, Quantity)
+                        VALUES (?, ?, ?)
+                    `, [destinationId, Product_ID, Quantity]);
+
+                    // Update the request to associate it with the route and mark it as processed
+                    await connection.execute(`
+                        UPDATE Requests
+                        SET Route_ID = ?, Processed = 1, Processed_Date = NOW()
+                        WHERE Request_ID = ?
+                    `, [routeId, Request_ID]);
+                } else {
+                    console.warn(`Product_ID not found for Request_ID: ${Request_ID}`);
+                }
             }
         }
 
@@ -154,24 +180,22 @@ async function getOne(tourId) {
     const connection = await getConnection();
 
     const [routes] = await connection.execute(`
-        SELECT
-            r.Route_ID,
-            r.Date AS Route_Date,
-            r.Type AS Route_Type,
-            u.User_ID AS Driver_ID,
-            CONCAT(u.Firstname, ' ', u.Name) AS Driver_Name,
-            t.Truck_ID,
-            t.Registration AS Truck_Registration,
-            t.Model AS Truck_Model,
-            t.Capacity AS Truck_Capacity
-        FROM
-            Routes r
-                JOIN
-            Users u ON r.User_ID = u.User_ID
-                JOIN
-            Trucks t ON r.Truck_ID = t.Truck_ID
-        WHERE
-            r.Route_ID = ?
+        SELECT r.Route_ID,
+               r.Date                           AS Route_Date,
+               r.Time                           AS Route_Time,
+               r.Type                           AS Route_Type,
+               u.User_ID                        AS Driver_ID,
+               CONCAT(u.Firstname, ' ', u.Name) AS Driver_Name,
+               t.Truck_ID,
+               t.Registration                   AS Truck_Registration,
+               t.Model                          AS Truck_Model,
+               t.Capacity                       AS Truck_Capacity
+        FROM Routes r
+                 LEFT JOIN
+             Users u ON r.User_ID = u.User_ID
+                 JOIN
+             Trucks t ON r.Truck_ID = t.Truck_ID
+        WHERE r.Route_ID = ?
     `, [tourId]);
 
     if (routes.length === 0) {
@@ -182,6 +206,7 @@ async function getOne(tourId) {
     const route = {
         Route_ID: routes[0].Route_ID,
         Route_Date: routes[0].Route_Date,
+        Route_Time: routes[0].Route_Time,  // Ajout de l'heure
         Route_Type: routes[0].Route_Type,
         Driver: {
             Driver_ID: routes[0].Driver_ID,
@@ -270,46 +295,46 @@ async function getAll() {
     const connection = await getConnection();
 
     const [rows] = await connection.execute(`
-        SELECT
-            r.Route_ID,
-            r.Date AS Route_Date,
-            r.Type AS Route_Type,
-            u.User_ID AS Driver_ID,
-            CONCAT(u.Firstname, ' ', u.Name) AS Driver_Name,
-            t.Truck_ID,
-            t.Registration AS Truck_Registration,
-            t.Model AS Truck_Model,
-            t.Capacity AS Truck_Capacity,
-            d.Destination_ID,
-            d.Type AS Destination_Type,
-            a.Street,
-            a.City,
-            a.State,
-            a.Postal_Code,
-            a.Country,
-            dp.Destination_Product_ID,
-            p.Product_ID,
-            p.Name AS Product_Name,
-            p.Barcode,
-            dp.Quantity AS Product_Quantity,
-            c.Name AS Category_Name,
-            c.StorageSector
-        FROM
-            Routes r
-                JOIN
-            Users u ON r.User_ID = u.User_ID
-                JOIN
-            Trucks t ON r.Truck_ID = t.Truck_ID
-                LEFT JOIN
-            Destinations d ON r.Route_ID = d.Route_ID
-                LEFT JOIN
-            Address a ON d.Address_ID = a.Address_ID
-                LEFT JOIN
-            Destination_Products dp ON d.Destination_ID = dp.Destination_ID
-                LEFT JOIN
-            Products p ON dp.Product_ID = p.Product_ID
-                LEFT JOIN
-            ProductsCategories c ON p.Category_ID = c.Category_ID;
+        SELECT r.Route_ID,
+               r.Date                           AS Route_Date,
+               r.Time                           AS Route_Time,
+               r.Type                           AS Route_Type,
+               u.User_ID                        AS Driver_ID,
+               CONCAT(u.Firstname, ' ', u.Name) AS Driver_Name,
+               t.Truck_ID,
+               t.Registration                   AS Truck_Registration,
+               t.Model                          AS Truck_Model,
+               t.Capacity                       AS Truck_Capacity,
+               d.Destination_ID,
+               d.Type                           AS Destination_Type,
+               a.Street,
+               a.City,
+               a.State,
+               a.Postal_Code,
+               a.Country,
+               dp.Destination_Product_ID,
+               p.Product_ID,
+               p.Name                           AS Product_Name,
+               p.Barcode,
+               dp.Quantity                      AS Product_Quantity,
+               c.Name                           AS Category_Name,
+               c.StorageSector
+        FROM Routes r
+
+                 JOIN
+             Trucks t ON r.Truck_ID = t.Truck_ID
+                 LEFT JOIN
+             Users u ON r.User_ID = u.User_ID
+                 LEFT JOIN
+             Destinations d ON r.Route_ID = d.Route_ID
+                 LEFT JOIN
+             Address a ON d.Address_ID = a.Address_ID
+                 LEFT JOIN
+             Destination_Products dp ON d.Destination_ID = dp.Destination_ID
+                 LEFT JOIN
+             Products p ON dp.Product_ID = p.Product_ID
+                 LEFT JOIN
+             ProductsCategories c ON p.Category_ID = c.Category_ID;
     `);
 
     await connection.end();
@@ -321,6 +346,7 @@ async function getAll() {
             routes[row.Route_ID] = {
                 Route_ID: row.Route_ID,
                 Route_Date: row.Route_Date,
+                Route_Time: row.Route_Time,  // Ajout de l'heure
                 Route_Type: row.Route_Type,
                 Driver: {
                     Driver_ID: row.Driver_ID,
@@ -367,7 +393,7 @@ async function getAll() {
             });
         }
     });
-
+    console.log('In Repository: ', Object.values(routes));
     return Object.values(routes);
 }
 
@@ -381,9 +407,10 @@ async function getAllRoutesForUser(userId) {
 
     try {
         const [rows] = await connection.execute(`
-            SELECT 
+            SELECT
                 r.Route_ID,
                 r.Date AS Route_Date,
+                r.Time AS Route_Time,  
                 r.Type AS Route_Type,
                 u.User_ID AS Driver_ID,
                 CONCAT(u.Firstname, ' ', u.Name) AS Driver_Name,
@@ -424,11 +451,11 @@ async function getAllRoutesForUser(userId) {
         const routes = {};
 
         rows.forEach(row => {
-            // Si la route n'existe pas encore dans l'objet routes, on la crée
             if (!routes[row.Route_ID]) {
                 routes[row.Route_ID] = {
                     Route_ID: row.Route_ID,
                     Route_Date: row.Route_Date,
+                    Route_Time: row.Route_Time,  // Ajout de l'heure
                     Route_Type: row.Route_Type,
                     Driver: {
                         Driver_ID: row.Driver_ID,
@@ -444,7 +471,6 @@ async function getAllRoutesForUser(userId) {
                 };
             }
 
-            // Si la destination existe, on la met à jour, sinon, on la crée
             const route = routes[row.Route_ID];
             let destination = route.Destinations.find(d => d.Destination_ID === row.Destination_ID);
 
@@ -464,7 +490,6 @@ async function getAllRoutesForUser(userId) {
                 route.Destinations.push(destination);
             }
 
-            // On ajoute les produits à la destination
             if (row.Product_ID) {
                 destination.Products.push({
                     Destination_Product_ID: row.Destination_Product_ID,
@@ -476,7 +501,6 @@ async function getAllRoutesForUser(userId) {
             }
         });
 
-        // Conversion des routes en tableau pour le retour
         return Object.values(routes);
     } finally {
         await connection.end();
@@ -494,7 +518,7 @@ async function updateOne(id, data) {
     try {
         await connection.beginTransaction();
 
-        const routeFields = ['Date', 'User_ID', 'Truck_ID', 'Type'];
+        const routeFields = ['Date', 'Time', 'User_ID', 'Truck_ID', 'Type'];
         const routeUpdates = routeFields.filter(field => field in data);
 
         if (routeUpdates.length > 0) {
@@ -529,14 +553,20 @@ async function deleteOne(id) {
     try {
         await connection.beginTransaction();
 
+        // Delete all products associated with the destinations of the route
         await connection.execute(`
-            DELETE FROM Destination_Products WHERE Destination_ID IN (SELECT Destination_ID FROM Destinations WHERE Route_ID = ?)
+            DELETE FROM Destination_Products
+            WHERE Destination_ID IN (
+                SELECT Destination_ID FROM Destinations WHERE Route_ID = ?
+            )
         `, [id]);
 
+        // Delete all destinations associated with the route
         await connection.execute(`
             DELETE FROM Destinations WHERE Route_ID = ?
         `, [id]);
 
+        // Delete the route itself
         const [result] = await connection.execute(`
             DELETE FROM Routes WHERE Route_ID = ?
         `, [id]);
@@ -550,6 +580,7 @@ async function deleteOne(id) {
         await connection.end();
     }
 }
+
 
 /**
  * Ajoute une nouvelle destination à une route existante.

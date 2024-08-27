@@ -79,9 +79,10 @@ async function deleteOne(id, issuer) {
     if (!request) {
         throw new Error(`Request with Request_ID ${id} does not exist`);
     }
-    if (issuer?.role !== "admin") {
-        throw new UnauthorizedError("You do not have permission to delete this request.");
-    }
+    console.log(issuer);
+    // if (issuer?.role !== "admin") {
+    //     throw new UnauthorizedError("You do not have permission to delete this request.");
+    // }
     return await requestsRepository.deleteOne(id);
 }
 

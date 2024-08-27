@@ -16,6 +16,31 @@ async function createOne(skill) {
     return result.insertId;
 }
 
+async function validateUserSkill(userId, skillId) {
+    const connection = await getConnection();
+
+    // Mettre à jour la Validation_Date à la date d'aujourd'hui
+    const [result] = await connection.execute(
+        `UPDATE User_Skills 
+         SET Validation_Date = CURDATE() 
+         WHERE User_ID = ? AND Skill_ID = ?`,
+        [userId, skillId]
+    );
+
+    await connection.end();
+
+    if (result.affectedRows === 0) {
+        throw new NotFoundError(`No skill found for user with ID ${userId} and skill ID ${skillId}`);
+    }
+
+    return {
+        message: 'Skill validated successfully',
+        userId,
+        skillId,
+        validationDate: new Date().toISOString().split('T')[0] // Retourner la date de validation
+    };
+}
+
 // Fonction pour récupérer une compétence par son ID
 async function getOne(id) {
     const connection = await getConnection();
@@ -35,6 +60,36 @@ async function getAll() {
 
     const [rows] = await connection.execute(
         'SELECT * FROM Skills'
+    );
+
+    await connection.end();
+    return rows;
+}
+
+async function getUnvalidatedSkillsForUser(userId) {
+    const connection = await getConnection();
+
+    const [rows] = await connection.execute(
+        `SELECT Skills.Skill_ID, Skills.Name, User_Skills.Validation_Date, User_Skills.Document_Path
+         FROM User_Skills
+         JOIN Skills ON User_Skills.Skill_ID = Skills.Skill_ID
+         WHERE User_Skills.User_ID = ? AND User_Skills.Validation_Date IS NULL`,
+        [userId]
+    );
+
+    await connection.end();
+    return rows;
+}
+
+async function getAllUnvalidatedSkills() {
+    const connection = await getConnection();
+
+    const [rows] = await connection.execute(
+        `SELECT User_Skills.User_ID, Users.Name as User_Name, Users.Email as User_Email, Skills.Skill_ID, Skills.Name as Skill_Name, User_Skills.Document_Path
+         FROM User_Skills
+         JOIN Skills ON User_Skills.Skill_ID = Skills.Skill_ID
+         JOIN Users ON User_Skills.User_ID = Users.User_ID
+         WHERE User_Skills.Validation_Date IS NULL`
     );
 
     await connection.end();
@@ -156,6 +211,9 @@ module.exports = {
     getOne,
     getAll,
     getAllForUser,
+    getUnvalidatedSkillsForUser,
+    getAllUnvalidatedSkills,
+    validateUserSkill,
     verifySkill,
     updateOne,
     deleteOne,

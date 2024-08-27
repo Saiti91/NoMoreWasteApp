@@ -20,13 +20,26 @@ async function createOne(skill) {
     return await Repository.createOne(value);
 }
 
+async function getUnvalidatedSkillsForUser(userId) {
+    return await Repository.getUnvalidatedSkillsForUser(userId);
+}
+
 // Fonction de récupération d'une compétence en fonction de son ID
 async function getOne(id) {
+    console.log('From service getOne:id');
     const skill = await Repository.getOne(id);
     if (!skill) {
         throw new NotFoundError(`Compétence avec l'id ${id} non trouvée.`);
     }
     return skill;
+}
+
+async function validateUserSkill(userId, skillId) {
+    return await Repository.validateUserSkill(userId, skillId);
+}
+
+async function getAllUnvalidatedSkills() {
+    return await Repository.getAllUnvalidatedSkills();
 }
 
 // Fonction de récupération de toutes les compétences
@@ -135,4 +148,4 @@ async function addSkillForUser(userId, skillId, documentPath) {
 }
 
 
-module.exports = {createOne, getOne, getAll, getAllForUser, updateOne, deleteOne, deleteSkillForUser, addSkillForUser};
+module.exports = {createOne, getOne, getAll, getAllUnvalidatedSkills, validateUserSkill, getUnvalidatedSkillsForUser, getAllForUser, updateOne, deleteOne, deleteSkillForUser, addSkillForUser};
