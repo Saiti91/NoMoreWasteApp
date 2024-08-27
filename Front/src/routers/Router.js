@@ -20,6 +20,15 @@ import JoinUs from "@/vue/frontOffice/Join/JoinUs.vue";
 import PaymentCotisation from "@/vue/frontOffice/Join/PaymentCotisation.vue";
 import PaymentSuccess from "@/vue/frontOffice/Join/PaymentSuccess.vue";
 
+import Mission from "@/vue/frontOffice/Mission/Mission.vue";
+
+
+import Advice from "@/vue/frontOffice/Services/Advice.vue";
+import Security from "@/vue/frontOffice/Services/Security.vue";
+import Cooking from "@/vue/frontOffice/Services/Cooking.vue";
+import Car from "@/vue/frontOffice/Services/Car.vue";
+import Help from "@/vue/frontOffice/Services/Help.vue";
+
 
 //***** BACK OFFICE
 import BackOfficeHome from '../vue/backOffice/HomePage.vue';
@@ -74,6 +83,7 @@ import SkillsAdmin from "@/vue/backOffice/Skills/SkillsAdmin.vue";
 
 //***** Trucks
 import TrucksAdmin from "@/vue/backOffice/Trucks/TrucksAdmin.vue";
+
 
 const routes = [
     {path: '/login', name: 'Login', component: LoginPage},
@@ -147,6 +157,47 @@ const routes = [
         component: PaymentSuccess,
         //beforeEnter: useAuthGuard(['volunteer'])
     },
+
+    //Mission
+    {
+        path: '/mission',
+        name: 'Mission',
+        component: Mission,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+
+    //Services
+    {
+        path: '/advice',
+        name: 'Advice',
+        component: Advice,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+    {
+        path: '/cooking',
+        name: 'Cooking',
+        component: Cooking,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+    {
+        path: '/security',
+        name: 'Security',
+        component: Security,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+    {
+        path: '/car',
+        name: 'Car',
+        component: Car,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+    {
+        path: '/help',
+        name: 'Help',
+        component: Help,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+
 
 //***** BACK OFFICE
     {

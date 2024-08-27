@@ -15,14 +15,13 @@ const router = useRouter();
 const { isAuthenticated, userId, logout } = useAuth(); // Utilisation de useAuth pour obtenir l'état d'authentification, l'ID utilisateur, et la fonction de déconnexion
 
 onMounted(() => {
-  // Toute logique supplémentaire que vous pourriez vouloir ajouter lors de l'initialisation
 });
 </script>
 
 <template>
   <HeaderComponent :logoSrc="logoSrc" :profileSrc="profileSrc" logoAlt="Front Office Logo" logoText="Front Office" profile-alt="Profile icon">
     <template #nav>
-      <router-link class="item" to="/">{{ t('missions') }}</router-link>
+      <router-link class="item" to="/mission">{{ t('missions') }}</router-link>
       <router-link class="item" to="/catalogue">{{ t('recevoirDesDons') }}</router-link>
       <router-link class="item" to="/donation">{{ t('faireUnDon') }}</router-link>
       <router-link class="item" to="/join-us">{{ t('join_us') }}</router-link>
@@ -36,5 +35,4 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Ajoutez ici des styles spécifiques si nécessaire */
 </style>
