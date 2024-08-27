@@ -1,11 +1,16 @@
 <script setup>
 
+import Header from "@/components/HeaderFrontOffice.vue";
 </script>
 
 <template>
-<p>Mission</p>
+  <Header />
+  <div class="spacer_perso"></div>
+  <p>Mission</p>
 </template>
 
 <style scoped>
-
+.spacer_perso {
+  margin-top: 5%;
+}
 </style>
