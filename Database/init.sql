@@ -3,6 +3,7 @@ CREATE DATABASE IF NOT EXISTS `database` DEFAULT CHARACTER SET utf8mb4 COLLATE u
 USE `database`;
 SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
+SET GLOBAL event_scheduler = ON;
 
 CREATE TABLE IF NOT EXISTS ProductsCategories
 (
@@ -184,11 +185,11 @@ CREATE TABLE IF NOT EXISTS Tickets
     Direction           BOOLEAN      NOT NULL,     -- true for 'proposition', false for 'demande'
     Start_Date          DATE         NOT NULL,     -- date de début de l'activité
     Start_Time          TIME         NOT NULL,     -- heure de début de l'activité
-    End_Of_Subscription DATE         DEFAULT Start_Date+1,     -- date de fin des inscriptions
+    End_Of_Subscription DATE         DEFAULT NULL, -- date de fin des inscriptions
     Duration            INT          NOT NULL,     -- durée de l'activité en minutes
     Places              INT,                       -- nombre de places disponibles maximum, optionnel
     Tools               VARCHAR(255) DEFAULT NULL, -- optionnel
-    Address_ID          INT DEFAULT NULL,
+    Address_ID          INT          DEFAULT NULL,
     Address_needs       BOOLEAN      NOT NULL,     -- Si l'adresse des inscrits est nécessaire
     Customers_Address   VARCHAR(100) DEFAULT NULL, -- faire une table intermédiaire avec user par exemple, optionnel
     Description         TEXT         NOT NULL,
@@ -859,3 +860,22 @@ VALUES
 -- Participants pour "Demande de service de réparation d'électroménager"
 (15, 2),
 (15, 3);
+
+CREATE EVENT IF NOT EXISTS UpdateTicketStatusEvent
+    ON SCHEDULE EVERY 1 MINUTE
+    DO
+    -- Update tickets where status should be "Inscription Ouverte"
+    UPDATE Tickets
+    SET Status_ID = (SELECT Status_ID FROM Statuses WHERE Name = 'Inscription Ouverte' LIMIT 1)
+    WHERE Start_Date > CURDATE();
+
+-- Update tickets where status should be "Inscription Fermée"
+UPDATE Tickets
+SET Status_ID = (SELECT Status_ID FROM Statuses WHERE Name = 'Inscription Fermée' LIMIT 1)
+WHERE Start_Date <= CURDATE()
+  AND End_Of_Subscription >= CURDATE();
+
+-- Update tickets where status should be "Terminé"
+UPDATE Tickets
+SET Status_ID = (SELECT Status_ID FROM Statuses WHERE Name = 'Terminé' LIMIT 1)
+WHERE End_Of_Subscription < CURDATE();

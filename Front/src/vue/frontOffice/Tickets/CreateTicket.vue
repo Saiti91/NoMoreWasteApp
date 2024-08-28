@@ -124,8 +124,8 @@ const saveTicket = async () => {
           <div class="two wide column">
             <select v-model="direction" class="ui dropdown" required>
               <option value="" disabled>Choisir</option>
-              <option :value="true">Proposer</option>
-              <option :value="false">Demander</option>
+              <option :value="1">Proposer</option>
+              <option :value="0">Demander</option>
             </select>
           </div>
           <div class="two wide column">
@@ -189,7 +189,7 @@ const saveTicket = async () => {
       </div>
 
       <!-- Nombre de personnes -->
-      <div v-if="direction === true" class="field">
+      <div v-if="direction === 1" class="field">
         <label>Combien de personnes peuvent participer</label>
         <input v-model="places" type="text" maxlength="3" placeholder="Nombre de places"/>
       </div>
@@ -201,9 +201,9 @@ const saveTicket = async () => {
       </div>
 
       <!-- Besoin d'adresse du client -->
-      <div v-if="direction === true" class="ui segment">
+      <div v-if="direction === 1" class="ui segment">
         <div class="field">
-          <div class="ui toggle checkbox">
+          <div class="ui checkbox">
             <input type="checkbox" v-model="needsCustomerAddress" tabindex="0" class="hidden"/>
             <label>Vous avez besoin de l'adresse des participants/membres</label>
           </div>

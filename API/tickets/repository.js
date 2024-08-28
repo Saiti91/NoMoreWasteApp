@@ -16,7 +16,7 @@ async function createOne(ticket) {
         customersAddress = null, // Optional, set to null if not provided
         description,
         image = null, // Optional, set to null if not provided
-        statusId = null, // Optional, set to null if not provided
+        statusId = 1, // Optional, set to null if not provided
         ownerUserId,
         skillId
     } = ticket;
@@ -27,6 +27,18 @@ async function createOne(ticket) {
     console.log("ticket from repository", ticket);
 
     const connection = await getConnection();
+
+    let fetchedAddressId = addressId; // Default to provided addressId if not found
+    if (!addressId) { // Only fetch if addressId is not provided
+        const [userRows] = await connection.execute(
+            `SELECT Address_ID FROM Users WHERE User_ID = ? LIMIT 1`,
+            [ownerUserId]
+        );
+        if (userRows.length > 0) {
+            fetchedAddressId = userRows[0].Address_ID;
+        }
+    }
+
     const [result] = await connection.execute(
         `INSERT INTO Tickets (Title, Direction, Start_Date, Start_Time, End_Of_Subscription, Duration, Places, Tools,
                               Address_ID, Address_needs, Customers_Address, Description, Image, Status_ID,
@@ -34,15 +46,15 @@ async function createOne(ticket) {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             title,
-            direction === 'true', // Ensure it's a boolean
+            direction,
             startDate,
             startTime,
-            calculatedEndOfSubscription, // Use the calculated or provided value
+            calculatedEndOfSubscription,
             duration,
             places,
             tools,
-            addressId,
-            addressNeeds === 'true', // Ensure it's a boolean
+            fetchedAddressId,
+            addressNeeds, // Ensure it's a boolean
             customersAddress,
             description,
             image,
