@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS Tickets
     Category_ID         INT,                   -- clé étrangère vers Skills
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID),
     FOREIGN KEY (Status_ID) REFERENCES Statuses (Status_ID),
-    FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
+    FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE,
     FOREIGN KEY (Category_ID) REFERENCES Skills (Skill_ID)
     );
 
