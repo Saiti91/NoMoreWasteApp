@@ -35,9 +35,11 @@ const fetchMissions = async () => {
 
     allMissions.forEach(mission => {
       const routeDate = new Date(mission.Route_Date);
-      const routeTime = new Date(`1970-01-01T${mission.Route_Time}`);
+      const routeTime = mission.Route_Time.split(':');
+      const missionDateTime = new Date(routeDate.getFullYear(), routeDate.getMonth(), routeDate.getDate(), routeTime[0], routeTime[1]);
 
-      if (routeDate > now || (routeDate.toDateString() === now.toDateString() && routeTime > now)) {
+      // Comparer la date et l'heure de la mission avec la date et l'heure actuelles
+      if (missionDateTime > now) {
         if (mission.Driver.Driver_ID === null) {
           joinableMissions.push(mission);
         } else if (mission.Driver.Driver_ID === userId.value) {
@@ -57,7 +59,9 @@ const fetchMissions = async () => {
 
 const joinMission = async (missionId) => {
   try {
-    await axios.post(`/tours/${missionId}`, { Driver_ID: userId.value });
+    console.log(userId.value);
+    console.log(missionId);
+    await axios.put(`/tours/${missionId}`, { User_ID : userId.value });
     Swal.fire({
       icon: 'success',
       title: t('missionJoined'),
@@ -71,7 +75,7 @@ const joinMission = async (missionId) => {
 
 const leaveMission = async (missionId) => {
   try {
-    await axios.post(`/tours/${missionId}`, { Driver_ID: null });
+    await axios.put(`/tours/${missionId}`, { User_ID : null });
     Swal.fire({
       icon: 'success',
       title: t('missionLeft'),
