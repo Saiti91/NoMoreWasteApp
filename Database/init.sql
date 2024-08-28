@@ -32,23 +32,24 @@ CREATE TABLE IF NOT EXISTS Address
 
 CREATE TABLE IF NOT EXISTS Users
 (
-    User_ID             INT AUTO_INCREMENT PRIMARY KEY,
-    Name                VARCHAR(100),
-    Firstname           VARCHAR(100),
-    Address_ID          INT,
-    Phone               VARCHAR(20),
-    Email               VARCHAR(255),
-    Password            VARCHAR(255),
-    Birthdate           DATE,
-    IsRegistered        BOOLEAN,
-    Role                ENUM ('admin', 'volunteer') NOT NULL DEFAULT 'volunteer',
+    User_ID      INT AUTO_INCREMENT PRIMARY KEY,
+    Name         VARCHAR(100),
+    Firstname    VARCHAR(100),
+    Address_ID   INT,
+    Phone        VARCHAR(20),
+    Email        VARCHAR(255),
+    Password     VARCHAR(255),
+    Birthdate    DATE,
+    IsRegistered BOOLEAN,
+    Role         ENUM ('admin', 'volunteer') NOT NULL DEFAULT 'volunteer',
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS Skills
 (
     Skill_ID INT AUTO_INCREMENT PRIMARY KEY,
-    Name     VARCHAR(100)
+    Name     VARCHAR(100),
+    UseType  BOOLEAN
 );
 
 CREATE TABLE IF NOT EXISTS User_Skills
@@ -73,10 +74,10 @@ CREATE TABLE IF NOT EXISTS Trucks
 
 CREATE TABLE IF NOT EXISTS Subscriptions
 (
-    User_ID      INT,
-    End_Date     DATE,
-    Amount       DECIMAL(10, 2),
-    Status       BOOLEAN, -- true for 'paid', false for 'pending'
+    User_ID  INT,
+    End_Date DATE,
+    Amount   DECIMAL(10, 2),
+    Status   BOOLEAN, -- true for 'paid', false for 'pending'
     PRIMARY KEY (User_ID, End_Date),
     FOREIGN KEY (User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE
 );
@@ -180,26 +181,26 @@ CREATE TABLE IF NOT EXISTS Tickets
 (
     Ticket_ID           INT AUTO_INCREMENT PRIMARY KEY,
     Title               VARCHAR(255) NOT NULL,
-    Direction           BOOLEAN NOT NULL,      -- true for 'proposition', false for 'demande'
-    Start_Date          DATE NOT NULL,         -- date de début de l'activité
-    End_Of_Subscription DATE NOT NULL,         -- date de fin des inscriptions
-    Duration            INT NOT NULL,          -- durée de l'activité en minutes
+    Direction           BOOLEAN      NOT NULL, -- true for 'proposition', false for 'demande'
+    Start_Date          DATE         NOT NULL, -- date de début de l'activité
+    Start_Time          TIME         NOT NULL, -- heure de début de l'activité
+    End_Of_Subscription DATE         NOT NULL, -- date de fin des inscriptions
+    Duration            INT          NOT NULL, -- durée de l'activité en minutes
     Places              INT,                   -- nombre de places disponibles maximum, optionnel
     Tools               VARCHAR(255),          -- optionnel
     Address_ID          INT,
-    Address_needs       BOOLEAN NOT NULL,      -- Si l'adresse des inscrits est nécessaire
+    Address_needs       BOOLEAN      NOT NULL, -- Si l'adresse des inscrits est nécessaire
     Customers_Address   VARCHAR(100),          -- faire une table intermédiaire avec user par exemple, optionnel
-    Description         TEXT NOT NULL,
+    Description         TEXT         NOT NULL,
     Image               VARCHAR(255),          -- optionnel
     Status_ID           INT,                   -- statut de la proposition ou demande
-    Owner_User_ID       INT NOT NULL,          -- personne qui crée le ticket
-    Category_ID         INT,                   -- clé étrangère vers Skills
+    Owner_User_ID       INT          NOT NULL, -- personne qui crée le ticket
+    Skill_ID            INT,                   -- clé étrangère vers Skills
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID),
     FOREIGN KEY (Status_ID) REFERENCES Statuses (Status_ID),
     FOREIGN KEY (Owner_User_ID) REFERENCES Users (User_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Category_ID) REFERENCES Skills (Skill_ID)
-    );
-
+    FOREIGN KEY (Skill_ID) REFERENCES Skills (Skill_ID)
+);
 
 CREATE TABLE IF NOT EXISTS Ticket_Users
 (
@@ -227,8 +228,6 @@ CREATE TABLE Recipes_Ingredients
     FOREIGN KEY (Recipes_ID) REFERENCES Recipes (Recipes_ID),
     FOREIGN KEY (Product_ID) REFERENCES Products (Product_ID)
 );
-
--- Fin des tickets
 
 ## 2.2.2. Insertion of data
 
@@ -375,17 +374,18 @@ VALUES ('admin', 'admin', 1, '0102030405', 'admin@user.com', 'password', '1985-0
        ('Dubois', 'Louis', 5, '0910111213', 'l.dubois@user.com', 'password', '1978-09-30', true, 'volunteer');
 
 -- Données de test pour la table Skills
-INSERT INTO Skills (Name)
-VALUES ('Permis de conduire'),
-       ('Cuisine'),
-       ('Bricolage'),
-       ('Conseils anti-gaspi'),
-       ('Gardiennage'),
-       ('Services de réparation'),
-       ('Électricité'),
-       ('Plomberie'),
-       ('Jardinage'),
-       ('Informatique');
+INSERT INTO Skills (Name, UseType)
+VALUES ('Permis de conduire', TRUE),     -- Proposition
+       ('Cuisine', TRUE),                -- Proposition
+       ('Bricolage', FALSE),             -- Demande
+       ('Conseils anti-gaspi', TRUE),    -- Proposition
+       ('Gardiennage', FALSE),           -- Demande
+       ('Services de réparation', FALSE),-- Demande
+       ('Électricité', FALSE),           -- Demande
+       ('Plomberie', FALSE),             -- Demande
+       ('Jardinage', FALSE),             -- Demande
+       ('Informatique', FALSE);          -- Demande
+
 
 -- Données de test pour la table User_Skills
 INSERT INTO User_Skills (User_ID, Skill_ID, Validation_Date, Document_Path)
@@ -699,87 +699,75 @@ VALUES (10, (SELECT Product_ID FROM Products WHERE Barcode = '1234567890124'), 1
         'Facultatif'); -- Miel
 
 
-INSERT INTO Tickets (Title, Direction, Start_Date, End_Of_Subscription, Duration, Places, Tools, Address_ID,
-                     Address_needs, Customers_Address, Description, Image, Status_ID, Owner_User_ID)
+-- Mise à jour des données de test pour la table Tickets avec Start_Time et Skill_ID
+
+INSERT INTO Tickets (Title, Direction, Start_Date, Start_Time, End_Of_Subscription, Duration, Places, Tools, Address_ID,
+                     Address_needs, Customers_Address, Description, Image, Status_ID, Owner_User_ID, Skill_ID)
 VALUES
 -- Conseils anti-gaspi (proposition)
-('Conseils anti-gaspi', true, '2024-09-01', '2024-08-25', 90, 10, 'Livrets', 1, false, NULL,
- 'Atelier pour apprendre à réduire le gaspillage alimentaire.', '1.jpg', 1, 2),
+('Conseils anti-gaspi', true, '2024-09-01', '10:00:00', '2024-08-25', 90, 10, 'Livrets', NULL, false, NULL,
+ 'Atelier pour apprendre à réduire le gaspillage alimentaire.', '1.jpg', 1, 2, 4),  -- Skill_ID pour 'Conseils anti-gaspi'
 
 -- Cours de cuisine (proposition)
-('Cours de cuisine', true, '2024-09-05', '2024-08-28', 120, 15, 'Couteaux, Ustensiles de cuisine', 2, false, NULL,
- 'Cours pratique pour apprendre des recettes anti-gaspillage.', '2.jpg', 1, 3),
+('Cours de cuisine', true, '2024-09-05', '14:00:00', '2024-08-28', 120, 15, 'Couteaux, Ustensiles de cuisine', 2, false, NULL,
+ 'Cours pratique pour apprendre des recettes anti-gaspillage.', '2.jpg', 1, 3, 2),  -- Skill_ID pour 'Cuisine'
 
 -- Partage de véhicules (proposition)
-('Partage de véhicules', true, '2024-09-10', '2024-09-03', 60, 5, 'Liste des véhicules disponibles', 3, true,
- 'Parking central', 'Service de partage de véhicules pour réduire l''empreinte carbone.', '3.jpg', 2, 4),
+('Partage de véhicules', true, '2024-09-10', '09:00:00', '2024-09-03', 60, 5, 'Liste des véhicules disponibles', 3, true,
+ 'Parking central', 'Service de partage de véhicules pour réduire l\'empreinte carbone.', '3.jpg', 2, 4, 1),  -- Skill_ID pour 'Permis de conduire'
 
 -- Échange de services entre particuliers (proposition)
-('Échange de services entre particuliers', true, '2024-09-15', '2024-09-07', 180, 20, 'Outils de bricolage', 4, true,
- 'Chez le client', 'Échange de services comme le bricolage, l''électricité, la plomberie.', '4.jpg', 1, 5),
+('Échange de services entre particuliers', true, '2024-09-15', '15:30:00', '2024-09-07', 180, 20, 'Outils de bricolage', 4, true,
+ 'Chez le client', 'Échange de services comme le bricolage, l\'électricité, la plomberie.', '4.jpg', 1, 5, 3),  -- Skill_ID pour 'Bricolage'
 
 -- Services de réparation (proposition)
-('Services de réparation', true, '2024-09-20', '2024-09-10', 180, 10, 'Outils de réparation', 5, true, 'Chez le client',
- 'Proposition de services pour réparer des objets du quotidien.', '5.jpg', 2, 2),
+('Services de réparation', true, '2024-09-20', '11:00:00', '2024-09-10', 180, 10, 'Outils de réparation', 5, true, 'Chez le client',
+ 'Proposition de services pour réparer des objets du quotidien.', '5.jpg', 2, 2, 6),  -- Skill_ID pour 'Services de réparation'
 
 -- Gardiennage (proposition)
-('Gardiennage', true, '2024-09-25', '2024-09-15', 240, 5, 'Liste des contacts', 1, true, 'Adresse du client',
- 'Service de gardiennage pour animaux ou biens.', '6.jpg', 1, 3),
+('Gardiennage', true, '2024-09-25', '13:00:00', '2024-09-15', 240, 5, 'Liste des contacts', 1, true, 'Adresse du client',
+ 'Service de gardiennage pour animaux ou biens.', '6.jpg', 1, 3, 5),  -- Skill_ID pour 'Gardiennage'
 
 -- Demande de covoiturage (demande)
-('Demande de covoiturage', false, '2024-09-05', '2024-08-30', 60, 3, NULL, 2, true, 'Gare centrale',
- 'Je recherche un covoiturage pour le trajet Paris-Lyon.', '7.jpg', 2, 4),
+('Demande de covoiturage', false, '2024-09-05', '08:00:00', '2024-08-30', 60, 3, NULL, 2, true, 'Gare centrale',
+ 'Je recherche un covoiturage pour le trajet Paris-Lyon.', '7.jpg', 2, 4, 1),  -- Skill_ID pour 'Permis de conduire'
 
 -- Demande de dépannage électrique (demande)
-('Demande de dépannage électrique', false, '2024-09-10', '2024-09-05', 120, 1, 'Outils d\'électricité', 3, true,
- 'Appartement 45', 'Mon appartement a besoin d\'une réparation électrique urgente.', '8.jpg', 1, 5),
-
--- Demande de baby-sitting (demande)
-('Demande de baby-sitting', false, '2024-09-15', '2024-09-07', 240, 1, 'Jouets pour enfants', 4, true,
- 'Domicile personnel', 'Je recherche un baby-sitter pour le weekend.', '9.jpg', 1, 1),
+('Demande de dépannage électrique', false, '2024-09-10', '10:30:00', '2024-09-05', 120, 1, 'Outils d\'électricité', 3, true,
+ 'Appartement 45', 'Mon appartement a besoin d\'une réparation électrique urgente.', '8.jpg', 1, 5, 7),  -- Skill_ID pour 'Électricité'
 
 -- Demande d'aide pour déménagement (demande)
-('Demande d\'aide pour déménagement', false, '2024-09-20', '2024-09-15', 480, 5, 'Camion, Cartons', 5, true,
- 'Nouvelle adresse', 'Besoin d\'aide pour déménager des meubles lourds.', '10.jpg', 2, 2),
+('Demande d\'aide pour déménagement', false, '2024-09-20', '07:00:00', '2024-09-15', 480, 5, 'Camion, Cartons', 5, true,
+ 'Nouvelle adresse', 'Besoin d\'aide pour déménager des meubles lourds.', '10.jpg', 2, 2, 3),  -- Skill_ID pour 'Bricolage'
 
 -- Demande de tutorat en informatique (demande)
-('Demande de tutorat en informatique', false, '2024-09-25', '2024-09-18', 120, 1, 'Ordinateur', 1, true, 'Chez moi',
- 'Je recherche un tutorat pour apprendre les bases de l\'informatique.', '11.jpg', 1, 3),
+('Demande de tutorat en informatique', false, '2024-09-25', '16:00:00', '2024-09-18', 120, 1, 'Ordinateur', 1, true, 'Chez moi',
+ 'Je recherche un tutorat pour apprendre les bases de l\'informatique.', '11.jpg', 1, 3, 10),  -- Skill_ID pour 'Informatique'
 
 -- Demande de réparation de vélo (demande)
-('Demande de réparation de vélo', false, '2024-09-30', '2024-09-23', 90, 1, 'Outils de réparation', 2, true,
- 'Mon garage', 'Mon vélo a besoin d\'être réparé, chaîne cassée.', '12.jpg', 2, 4),
+('Demande de réparation de vélo', false, '2024-09-30', '17:30:00', '2024-09-23', 90, 1, 'Outils de réparation', 2, true,
+ 'Mon garage', 'Mon vélo a besoin d\'être réparé, chaîne cassée.', '12.jpg', 2, 4, 6),  -- Skill_ID pour 'Services de réparation'
 
 -- Demande de jardinage (demande)
-('Demande de jardinage', false, '2024-10-01', '2024-09-25', 180, 2, 'Outils de jardinage', 3, true, 'Mon jardin',
- 'Je recherche de l\'aide pour l\'entretien de mon jardin.', '13.jpg', 1, 5),
+('Demande de jardinage', false, '2024-10-01', '09:00:00', '2024-09-25', 180, 2, 'Outils de jardinage', 3, true, 'Mon jardin',
+ 'Je recherche de l\'aide pour l\'entretien de mon jardin.', '13.jpg', 1, 5, 9),  -- Skill_ID pour 'Jardinage'
 
 -- Demande de covoiturage pour le weekend (demande)
-('Demande de covoiturage pour le weekend', false, '2024-10-05', '2024-09-30', 120, 3, NULL, 4, true,
- 'Lieu de rendez-vous', 'Je cherche un covoiturage pour aller à la campagne ce weekend.', '14.jpg', 2, 1),
+('Demande de covoiturage pour le weekend', false, '2024-10-05', '15:00:00', '2024-09-30', 120, 3, NULL, 4, true,
+ 'Lieu de rendez-vous', 'Je cherche un covoiturage pour aller à la campagne ce weekend.', '14.jpg', 2, 1, 1),  -- Skill_ID pour 'Permis de conduire'
 
 -- Demande de service de réparation d'électroménager (demande)
-('Demande de réparation d\'électroménager', false, '2024-10-10', '2024-10-05', 180, 1, 'Outils de réparation', 5, true,
- 'Chez moi', 'Mon lave-linge est en panne, besoin de réparation.', '15.jpg', 1, 2),
--- Demande de covoiturage pour un événement
-('Demande de covoiturage pour un événement', false, '2024-11-01', '2024-10-25', 120, 3, NULL, 2, true, 'Gare centrale',
- 'Je cherche un covoiturage pour assister à un événement.', '16.jpg', 1, 4),
+('Demande de réparation d\'électroménager', false, '2024-10-10', '11:00:00', '2024-10-05', 180, 1, 'Outils de réparation', 5, true,
+ 'Chez moi', 'Mon lave-linge est en panne, besoin de réparation.', '15.jpg', 1, 2, 6),  -- Skill_ID pour 'Services de réparation'
 
--- Proposition d'aide à domicile pour personnes âgées
-('Aide à domicile pour personnes âgées', true, '2024-11-05', '2024-10-28', 240, 5, 'Liste des tâches ménagères', 3,
- true, 'Domicile du bénéficiaire', 'Proposition d\'aide à domicile pour personnes âgées.', '17.jpg', 2, 5),
+-- Demande de covoiturage pour un événement (demande)
+('Demande de covoiturage pour un événement', false, '2024-11-01', '08:00:00', '2024-10-25', 120, 3, NULL, 2, true, 'Gare centrale',
+ 'Je cherche un covoiturage pour assister à un événement.', '16.jpg', 1, 4, 1),  -- Skill_ID pour 'Permis de conduire'
 
--- Demande d'aide pour le jardinage
-('Demande d\'aide pour le jardinage', false, '2024-11-10', '2024-11-02', 180, 2, 'Outils de jardinage', 4, true,
- 'Mon jardin', 'Besoin d\'aide pour entretenir un grand jardin.', '18.jpg', 1, 2),
+-- Demande d'aide pour le jardinage (demande)
+('Demande d\'aide pour le jardinage', false, '2024-11-10', '10:30:00', '2024-11-02', 180, 2, 'Outils de jardinage', 4, true,
+ 'Mon jardin', 'Besoin d\'aide pour entretenir un grand jardin.', '18.jpg', 1, 2, 9);  -- Skill_ID pour 'Jardinage'
 
--- Proposition de cours de yoga
-('Cours de yoga', true, '2024-11-15', '2024-11-07', 90, 10, 'Tapis de yoga', 5, false, NULL,
- 'Cours de yoga pour débutants et intermédiaires.', '19.jpg', 1, 3),
-
--- Demande de tutorat en mathématiques
-('Demande de tutorat en mathématiques', false, '2024-11-20', '2024-11-13', 120, 1, 'Manuels de mathématiques', 1, true,
- 'Chez moi', 'Je cherche un tuteur pour m\'aider en mathématiques.', '20.jpg', 1, 1);
 
 INSERT INTO Ticket_Users (Ticket_ID, User_ID)
 VALUES

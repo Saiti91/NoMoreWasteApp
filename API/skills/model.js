@@ -3,11 +3,13 @@ const Joi = require("joi");
 // Schéma de validation pour créer une compétence
 const createSkillSchema = Joi.object({
     name: Joi.string().max(100).required(),
+    useType: Joi.boolean().required(), // Ajout de UseType
 });
 
 // Schéma de validation pour mettre à jour une compétence
 const updateSkillSchema = Joi.object({
     name: Joi.string().max(100).optional(),
+    useType: Joi.boolean().optional(), // Ajout de UseType
 }).min(1);
 
 // Schéma de validation pour lier une compétence à un utilisateur

@@ -23,7 +23,7 @@ const categories = ref([]);
 
 const fetchCategories = async () => {
   try {
-    const response = await axios.get('/categories');
+    const response = await axios.get('/skills');
     categories.value = response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories:', error);
@@ -144,8 +144,8 @@ const saveTicket = async () => {
         <label>Catégorie</label>
         <select v-model="category" class="ui dropdown">
           <option value="" disabled>Choisir</option>
-          <option v-for="cat in categories" :key="cat.Skill_ID" :value="cat.Skill_ID">
-            {{ cat.Name }}
+          <option v-for="categorie in categories" :key="categorie.Skill_ID" :value="categorie.Skill_ID">
+            {{ categorie.Name }}
           </option>
         </select>
       </div>

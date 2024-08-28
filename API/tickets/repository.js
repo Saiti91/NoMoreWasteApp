@@ -6,6 +6,7 @@ async function createOne(ticket) {
         title,
         direction,
         startDate,
+        startTime, // Nouveau champ
         endOfSubscription,
         duration,
         places,
@@ -16,17 +17,20 @@ async function createOne(ticket) {
         description,
         image,
         statusId,
-        ownerUserId
+        ownerUserId,
+        skillId // Nouveau champ
     } = ticket;
 
     const connection = await getConnection();
     const [result] = await connection.execute(
-        'INSERT INTO Tickets (Title, Direction, Start_Date, End_Of_Subscription, Duration, Places, Tools, Address_ID, Address_needs, Customers_Address, Description, Image, Status_ID, Owner_User_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [title, direction, startDate, endOfSubscription, duration, places, tools, addressId, addressNeeds, customersAddress, description, image, statusId, ownerUserId]
+        `INSERT INTO Tickets (Title, Direction, Start_Date, Start_Time, End_Of_Subscription, Duration, Places, Tools, Address_ID, Address_needs, Customers_Address, Description, Image, Status_ID, Owner_User_ID, Skill_ID)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [title, direction, startDate, startTime, endOfSubscription, duration, places, tools, addressId, addressNeeds, customersAddress, description, image, statusId, ownerUserId, skillId]
     );
     await connection.end();
     return result.insertId;
 }
+
 
 // Récupère un ticket en fonction de son ID avec les données de l'utilisateur et de l'adresse
 async function getOne(id) {
@@ -35,7 +39,7 @@ async function getOne(id) {
     }
     const connection = await getConnection();
     const [rows] = await connection.execute(`
-        SELECT t.*,
+        SELECT t.*, 
                u.Name      AS OwnerName,
                u.Firstname AS OwnerFirstname,
                u.Email     AS OwnerEmail,
@@ -43,15 +47,18 @@ async function getOne(id) {
                a.City,
                a.State,
                a.Postal_Code,
-               a.Country
+               a.Country,
+               s.Name AS SkillName -- Ajouter le nom de la compétence
         FROM Tickets t
                  JOIN Users u ON t.Owner_User_ID = u.User_ID
                  LEFT JOIN Address a ON t.Address_ID = a.Address_ID
+                 LEFT JOIN Skills s ON t.Skill_ID = s.Skill_ID -- Jointure avec Skills
         WHERE t.Ticket_ID = ?
     `, [id]);
     await connection.end();
     return rows[0] || null;
 }
+
 
 // Récupère tous les tickets avec les données de l'utilisateur et de l'adresse
 async function getAll() {
@@ -65,10 +72,12 @@ async function getAll() {
                a.City,
                a.State,
                a.Postal_Code,
-               a.Country
+               a.Country,
+               s.Name AS SkillName -- Ajouter le nom de la compétence
         FROM Tickets t
                  JOIN Users u ON t.Owner_User_ID = u.User_ID
                  LEFT JOIN Address a ON t.Address_ID = a.Address_ID
+                 LEFT JOIN Skills s ON t.Skill_ID = s.Skill_ID -- Jointure avec Skills
     `);
     await connection.end();
     return rows;
@@ -84,6 +93,7 @@ async function updateOne(id, ticket) {
         title,
         direction,
         startDate,
+        startTime, // Nouveau champ
         endOfSubscription,
         duration,
         places,
@@ -94,12 +104,15 @@ async function updateOne(id, ticket) {
         description,
         image,
         statusId,
-        ownerUserId
+        ownerUserId,
+        skillId // Nouveau champ
     } = ticket;
 
     const [result] = await connection.execute(
-        'UPDATE Tickets SET Title = ?, Direction = ?, Start_Date = ?, End_Of_Subscription = ?, Duration = ?, Places = ?, Tools = ?, Address_ID = ?, Address_needs = ?, Customers_Address = ?, Description = ?, Image = ?, Status_ID = ?, Owner_User_ID = ? WHERE Ticket_ID = ?',
-        [title, direction, startDate, endOfSubscription, duration, places, tools, addressId, addressNeeds, customersAddress, description, image, statusId, ownerUserId, id]
+        `UPDATE Tickets 
+         SET Title = ?, Direction = ?, Start_Date = ?, Start_Time = ?, End_Of_Subscription = ?, Duration = ?, Places = ?, Tools = ?, Address_ID = ?, Address_needs = ?, Customers_Address = ?, Description = ?, Image = ?, Status_ID = ?, Owner_User_ID = ?, Skill_ID = ?
+         WHERE Ticket_ID = ?`,
+        [title, direction, startDate, startTime, endOfSubscription, duration, places, tools, addressId, addressNeeds, customersAddress, description, image, statusId, ownerUserId, skillId, id]
     );
     await connection.end();
     return result.affectedRows;
