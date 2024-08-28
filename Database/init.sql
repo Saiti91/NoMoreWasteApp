@@ -414,19 +414,19 @@ VALUES (1, '2024-08-29', 9.99, true),
 
 -- Données de test pour la table Schedules
 INSERT INTO Schedules (User_ID, Date, Type)
-VALUES (1, '2023-06-01', true),
-       (2, '2023-06-02', false),
-       (3, '2023-06-03', true),
-       (4, '2023-06-04', false),
-       (5, '2023-06-05', true);
+VALUES (1, '2024-09-01', true),
+       (2, '2024-09-02', false),
+       (3, '2024-09-03', true),
+       (4, '2024-09-04', false),
+       (5, '2024-09-05', true);
 
 -- Données de test pour la table Routes
 INSERT INTO Routes (Date, Time, User_ID, Truck_ID, Type)
-VALUES ('2023-07-01', '19:00', 1, 1, true),
-       ('2023-07-02', '18:30', 2, 2, false),
-       ('2023-07-03', '18:15', 3, 3, true),
-       ('2023-07-04', '18:00', 4, 4, false),
-       ('2023-07-05', '18:45', 5, 5, true);
+VALUES ('2024-09-01', '19:00', 1, 1, true),
+       ('2024-09-02', '18:30', 2, 2, false),
+       ('2024-09-03', '18:15', 3, 3, true),
+       ('2024-09-04', '18:00', 4, 4, false),
+       ('2024-09-05', '18:45', 5, 5, true);
 
 -- Données de test pour la table Schedule_Routes
 INSERT INTO Schedule_Routes (Schedule_ID, Route_ID)
