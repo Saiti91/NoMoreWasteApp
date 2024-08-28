@@ -10,8 +10,8 @@ const geocoder = NodeGeocoder(options);
 
 async function getGeoCoordinates(address) {
     if (!address || !address.street || !address.town || !address.CP) {
-        console.log('Incomplete address information for geocoding:', address, 'street:', address.street, 'town:', address.town, 'CP:', address.CP);
-        throw new Error('Incomplete address information for geocoding');
+        console.log('Incomplete addresses information for geocoding:', address, 'street:', address.street, 'town:', address.town, 'CP:', address.CP);
+        throw new Error('Incomplete addresses information for geocoding');
     }
 
     const query = `${address.number ? address.number + ' ' : ''}${address.street}, ${address.town}, ${address.CP}`;
@@ -20,7 +20,7 @@ async function getGeoCoordinates(address) {
         const res = await geocoder.geocode(query);
 
         if (res.length === 0) {
-            throw new Error('No results found for the provided address.');
+            throw new Error('No results found for the provided addresses.');
         }
 
         const location = res[0];

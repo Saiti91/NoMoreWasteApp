@@ -376,7 +376,7 @@ controller.delete(
  *                 description: The user's first name
  *               email:
  *                 type: string
- *                 description: The user's email address
+ *                 description: The user's email addresses
  *               telephone:
  *                 type: string
  *                 description: The user's telephone number
@@ -387,24 +387,24 @@ controller.delete(
  *                 type: string
  *                 format: date
  *                 description: The user's birth date
- *               address:
+ *               addresses:
  *                 type: object
  *                 properties:
  *                   street:
  *                     type: string
- *                     description: The street of the user's address
+ *                     description: The street of the user's addresses
  *                   city:
  *                     type: string
- *                     description: The city of the user's address
+ *                     description: The city of the user's addresses
  *                   state:
  *                     type: string
- *                     description: The state or region of the user's address
+ *                     description: The state or region of the user's addresses
  *                   postal_code:
  *                     type: integer
- *                     description: The postal code of the user's address
+ *                     description: The postal code of the user's addresses
  *                   country:
  *                     type: string
- *                     description: The country of the user's address
+ *                     description: The country of the user's addresses
  *     responses:
  *       200:
  *         description: The updated user.
@@ -428,7 +428,7 @@ controller.delete(
  *                   format: date
  *                 IsRegistered:
  *                   type: boolean
- *                 address:
+ *                 addresses:
  *                   type: object
  *                   properties:
  *                     street:

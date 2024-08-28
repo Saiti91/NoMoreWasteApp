@@ -12,6 +12,7 @@ const direction = ref(null);
 const category = ref('');
 const startDate = ref('');
 const startTime = ref('');
+const startDateTime = ref(''); // Nouveau champ pour la date et l'heure combinées
 const duration = ref('');
 const format = ref('');
 const places = ref('');
@@ -53,24 +54,26 @@ const saveTicket = async () => {
     calculatedDuration *= 1440;
   }
 
+  // Fusion de la date et de l'heure pour créer Start_Date
+  startDateTime.value = `${startDate.value}T${startTime.value}`;
+
   // Récupération du token et extraction du uid
   const token = Cookies.get('token');
   if (token) {
     const decodedToken = VueJwtDecode.decode(token);
     const userId = decodedToken.uid;
-    console.log('User ID (uid) from token:', userId); // Vérification de la récupération du uid
+    console.log('User ID (uid) from token:', userId);
     formData.append('Owner_User_ID', userId);
   } else {
     console.error('Token non trouvé');
-    return; // Arrête la fonction si le token n'est pas disponible
+    return;
   }
 
   // Ajout des autres données au FormData
   formData.append('title', title.value);
   formData.append('direction', direction.value);
   formData.append('category', category.value);
-  formData.append('startDate', startDate.value);
-  formData.append('startTime', startTime.value);
+  formData.append('Start_Date', startDateTime.value); // Utilisation de la date et heure combinée
   formData.append('duration', calculatedDuration);
   formData.append('places', places.value);
   formData.append('address', address.value);
@@ -84,8 +87,7 @@ const saveTicket = async () => {
   console.log('Titre:', title.value);
   console.log('Je souhaite:', direction.value);
   console.log('Catégorie:', category.value);
-  console.log('Date de début:', startDate.value);
-  console.log('Heure de début:', startTime.value);
+  console.log('Date et Heure de début:', startDateTime.value); // Affichage de la valeur fusionnée
   console.log('Durée (en minutes):', calculatedDuration);
   console.log('Nombre de places:', places.value);
   console.log('Adresse du service:', address.value);
@@ -106,6 +108,7 @@ const saveTicket = async () => {
   }
 };
 </script>
+
 
 <template>
   <HeaderBackOffice/>

@@ -86,11 +86,11 @@ controller.get("/", (req, res, next) => {
  * @swagger
  * /donations/notcollected:
  *   get:
- *     summary: Retrieve all donations that have not been collected, grouped by address
+ *     summary: Retrieve all donations that have not been collected, grouped by addresses
  *     tags: [Donation]
  *     responses:
  *       200:
- *         description: A list of all donations that have not been collected, grouped by address
+ *         description: A list of all donations that have not been collected, grouped by addresses
  *         content:
  *           application/json:
  *             schema:
@@ -100,34 +100,34 @@ controller.get("/", (req, res, next) => {
  *                 properties:
  *                   Address_ID:
  *                     type: integer
- *                     description: The ID of the address where donations were made
+ *                     description: The ID of the addresses where donations were made
  *                   Street:
  *                     type: string
- *                     description: The street of the address
+ *                     description: The street of the addresses
  *                   City:
  *                     type: string
- *                     description: The city of the address
+ *                     description: The city of the addresses
  *                   State:
  *                     type: string
- *                     description: The state of the address
+ *                     description: The state of the addresses
  *                   Postal_Code:
  *                     type: string
- *                     description: The postal code of the address
+ *                     description: The postal code of the addresses
  *                   Country:
  *                     type: string
- *                     description: The country of the address
+ *                     description: The country of the addresses
  *                   Total_Donations:
  *                     type: integer
- *                     description: The total number of donations made to this address
+ *                     description: The total number of donations made to this addresses
  *                   Total_Quantity:
  *                     type: integer
- *                     description: The total quantity of products donated to this address
+ *                     description: The total quantity of products donated to this addresses
  *                   Donors:
  *                     type: string
- *                     description: A comma-separated list of donor names who made donations to this address
+ *                     description: A comma-separated list of donor names who made donations to this addresses
  *                   Products:
  *                     type: array
- *                     description: A list of products donated to this address
+ *                     description: A list of products donated to this addresses
  *                     items:
  *                       type: object
  *                       properties:

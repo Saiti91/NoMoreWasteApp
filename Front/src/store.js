@@ -3,7 +3,7 @@ import { createStore } from 'vuex';
 const store = createStore({
     state: {
         selectedAddresses: new Set(),
-        selectedDestinations: [], // Store selected destinations including address data and products
+        selectedDestinations: [], // Store selected destinations including addresses data and products
         selectedTruck: null, // Store the selected truck object
     },
     mutations: {
@@ -33,7 +33,7 @@ const store = createStore({
     getters: {
         selectedAddresses: state => Array.from(state.selectedAddresses),
         isAddressSelected: (state) => (addressId) => state.selectedAddresses.has(addressId),
-        selectedDestinations: state => state.selectedDestinations, // Return complete destinations with address and products
+        selectedDestinations: state => state.selectedDestinations, // Return complete destinations with addresses and products
         selectedTruck: state => state.selectedTruck,
     },
     actions: {

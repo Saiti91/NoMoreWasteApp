@@ -45,7 +45,7 @@ const createTour = async () => {
     return;
   }
 
-  // Filter and map the selected destinations, including full address details and products
+  // Filter and map the selected destinations, including full addresses details and products
   const selectedDestinations = donations.value.filter(address =>
       store.getters.isAddressSelected(address.Address_ID)
   ).map(address => ({
@@ -65,7 +65,7 @@ const createTour = async () => {
     }))
   }));
 
-  // Save the selected destinations and their products, including address details, in the store
+  // Save the selected destinations and their products, including addresses details, in the store
   store.dispatch('saveTourData', selectedDestinations);
 
   try {

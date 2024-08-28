@@ -68,12 +68,12 @@ const controller = Router();
  *           items:
  *             type: string
  *           description: Extra tools required for the service.
- *         address:
+ *         addresses:
  *           type: string
  *           description: Address of the service.
  *         needsCustomerAddress:
  *           type: boolean
- *           description: Indicates if customer address is needed.
+ *           description: Indicates if customer addresses is needed.
  *         description:
  *           type: string
  *           description: Description of the service.
@@ -94,7 +94,7 @@ const controller = Router();
  *         tools: "Aucun"
  *         toolsOther: ""
  *         extraTools: []
- *         address: "123 Rue de la Peinture, Paris"
+ *         addresses: "123 Rue de la Peinture, Paris"
  *         needsCustomerAddress: false
  *         description: "Atelier de peinture pour débutants."
  *         image: null

@@ -209,7 +209,7 @@ async function updateOne(id, user) {
                     [id]
                 );
                 if (rows.length === 0) {
-                    throw new Error("updateOne: No address found for this user.");
+                    throw new Error("updateOne: No addresses found for this user.");
                 }
 
                 const addressId = rows[0].Address_ID;
