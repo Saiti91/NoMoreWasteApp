@@ -4,10 +4,8 @@ const {InvalidArgumentError, NotFoundError} = require("../common/service_errors"
 const fs = require('fs');
 const path = require('path');
 
-
-// Fonction de création d'une compétence
 async function createOne(skill) {
-    const {value, error} = createSkillSchema.validate(skill);
+    const { value, error } = createSkillSchema.validate(skill);
     if (error) {
         throw error;
     }
@@ -94,9 +92,8 @@ async function deleteSkillForUser(userId, skillId) {
     return { userId: returnedUserId, skillId: returnedSkillId };
 }
 
-// Fonction de mise à jour d'une compétence en fonction de son ID
 async function updateOne(id, skill) {
-    const {value, error} = updateSkillSchema.validate(skill);
+    const { value, error } = updateSkillSchema.validate(skill);
     if (error) {
         throw error;
     }

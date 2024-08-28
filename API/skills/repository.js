@@ -1,20 +1,19 @@
 const getConnection = require("../common/db_handler");
 
-
-
 // Fonction pour créer une nouvelle compétence
 async function createOne(skill) {
     const connection = await getConnection();
-    const { Name } = skill;
+    const { Name, UseType } = skill;
 
     const [result] = await connection.execute(
-        'INSERT INTO Skills (Name) VALUES (?)',
-        [Name]
+        'INSERT INTO Skills (Name, UseType) VALUES (?, ?)',
+        [Name, UseType]
     );
 
     await connection.end();
     return result.insertId;
 }
+
 
 async function validateUserSkill(userId, skillId) {
     const connection = await getConnection();
@@ -154,11 +153,11 @@ async function verifySkill(userId, skillName) {
 // Fonction pour mettre à jour une compétence par son ID
 async function updateOne(id, skill) {
     const connection = await getConnection();
-    const { Name } = skill;
+    const { Name, UseType } = skill;
 
     const [result] = await connection.execute(
-        'UPDATE Skills SET Name = ? WHERE Skill_ID = ?',
-        [Name, id]
+        'UPDATE Skills SET Name = ?, UseType = ? WHERE Skill_ID = ?',
+        [Name, UseType, id]
     );
 
     await connection.end();
