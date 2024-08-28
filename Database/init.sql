@@ -427,6 +427,12 @@ VALUES ('2024-09-01', '19:00', 1, 1, true),
        ('2024-09-03', '18:15', 3, 3, true),
        ('2024-09-04', '18:00', 4, 4, false),
        ('2024-09-05', '18:45', 5, 5, true);
+INSERT INTO Routes (Date, Time, Truck_ID, Type)
+VALUES ('2024-08-28', '19:00',  1, true),
+       ('2024-08-13', '18:30',  2, false),
+       ('2024-09-03', '18:15',  3, true),
+       ('2024-09-04', '18:00',  4, false),
+       ('2024-09-05', '18:45',  5, true);
 
 -- Données de test pour la table Schedule_Routes
 INSERT INTO Schedule_Routes (Schedule_ID, Route_ID)
