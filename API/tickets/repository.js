@@ -6,31 +6,54 @@ async function createOne(ticket) {
         title,
         direction,
         startDate,
-        startTime, // Nouveau champ
-        endOfSubscription,
+        startTime,
+        endOfSubscription = null, // Default to null if not provided
         duration,
-        places,
-        tools,
-        addressId,
-        addressNeeds,
-        customersAddress,
+        places = null, // Optional, set to null if not provided
+        tools = null, // Optional, set to null if not provided
+        addressId = null, // Optional, set to null if not provided
+        addressNeeds = false, // Ensure a boolean value
+        customersAddress = null, // Optional, set to null if not provided
         description,
-        image,
-        statusId,
+        image = null, // Optional, set to null if not provided
+        statusId = null, // Optional, set to null if not provided
         ownerUserId,
-        skillId // Nouveau champ
+        skillId
     } = ticket;
+
+    // Calculate endOfSubscription if not provided
+    const calculatedEndOfSubscription = endOfSubscription || new Date(new Date(startDate).getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    console.log("ticket from repository", ticket);
 
     const connection = await getConnection();
     const [result] = await connection.execute(
-        `INSERT INTO Tickets (Title, Direction, Start_Date, Start_Time, End_Of_Subscription, Duration, Places, Tools, Address_ID, Address_needs, Customers_Address, Description, Image, Status_ID, Owner_User_ID, Skill_ID)
+        `INSERT INTO Tickets (Title, Direction, Start_Date, Start_Time, End_Of_Subscription, Duration, Places, Tools,
+                              Address_ID, Address_needs, Customers_Address, Description, Image, Status_ID,
+                              Owner_User_ID, Skill_ID)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [title, direction, startDate, startTime, endOfSubscription, duration, places, tools, addressId, addressNeeds, customersAddress, description, image, statusId, ownerUserId, skillId]
+        [
+            title,
+            direction === 'true', // Ensure it's a boolean
+            startDate,
+            startTime,
+            calculatedEndOfSubscription, // Use the calculated or provided value
+            duration,
+            places,
+            tools,
+            addressId,
+            addressNeeds === 'true', // Ensure it's a boolean
+            customersAddress,
+            description,
+            image,
+            statusId,
+            ownerUserId,
+            skillId
+        ]
     );
     await connection.end();
     return result.insertId;
 }
-
 
 // Récupère un ticket en fonction de son ID avec les données de l'utilisateur et de l'adresse
 async function getOne(id) {
@@ -39,7 +62,7 @@ async function getOne(id) {
     }
     const connection = await getConnection();
     const [rows] = await connection.execute(`
-        SELECT t.*, 
+        SELECT t.*,
                u.Name      AS OwnerName,
                u.Firstname AS OwnerFirstname,
                u.Email     AS OwnerEmail,
@@ -48,7 +71,7 @@ async function getOne(id) {
                a.State,
                a.Postal_Code,
                a.Country,
-               s.Name AS SkillName -- Ajouter le nom de la compétence
+               s.Name      AS SkillName -- Ajouter le nom de la compétence
         FROM Tickets t
                  JOIN Users u ON t.Owner_User_ID = u.User_ID
                  LEFT JOIN Address a ON t.Address_ID = a.Address_ID
@@ -73,7 +96,7 @@ async function getAll() {
                a.State,
                a.Postal_Code,
                a.Country,
-               s.Name AS SkillName -- Ajouter le nom de la compétence
+               s.Name      AS SkillName -- Ajouter le nom de la compétence
         FROM Tickets t
                  JOIN Users u ON t.Owner_User_ID = u.User_ID
                  LEFT JOIN Address a ON t.Address_ID = a.Address_ID
@@ -109,8 +132,23 @@ async function updateOne(id, ticket) {
     } = ticket;
 
     const [result] = await connection.execute(
-        `UPDATE Tickets 
-         SET Title = ?, Direction = ?, Start_Date = ?, Start_Time = ?, End_Of_Subscription = ?, Duration = ?, Places = ?, Tools = ?, Address_ID = ?, Address_needs = ?, Customers_Address = ?, Description = ?, Image = ?, Status_ID = ?, Owner_User_ID = ?, Skill_ID = ?
+        `UPDATE Tickets
+         SET Title = ?,
+             Direction = ?,
+             Start_Date = ?,
+             Start_Time = ?,
+             End_Of_Subscription = ?,
+             Duration = ?,
+             Places = ?,
+             Tools = ?,
+             Address_ID = ?,
+             Address_needs = ?,
+             Customers_Address = ?,
+             Description = ?,
+             Image = ?,
+             Status_ID = ?,
+             Owner_User_ID = ?,
+             Skill_ID = ?
          WHERE Ticket_ID = ?`,
         [title, direction, startDate, startTime, endOfSubscription, duration, places, tools, addressId, addressNeeds, customersAddress, description, image, statusId, ownerUserId, skillId, id]
     );

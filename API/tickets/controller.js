@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const ticketsService = require('./service');
 const NotFoundError = require('../common/http_errors').NotFoundError;
-
+const {upload, checkFileProvided} = require('../common/middlewares/uploads_middleware');
 const controller = Router();
 
 /**
@@ -143,7 +143,7 @@ const controller = Router();
  *                   type: string
  *                   example: "Detailed error message"
  */
-controller.post("/", async (req, res, next) => {
+controller.post("/", upload.single('image'),async (req, res, next) => {
     try {
         console.log("controller :",req.body);
         const newTicket = await ticketsService.createOne(req.body);
