@@ -6,54 +6,49 @@ import { useI18n } from 'vue-i18n';
 import Swal from "sweetalert2";
 import Header from "@/components/HeaderFrontOffice.vue";
 import useAuth from '@/components/Auth/useAuth';
+import { useRouter } from 'vue-router';
 
 const { t } = useI18n();
 const { userId } = useAuth();
 const tickets = ref([]);
+const router = useRouter();
 
 const fetchTickets = async () => {
   try {
-    console.log("Fetching all tickets...");
     const allTicketsResponse = await axios.get('/tickets');
     const allTickets = allTicketsResponse.data;
-    console.log("All tickets fetched:", allTickets);
 
     const today = new Date().toISOString().split('T')[0];
-    console.log("Today's date:", today);
 
     // Filter tickets based on Skill_ID and End_Of_Subscriptions
     const filteredTickets = allTickets.filter(ticket => {
       const isValidTicket = ticket.Skill_ID === 4 && new Date(ticket.End_Of_Subscription) >= new Date(today);
-      console.log(`Ticket ${ticket.Ticket_ID} is valid:`, isValidTicket);
       return isValidTicket;
     });
 
     const availableTickets = [];
 
     for (const ticket of filteredTickets) {
-      console.log(`Fetching registrations for ticket ${ticket.Ticket_ID}...`);
-      const registrationsResponse = await axios.get(`/registrations/ticket/${ticket.Ticket_ID}`);
-      const registrations = registrationsResponse.data;
-      const registrationCount = registrations.length;
-      console.log(`Number of registrations for ticket ${ticket.Ticket_ID}:`, registrationCount);
+      try {
+        const registrationsResponse = await axios.get(`/registrations/ticket/${ticket.Ticket_ID}`);
+        const registrations = registrationsResponse.data;
+        const registrationCount = registrations.length;
 
-      // Vérifier si l'utilisateur est déjà inscrit
-      const isUserAlreadyRegistered = registrations.some(registration => registration.User_ID === userId.value);
-      if (isUserAlreadyRegistered) {
-        console.log(`User ${userId.value} is already registered for ticket ${ticket.Ticket_ID}. Skipping this ticket.`);
-        continue; // Ignorer ce ticket car l'utilisateur est déjà inscrit
-      }
+        // Vérifier si l'utilisateur est déjà inscrit
+        const isUserAlreadyRegistered = registrations.some(registration => registration.User_ID === userId.value);
+        if (isUserAlreadyRegistered) {
+          continue; // Ignorer ce ticket car l'utilisateur est déjà inscrit
+        }
 
-      if (registrationCount < ticket.Places && ticket.Owner_User_ID !== userId.value) {
-        console.log(`Ticket ${ticket.Ticket_ID} is available.`);
-        availableTickets.push(ticket);
-      } else {
-        console.log(`Ticket ${ticket.Ticket_ID} is not available or owned by the current user.`);
+        if (registrationCount < ticket.Places && ticket.Owner_User_ID !== userId.value) {
+          availableTickets.push(ticket);
+        }
+      } catch (error) {
+        // On ignore les erreurs pour les tickets sans inscriptions et on passe au suivant
       }
     }
 
     tickets.value = availableTickets;
-    console.log("Available tickets:", tickets.value);
 
   } catch (error) {
     console.error('Erreur lors de la récupération des tickets:', error);
@@ -65,25 +60,9 @@ const fetchTickets = async () => {
   }
 };
 
-const registerForTicket = async (ticketId) => {
-  try {
-    console.log(`Registering for ticket ${ticketId}...`);
-    await axios.post(`/registrations/${ticketId}/${userId.value}`);
-    Swal.fire({
-      icon: 'success',
-      title: t('registrationSuccessful'),
-      text: t('youHaveBeenRegistered'),
-    });
-    console.log(`Successfully registered for ticket ${ticketId}.`);
-    fetchTickets(); // Refresh the list of tickets after registration
-  } catch (error) {
-    console.error('Erreur lors de l\'inscription:', error);
-    Swal.fire({
-      icon: 'error',
-      title: t('errorRegistration'),
-      text: error.message,
-    });
-  }
+// Nouvelle fonction pour rediriger vers la page de détails du ticket
+const goToTicketDetails = (ticketId) => {
+  router.push(`/service-details/${ticketId}`);
 };
 
 onMounted(() => {
@@ -112,8 +91,9 @@ onMounted(() => {
               <div class="description">{{ ticket.Description }}</div>
             </div>
             <div class="extra content">
-              <button class="ui teal button" @click="registerForTicket(ticket.Ticket_ID)">
-                {{ t('sign_up') }}
+              <!-- Modification pour rediriger vers la page de détails du ticket -->
+              <button class="ui teal button" @click="goToTicketDetails(ticket.Ticket_ID)">
+                {{ t('details') }}
               </button>
             </div>
           </div>
@@ -123,24 +103,29 @@ onMounted(() => {
   </div>
 </template>
 
+
 <style scoped>
 .spacer_perso {
   margin: 7%;
 }
+
 .content-area {
   padding: 20px;
   margin-left: 7%;
   width: calc(70% - 50px);
 }
+
 .ui.cards {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
 }
+
 .card {
   margin: 10px;
   width: 300px;
 }
+
 .no-tickets-message {
   display: flex;
   flex-direction: column;
