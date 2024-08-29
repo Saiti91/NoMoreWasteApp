@@ -219,7 +219,7 @@ const routes = [
         //beforeEnter: useAuthGuard(['volunteer'])
     },
     {
-        path: '/service-details',
+        path: '/service-details/:id',
         name: 'Details',
         component: Details,
         //beforeEnter: useAuthGuard(['volunteer'])
