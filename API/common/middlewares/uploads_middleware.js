@@ -6,7 +6,6 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let uploadPath;
 
-        // Log the incoming request path
         console.log('Incoming request path:', req.path);
 
         if (req.path.includes('add')) {
@@ -19,12 +18,15 @@ const storage = multer.diskStorage({
             }
             uploadPath = path.join(__dirname, '../../uploads/justificatif', userId);
             console.log('Set upload path for skill:', uploadPath);
+        } else if (req.path.includes('tickets')) {
+            uploadPath = path.join(__dirname, '../../uploads/tickets');
+            console.log('Set upload path for ticket:', uploadPath);
         } else {
             console.error('Invalid upload path for request path:', req.path);
             return cb(new Error('Invalid upload path'));
         }
 
-        // Ensure the directory exists
+        // Assurez-vous que le répertoire existe
         if (!fs.existsSync(uploadPath)) {
             console.log('Directory does not exist, creating:', uploadPath);
             fs.mkdirSync(uploadPath, { recursive: true });
@@ -41,6 +43,9 @@ const storage = multer.diskStorage({
         } else if (req.path.includes('skill')) {
             filename = `${req.body.skill_id}${path.extname(file.originalname)}`;
             console.log('Generated filename for skill:', filename);
+        } else if (req.path.includes('tickets')) {
+            filename = `${Date.now()}${path.extname(file.originalname)}`;
+            console.log('Generated filename for ticket:', filename);
         } else {
             filename = `${Date.now()}${path.extname(file.originalname)}`;
             console.log('Generated fallback filename:', filename);
@@ -64,7 +69,7 @@ function checkFileType(file, cb) {
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5000000 },  // Limit file size to 5MB
+    limits: {fileSize: 5000000},  // Limit file size to 5MB
     fileFilter: (req, file, cb) => {
         checkFileType(file, cb);
     }
@@ -72,7 +77,7 @@ const upload = multer({
 
 function checkFileProvided(req, res, next) {
     if (!req.file) {
-        return res.status(400).json({ message: 'No file uploaded' });
+        return res.status(400).json({message: 'No file uploaded'});
     }
     next();
 }

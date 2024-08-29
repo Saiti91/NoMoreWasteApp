@@ -194,7 +194,6 @@ CREATE TABLE IF NOT EXISTS Tickets
     Address_needs       BOOLEAN      NOT NULL,     -- Si l'adresse des inscrits est nécessaire
     Customers_Address   VARCHAR(100) DEFAULT NULL, -- faire une table intermédiaire avec user par exemple, optionnel
     Description         TEXT         NOT NULL,
-    Image               VARCHAR(255) DEFAULT NULL, -- optionnel
     Status_ID           INT          DEFAULT NULL, -- statut de la proposition ou demande
     Owner_User_ID       INT          NOT NULL,     -- personne qui crée le ticket
     Skill_ID            INT          DEFAULT NULL, -- clé étrangère vers Skills
@@ -706,92 +705,92 @@ VALUES (10, (SELECT Product_ID FROM Products WHERE Barcode = '1234567890124'), 1
 -- Mise à jour des données de test pour la table Tickets avec Start_Time et Skill_ID
 
 INSERT INTO Tickets (Title, Direction, Start_Date, Start_Time, End_Of_Subscription, Duration, Places, Tools, Address_ID,
-                     Address_needs, Customers_Address, Description, Image, Status_ID, Owner_User_ID, Skill_ID)
+                     Address_needs, Customers_Address, Description, Status_ID, Owner_User_ID, Skill_ID)
 VALUES
 -- Conseils anti-gaspi (proposition)
 ('Conseils anti-gaspi', true, '2024-09-01', '10:00:00', '2024-09-25', 90, 10, 'Livrets', NULL, false, NULL,
- 'Atelier pour apprendre à réduire le gaspillage alimentaire.', '1.jpg', 1, 2,
+ 'Atelier pour apprendre à réduire le gaspillage alimentaire.', 1, 2,
  4),                                                                               -- Skill_ID pour 'Conseils anti-gaspi'
 
 -- Cours de cuisine (proposition)
 ('Cours de cuisine', true, '2024-09-05', '14:00:00', '2024-08-28', 120, 15, 'Couteaux, Ustensiles de cuisine', 2, false,
  NULL,
- 'Cours pratique pour apprendre des recettes anti-gaspillage.', '2.jpg', 1, 3, 2), -- Skill_ID pour 'Cuisine'
+ 'Cours pratique pour apprendre des recettes anti-gaspillage.', 1, 3, 2), -- Skill_ID pour 'Cuisine'
 
 -- Partage de véhicules (proposition)
 ('Partage de véhicules', true, '2024-09-10', '09:00:00', '2024-09-03', 60, 5, 'Liste des véhicules disponibles', 3,
  true,
- 'Parking central', 'Service de partage de véhicules pour réduire l\'empreinte carbone.', '3.jpg', 2, 4,
+ 'Parking central', 'Service de partage de véhicules pour réduire l\'empreinte carbone.', 2, 4,
  1),                                                                               -- Skill_ID pour 'Permis de conduire'
 
 -- Échange de services entre particuliers (proposition)
 ('Échange de services entre particuliers', true, '2024-09-15', '15:30:00', '2024-09-07', 180, 20, 'Outils de bricolage',
  4, true,
- 'Chez le client', 'Échange de services comme le bricolage, l\'électricité, la plomberie.', '4.jpg', 1, 5,
+ 'Chez le client', 'Échange de services comme le bricolage, l\'électricité, la plomberie.', 1, 5,
  3),                                                                               -- Skill_ID pour 'Bricolage'
 
 -- Services de réparation (proposition)
 ('Services de réparation', true, '2024-09-20', '11:00:00', '2024-09-10', 180, 10, 'Outils de réparation', 5, true,
  'Chez le client',
- 'Proposition de services pour réparer des objets du quotidien.', '5.jpg', 2, 2,
+ 'Proposition de services pour réparer des objets du quotidien.', 2, 2,
  6),                                                                               -- Skill_ID pour 'Services de réparation'
 
 -- Gardiennage (proposition)
 ('Gardiennage', true, '2024-09-25', '13:00:00', '2024-09-15', 240, 5, 'Liste des contacts', 1, true,
  'Adresse du client',
- 'Service de gardiennage pour animaux ou biens.', '6.jpg', 1, 3, 5),               -- Skill_ID pour 'Gardiennage'
+ 'Service de gardiennage pour animaux ou biens.', 1, 3, 5),               -- Skill_ID pour 'Gardiennage'
 
 -- Demande de covoiturage (demande)
 ('Demande de covoiturage', false, '2024-09-05', '08:00:00', '2024-08-30', 60, 3, NULL, 2, true, 'Gare centrale',
- 'Je recherche un covoiturage pour le trajet Paris-Lyon.', '7.jpg', 2, 4, 1),      -- Skill_ID pour 'Permis de conduire'
+ 'Je recherche un covoiturage pour le trajet Paris-Lyon.', 2, 4, 1),      -- Skill_ID pour 'Permis de conduire'
 
 -- Demande de dépannage électrique (demande)
 ('Demande de dépannage électrique', false, '2024-09-10', '10:30:00', '2024-09-05', 120, 1, 'Outils d\'électricité', 3,
  true,
- 'Appartement 45', 'Mon appartement a besoin d\'une réparation électrique urgente.', '8.jpg', 1, 5,
+ 'Appartement 45', 'Mon appartement a besoin d\'une réparation électrique urgente.', 1, 5,
  7),                                                                               -- Skill_ID pour 'Électricité'
 
 -- Demande d'aide pour déménagement (demande)
 ('Demande d\'aide pour déménagement', false, '2024-09-20', '07:00:00', '2024-09-15', 480, 5, 'Camion, Cartons', 5, true,
- 'Nouvelle adresse', 'Besoin d\'aide pour déménager des meubles lourds.', '10.jpg', 2, 2,
+ 'Nouvelle adresse', 'Besoin d\'aide pour déménager des meubles lourds.', 2, 2,
  3),                                                                               -- Skill_ID pour 'Bricolage'
 
 -- Demande de tutorat en informatique (demande)
 ('Demande de tutorat en informatique', false, '2024-09-25', '16:00:00', '2024-09-18', 120, 1, 'Ordinateur', 1, true,
  'Chez moi',
- 'Je recherche un tutorat pour apprendre les bases de l\'informatique.', '11.jpg', 1, 3,
+ 'Je recherche un tutorat pour apprendre les bases de l\'informatique.', 1, 3,
  10),                                                                              -- Skill_ID pour 'Informatique'
 
 -- Demande de réparation de vélo (demande)
 ('Demande de réparation de vélo', false, '2024-09-30', '17:30:00', '2024-09-23', 90, 1, 'Outils de réparation', 2, true,
- 'Mon garage', 'Mon vélo a besoin d\'être réparé, chaîne cassée.', '12.jpg', 2, 4,
+ 'Mon garage', 'Mon vélo a besoin d\'être réparé, chaîne cassée.', 2, 4,
  6),                                                                               -- Skill_ID pour 'Services de réparation'
 
 -- Demande de jardinage (demande)
 ('Demande de jardinage', false, '2024-10-01', '09:00:00', '2024-09-25', 180, 2, 'Outils de jardinage', 3, true,
  'Mon jardin',
- 'Je recherche de l\'aide pour l\'entretien de mon jardin.', '13.jpg', 1, 5, 9),   -- Skill_ID pour 'Jardinage'
+ 'Je recherche de l\'aide pour l\'entretien de mon jardin.', 1, 5, 9),   -- Skill_ID pour 'Jardinage'
 
 -- Demande de covoiturage pour le weekend (demande)
 ('Demande de covoiturage pour le weekend', false, '2024-10-05', '15:00:00', '2024-09-30', 120, 3, NULL, 4, true,
- 'Lieu de rendez-vous', 'Je cherche un covoiturage pour aller à la campagne ce weekend.', '14.jpg', 2, 1,
+ 'Lieu de rendez-vous', 'Je cherche un covoiturage pour aller à la campagne ce weekend.', 2, 1,
  1),                                                                               -- Skill_ID pour 'Permis de conduire'
 
 -- Demande de service de réparation d'électroménager (demande)
 ('Demande de réparation d\'électroménager', false, '2024-10-10', '11:00:00', '2024-10-05', 180, 1,
  'Outils de réparation', 5, true,
- 'Chez moi', 'Mon lave-linge est en panne, besoin de réparation.', '15.jpg', 1, 2,
+ 'Chez moi', 'Mon lave-linge est en panne, besoin de réparation.', 1, 2,
  6),                                                                               -- Skill_ID pour 'Services de réparation'
 
 -- Demande de covoiturage pour un événement (demande)
 ('Demande de covoiturage pour un événement', false, '2024-11-01', '08:00:00', '2024-10-25', 120, 3, NULL, 2, true,
  'Gare centrale',
- 'Je cherche un covoiturage pour assister à un événement.', '16.jpg', 1, 4, 1),    -- Skill_ID pour 'Permis de conduire'
+ 'Je cherche un covoiturage pour assister à un événement.', 1, 4, 1),    -- Skill_ID pour 'Permis de conduire'
 
 -- Demande d'aide pour le jardinage (demande)
 ('Demande d\'aide pour le jardinage', false, '2024-11-10', '10:30:00', '2024-11-02', 180, 2, 'Outils de jardinage', 4,
  true,
- 'Mon jardin', 'Besoin d\'aide pour entretenir un grand jardin.', '18.jpg', 1, 2, 9); -- Skill_ID pour 'Jardinage'
+ 'Mon jardin', 'Besoin d\'aide pour entretenir un grand jardin.', 1, 2, 9); -- Skill_ID pour 'Jardinage'
 
 
 INSERT INTO Ticket_Users (Ticket_ID, User_ID)

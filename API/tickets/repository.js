@@ -7,29 +7,28 @@ async function createOne(ticket) {
         direction,
         startDate,
         startTime,
-        endOfSubscription = null, // Default to null if not provided
+        endOfSubscription = null,
         duration,
-        places = null, // Optional, set to null if not provided
-        tools = null, // Optional, set to null if not provided
-        addressId = null, // Optional, set to null if not provided
-        addressNeeds = false, // Ensure a boolean value
-        customersAddress = null, // Optional, set to null if not provided
+        places = null,
+        tools = null,
+        addressId = null,
+        addressNeeds = false,
+        customersAddress = null,
         description,
-        image = null, // Optional, set to null if not provided
-        statusId = 1, // Optional, set to null if not provided
+        statusId = 1,
         ownerUserId,
         skillId
     } = ticket;
 
-    // Calculate endOfSubscription if not provided
+    // Calculer endOfSubscription si non fourni
     const calculatedEndOfSubscription = endOfSubscription || new Date(new Date(startDate).getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     console.log("ticket from repository", ticket);
 
     const connection = await getConnection();
 
-    let fetchedAddressId = addressId; // Default to provided addressId if not found
-    if (!addressId) { // Only fetch if addressId is not provided
+    let fetchedAddressId = addressId;
+    if (!addressId) { // Fetcher l'adresse de l'utilisateur si non fournie
         const [userRows] = await connection.execute(
             `SELECT Address_ID FROM Users WHERE User_ID = ? LIMIT 1`,
             [ownerUserId]
@@ -41,9 +40,9 @@ async function createOne(ticket) {
 
     const [result] = await connection.execute(
         `INSERT INTO Tickets (Title, Direction, Start_Date, Start_Time, End_Of_Subscription, Duration, Places, Tools,
-                              Address_ID, Address_needs, Customers_Address, Description, Image, Status_ID,
+                              Address_ID, Address_needs, Customers_Address, Description, Status_ID,
                               Owner_User_ID, Skill_ID)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             title,
             direction,
@@ -54,17 +53,17 @@ async function createOne(ticket) {
             places,
             tools,
             fetchedAddressId,
-            addressNeeds, // Ensure it's a boolean
+            addressNeeds,
             customersAddress,
             description,
-            image,
             statusId,
             ownerUserId,
             skillId
         ]
     );
+
     await connection.end();
-    return result.insertId;
+    return result.insertId; // Renvoie l'ID du ticket créé
 }
 
 // Récupère un ticket en fonction de son ID avec les données de l'utilisateur et de l'adresse
@@ -137,7 +136,6 @@ async function updateOne(id, ticket) {
         addressNeeds,
         customersAddress,
         description,
-        image,
         statusId,
         ownerUserId,
         skillId // Nouveau champ
@@ -157,12 +155,11 @@ async function updateOne(id, ticket) {
              Address_needs = ?,
              Customers_Address = ?,
              Description = ?,
-             Image = ?,
              Status_ID = ?,
              Owner_User_ID = ?,
              Skill_ID = ?
          WHERE Ticket_ID = ?`,
-        [title, direction, startDate, startTime, endOfSubscription, duration, places, tools, addressId, addressNeeds, customersAddress, description, image, statusId, ownerUserId, skillId, id]
+        [title, direction, startDate, startTime, endOfSubscription, duration, places, tools, addressId, addressNeeds, customersAddress, description, statusId, ownerUserId, skillId, id]
     );
     await connection.end();
     return result.affectedRows;

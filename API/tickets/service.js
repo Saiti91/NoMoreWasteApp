@@ -1,6 +1,8 @@
 const { createTicketSchema, updateTicketSchema } = require('./model');
 const Repository = require('./repository');
 const { InvalidArgumentError, NotFoundError } = require('../common/service_errors');
+const fs = require('fs');
+const path = require('path');
 
 // Fonction de création d'un ticket
 async function createOne(ticket) {
@@ -8,9 +10,21 @@ async function createOne(ticket) {
     // if (error) {
     //     throw error;
     //}
-    console.log("ticket from service",ticket);
-    
-    const newTicketId = await Repository.createOne(ticket);
+    const { file, ticketData } = ticket;
+    console.log("ticket from service", ticketData);
+
+    const newTicketId = await Repository.createOne(ticketData);
+
+    // Gérer l'image du ticket après sa création
+    if (file) {
+        const ext = path.extname(file.originalname).toLowerCase();
+        const newFilename = `${newTicketId}${ext}`;
+        const newPath = path.join(path.dirname(file.path), newFilename);
+        console.log("Renaming file to:", newPath);
+        // Renommer le fichier pour inclure l'ID du ticket
+        fs.renameSync(file.path, newPath);
+    }
+
     return { ...ticket, ticket_id: newTicketId };
 }
 

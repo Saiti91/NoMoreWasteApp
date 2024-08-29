@@ -76,15 +76,17 @@ onMounted(async () => {
   const token = Cookies.get('token');
   if (token) {
     const decodedToken = VueJwtDecode.decode(token);
-    const userId = decodedToken.uid;
+    userId.value = decodedToken.uid; // Utiliser .value pour mettre à jour la valeur réactive
+    console.log('ID utilisateur:', userId.value); // Correctement afficher la valeur de l'ID utilisateur
 
     // Récupérer les adresses de l'utilisateur
-    await fetchUserAddresses(userId);
+    await fetchUserAddresses(userId.value); // Utiliser userId.value
   } else {
     console.error('Token non trouvé');
     router.push({ name: 'Login' });
   }
 });
+
 
 // Gérer le téléchargement de fichier
 function handleFileUpload(event) {
@@ -115,7 +117,7 @@ const saveTicket = async () => {
   }
   formData.append('duration', calculatedDuration);
 
-  formData.append('places', places.value);
+  formData.append('places', places.value || 1);
   formData.append('addressId', selectedAddressId.value); // Utiliser l'ID de l'adresse sélectionnée
   formData.append('needsCustomerAddress', needsCustomerAddress.value);
   formData.append('description', description.value);
@@ -126,7 +128,7 @@ const saveTicket = async () => {
   }
 
     if(userId){
-      formData.append('ownerUserId', userId);
+      formData.append('ownerUserId', userId.value);
     }
   // Débogage : afficher le contenu du FormData
   for (let pair of formData.entries()) {
@@ -135,11 +137,7 @@ const saveTicket = async () => {
 
   // Envoyer la requête avec axios
   try {
-    const response = await axios.post('/tickets', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data', // Spécifier le bon type de contenu
-      },
-    });
+    const response = await axios.post('/tickets/tickets', formData);
     console.log('Ticket sauvegardé:', response.data);
   } catch (error) {
     console.error('Erreur lors de la sauvegarde du ticket:', error.response.data || error.message);
@@ -168,7 +166,7 @@ const saveTicket = async () => {
           </div>
           <div class="two wide column">
             <select v-model="direction" class="ui dropdown" required>
-              <option value="" disabled>Choisir</option>
+              <option value="">Choisir</option>
               <option :value="1">Proposer</option>
               <option :value="0">Demander</option>
             </select>

@@ -143,10 +143,13 @@ const controller = Router();
  *                   type: string
  *                   example: "Detailed error message"
  */
-controller.post("/", upload.single('image'),async (req, res, next) => {
+controller.post("/tickets", upload.single('image'), checkFileProvided, async (req, res, next) => {
     try {
-        console.log("controller :",req.body);
-        const newTicket = await ticketsService.createOne(req.body);
+        console.log("controller:", req.body);
+
+        // Passez les données du formulaire et le fichier au service
+        const newTicket = await ticketsService.createOne({ ticketData: req.body, file: req.file });
+
         res.status(201).json(newTicket);
     } catch (err) {
         next(err);

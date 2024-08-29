@@ -3,7 +3,9 @@ import { ref, onMounted } from 'vue';
 import axios from '@/utils/Axios.js';
 import Swal from "sweetalert2";
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
+import { useI18n } from 'vue-i18n';
 
+const t = useI18n().t;
 const unvalidatedSkills = ref([]);
 
 const fetchUnvalidatedSkills = async () => {
@@ -63,7 +65,7 @@ onMounted(() => {
   <div class="spacer"></div>
   <div class="content-container">
     <div class="header-row">
-      <h1>Unvalidated Skills Management</h1>
+      <h1>{{ t('unvalidatedSkillsManagement') }}</h1>
     </div>
     <div class="skills-list">
       <div v-for="skill in unvalidatedSkills" :key="skill.Skill_ID" class="skill-card">

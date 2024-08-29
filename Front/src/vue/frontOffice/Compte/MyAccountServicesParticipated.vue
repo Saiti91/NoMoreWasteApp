@@ -46,6 +46,38 @@ const goToDetails = (ticketId) => {
   router.push({ name: 'TicketDetails', params: { id: ticketId } });
 };
 
+// Fonction pour se désinscrire d'un service
+const unsubscribeFromTicket = async (ticketId) => {
+  Swal.fire({
+    title: t('popupUnsubscribeTitle'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: t('yesUnsubscribe'),
+    cancelButtonText: t('cancel'),
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`/registrations/${ticketId}/${route.params.id}`);
+        Swal.fire({
+          icon: 'success',
+          title: t('unsubscribed'),
+          text: t('successUnsubscribeMsg'),
+        });
+        fetchUserParticipations(); // Refresh list after unsubscribe
+      } catch (error) {
+        console.error('Error unsubscribing from ticket:', error);
+        Swal.fire({
+          icon: 'error',
+          title: t('anErrorOccurred'),
+          text: t('errorUnsubscribeMsg'),
+        });
+      }
+    }
+  });
+};
+
 onMounted(() => {
   fetchUserParticipations();
 });
@@ -67,14 +99,18 @@ onMounted(() => {
               <th>{{ t('startDate') }}</th>
               <th>{{ t('startTime') }}</th>
               <th>{{ t('description') }}</th>
+              <th>{{ t('actions') }}</th>
             </tr>
             </thead>
             <tbody>
-            <tr v-for="ticket in tickets" :key="ticket.Ticket_ID" class="clickable-row" @click="goToDetails(ticket.Ticket_ID)">
-              <td>{{ ticket.Title }}</td>
-              <td>{{ formatDate(ticket.Start_Date) }}</td>
-              <td>{{ formatTime(ticket.Start_Time) }}</td>
-              <td>{{ ticket.Description }}</td>
+            <tr v-for="ticket in tickets" :key="ticket.Ticket_ID" class="clickable-row">
+              <td @click="goToDetails(ticket.Ticket_ID)">{{ ticket.Title }}</td>
+              <td @click="goToDetails(ticket.Ticket_ID)">{{ formatDate(ticket.Start_Date) }}</td>
+              <td @click="goToDetails(ticket.Ticket_ID)">{{ formatTime(ticket.Start_Time) }}</td>
+              <td @click="goToDetails(ticket.Ticket_ID)">{{ ticket.Description }}</td>
+              <td>
+                <button @click="unsubscribeFromTicket(ticket.Ticket_ID)" class="ui red button small">{{ t('unsubscribe') }}</button>
+              </td>
             </tr>
             </tbody>
           </table>
@@ -128,6 +164,15 @@ h2 {
 .ui.celled.table.full-width-table td {
   text-align: center;
   padding: 10px;
+}
+
+.ui.red.button {
+  background-color: #db2828;
+  color: white;
+}
+
+.ui.red.button:hover {
+  background-color: #c82323;
 }
 
 p {
