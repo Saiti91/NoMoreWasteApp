@@ -7,11 +7,6 @@ async function createOne(ticketId, userId) {
         throw new InvalidArgumentError("Ticket ID et User ID sont requis.");
     }
 
-    const existingRegistration = await Repository.getOneBy("Ticket_ID", ticketId, "User_ID", userId);
-    if (existingRegistration) {
-        throw new InvalidArgumentError("L'utilisateur est déjà inscrit à ce ticket.");
-    }
-
     return await Repository.createOne(ticketId, userId);
 }
 
