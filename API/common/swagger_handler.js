@@ -30,6 +30,7 @@ const options = {
         path.join(basePath, "recipes", "*.js"),
         path.join(basePath, "skills", "*.js"),
         path.join(basePath, "tickets", "*.js"),
+        path.join(basePath, "Registrations", "*.js"),
     ],
 
 };
