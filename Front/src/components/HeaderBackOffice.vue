@@ -27,8 +27,8 @@ function logout() {
       <router-link class="item" to="/tour-admin">{{ t('tours') }}</router-link>
       <router-link class="item" to="/recipes-admin">{{ t('recettes') }}</router-link>
       <router-link class="item" to="/skills-admin">{{ t('competence') }}</router-link>
-<!--      //TODO: Ajouter la Gestion des services-->
-      <router-link class="item" to="/service-admin">{{ t('services') }}</router-link>
+      <router-link class="item" to="/services-admin">{{ t('services') }}</router-link>
+
     </template>
     <template #profile-dropdown>
 <!--      <router-link class="item" to="/profile">{{ t('monCompte') }}</router-link>-->

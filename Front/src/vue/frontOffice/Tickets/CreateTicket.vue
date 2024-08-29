@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, onMounted, ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderFrontOffice.vue";
 import { useI18n } from 'vue-i18n';
@@ -12,7 +12,6 @@ const direction = ref(null);
 const category = ref('');
 const startDate = ref('');
 const startTime = ref('');
-const startDateTime = ref(''); // Nouveau champ pour la date et l'heure combinées
 const duration = ref('');
 const format = ref('');
 const places = ref('');
@@ -22,19 +21,19 @@ const description = ref('');
 const image = ref(null);
 const categories = ref([]);
 
+// Fetch categories on mount
 const fetchCategories = async () => {
   try {
-    const response = await axios.get('/categories');
+    const response = await axios.get('/skills');
     categories.value = response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories:', error);
   }
 };
 
-onMounted(async () => {
-  await fetchCategories();
-});
+onMounted(fetchCategories);
 
+// Handle file upload
 function handleFileUpload(event) {
   const file = event.target.files[0];
   if (file) {
@@ -43,72 +42,65 @@ function handleFileUpload(event) {
   }
 }
 
+// Save ticket using FormData
 const saveTicket = async () => {
   const formData = new FormData();
 
-  // Calcul de la durée en minutes
+  // Append form fields to FormData
+  formData.append('title', title.value);
+  formData.append('direction', direction.value);
+  formData.append('skillId', category.value);
+  formData.append('startDate', startDate.value);
+  formData.append('startTime', startTime.value);
+
+  // Calculate duration in minutes
   let calculatedDuration = parseInt(duration.value, 10);
   if (format.value === 'Heures') {
     calculatedDuration *= 60;
   } else if (format.value === 'Jours') {
     calculatedDuration *= 1440;
   }
-
-  // Fusion de la date et de l'heure pour créer Start_Date
-  startDateTime.value = `${startDate.value}T${startTime.value}`;
-
-  // Récupération du token et extraction du uid
-  const token = Cookies.get('token');
-  if (token) {
-    const decodedToken = VueJwtDecode.decode(token);
-    const userId = decodedToken.uid;
-    console.log('User ID (uid) from token:', userId);
-    formData.append('Owner_User_ID', userId);
-  } else {
-    console.error('Token non trouvé');
-    return;
-  }
-
-  // Ajout des autres données au FormData
-  formData.append('title', title.value);
-  formData.append('direction', direction.value);
-  formData.append('category', category.value);
-  formData.append('Start_Date', startDateTime.value); // Utilisation de la date et heure combinée
   formData.append('duration', calculatedDuration);
+
   formData.append('places', places.value);
   formData.append('address', address.value);
   formData.append('needsCustomerAddress', needsCustomerAddress.value);
   formData.append('description', description.value);
+
+  // Append image to FormData, if available
   if (image.value) {
     formData.append('image', image.value);
   }
 
-  // Console log pour chaque donnée
-  console.log('Titre:', title.value);
-  console.log('Je souhaite:', direction.value);
-  console.log('Catégorie:', category.value);
-  console.log('Date et Heure de début:', startDateTime.value); // Affichage de la valeur fusionnée
-  console.log('Durée (en minutes):', calculatedDuration);
-  console.log('Nombre de places:', places.value);
-  console.log('Adresse du service:', address.value);
-  console.log('Besoin d\'adresse du client:', needsCustomerAddress.value);
-  console.log('Description:', description.value);
-  if (image.value) {
-    console.log('Image:', image.value.name);
+  // Get the user ID from the token and append to FormData
+  const token = Cookies.get('token');
+  if (token) {
+    const decodedToken = VueJwtDecode.decode(token);
+    const userId = decodedToken.uid;
+    formData.append('ownerUserId', userId);
   } else {
-    console.log('Aucune image sélectionnée');
+    console.error('Token non trouvé');
+    return; // Stop the function if the token is not available
   }
 
+  // Debugging: Log the FormData content
+  for (let pair of formData.entries()) {
+    console.log(pair[0] + ': ' + pair[1]);
+  }
+
+  // Send the request using axios
   try {
-    const response = await axios.post('/tickets', formData);
+    const response = await axios.post('/tickets', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Set the correct content type
+      },
+    });
     console.log('Ticket sauvegardé:', response.data);
-    // Optionally, redirect or reset form after successful save
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde du ticket:', error);
+    console.error('Erreur lors de la sauvegarde du ticket:', error.response.data || error.message);
   }
 };
 </script>
-
 
 <template>
   <HeaderBackOffice/>
@@ -119,7 +111,7 @@ const saveTicket = async () => {
       <!-- Titre -->
       <div class="field">
         <label>Titre</label>
-        <input v-model="title" placeholder="Titre" type="text"/>
+        <input v-model="title" placeholder="Titre" type="text" required/>
         <div v-if="!title" class="ui pointing red basic label">Le titre est requis</div>
       </div>
 
@@ -130,10 +122,10 @@ const saveTicket = async () => {
             <label>Je souhaite</label>
           </div>
           <div class="two wide column">
-            <select v-model="direction" class="ui dropdown">
+            <select v-model="direction" class="ui dropdown" required>
               <option value="" disabled>Choisir</option>
-              <option :value="true">Proposer</option>
-              <option :value="false">Demander</option>
+              <option :value="1">Proposer</option>
+              <option :value="0">Demander</option>
             </select>
           </div>
           <div class="two wide column">
@@ -145,10 +137,10 @@ const saveTicket = async () => {
       <!-- Catégorie -->
       <div class="field">
         <label>Catégorie</label>
-        <select v-model="category" class="ui dropdown">
+        <select v-model="category" class="ui dropdown" required>
           <option value="" disabled>Choisir</option>
-          <option v-for="cat in categories" :key="cat.Skill_ID" :value="cat.Skill_ID">
-            {{ cat.Name }}
+          <option v-for="categorie in categories" :key="categorie.Skill_ID" :value="categorie.Skill_ID">
+            {{ categorie.Name }}
           </option>
         </select>
       </div>
@@ -160,7 +152,7 @@ const saveTicket = async () => {
           <div class="ui calendar" id="startdate">
             <div class="ui input left icon">
               <i class="calendar icon"></i>
-              <input v-model="startDate" type="date" placeholder="Date de début"/>
+              <input v-model="startDate" type="date" placeholder="Date de début" required/>
             </div>
           </div>
         </div>
@@ -170,7 +162,7 @@ const saveTicket = async () => {
           <div class="ui calendar" id="starttime">
             <div class="ui input left icon">
               <i class="clock icon"></i>
-              <input v-model="startTime" type="time" placeholder="Heure de début"/>
+              <input v-model="startTime" type="time" placeholder="Heure de début" required/>
             </div>
           </div>
         </div>
@@ -183,10 +175,10 @@ const saveTicket = async () => {
             <label>Le service dure</label>
           </div>
           <div class="two wide column">
-            <input v-model="duration" type="text" maxlength="3" placeholder="Durée"/>
+            <input v-model="duration" type="text" maxlength="3" placeholder="Durée" required/>
           </div>
           <div class="four wide column">
-            <select v-model="format" class="ui dropdown">
+            <select v-model="format" class="ui dropdown" required>
               <option value="" disabled>Format</option>
               <option value="Minutes">Minutes</option>
               <option value="Heures">Heures</option>
@@ -197,7 +189,7 @@ const saveTicket = async () => {
       </div>
 
       <!-- Nombre de personnes -->
-      <div v-if="direction === true" class="field">
+      <div v-if="direction === 1" class="field">
         <label>Combien de personnes peuvent participer</label>
         <input v-model="places" type="text" maxlength="3" placeholder="Nombre de places"/>
       </div>
@@ -209,9 +201,9 @@ const saveTicket = async () => {
       </div>
 
       <!-- Besoin d'adresse du client -->
-      <div v-if="direction === true" class="ui segment">
+      <div v-if="direction === 1" class="ui segment">
         <div class="field">
-          <div class="ui toggle checkbox">
+          <div class="ui checkbox">
             <input type="checkbox" v-model="needsCustomerAddress" tabindex="0" class="hidden"/>
             <label>Vous avez besoin de l'adresse des participants/membres</label>
           </div>
@@ -221,20 +213,20 @@ const saveTicket = async () => {
       <!-- Description -->
       <div class="field">
         <label>Description</label>
-        <textarea v-model="description"></textarea>
+        <textarea v-model="description" required></textarea>
       </div>
 
       <!-- Upload image -->
       <div class="field">
         <label>Image</label>
-        <input type="file" @change="handleFileUpload" multiple/>
+        <input type="file" @change="handleFileUpload"/>
       </div>
 
       <!-- Boutons -->
       <div class="ui buttons">
         <button class="negative ui button">Annuler</button>
         <button class="ui button">Prévisualiser</button>
-        <button class="positive ui button" @click="saveTicket">Sauvegarder</button>
+        <button type="button" class="positive ui button" @click="saveTicket">Sauvegarder</button>
       </div>
     </div>
   </div>

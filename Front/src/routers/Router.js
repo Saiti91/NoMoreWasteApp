@@ -32,7 +32,6 @@ import Help from "@/vue/frontOffice/Services/Help.vue";
 
 //***** BACK OFFICE
 import BackOfficeHome from '../vue/backOffice/HomePage.vue';
-import Categories from "@/vue/backOffice/Categorie/CategoriesAdmin.vue";
 
 //***** Users
 import UsersAdmin from '../vue/backOffice/Users/UserAdmin.vue';
@@ -83,6 +82,9 @@ import SkillsAdmin from "@/vue/backOffice/Skills/SkillsAdmin.vue";
 
 //***** Trucks
 import TrucksAdmin from "@/vue/backOffice/Trucks/TrucksAdmin.vue";
+
+//***** Services
+import ServicesAdmin from "@/vue/backOffice/Services/ServicesAdmin.vue";
 
 
 const routes = [
@@ -330,7 +332,6 @@ const routes = [
         component: RequestsReviewAndConfirmTour,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
-
     {
         path: '/distribution-tours',
         name: 'DistributionTourAdmin',
@@ -349,7 +350,6 @@ const routes = [
         component: DistributionTourUpdate,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
-
     {
         path: '/pickup-tours',
         name: 'PickupTourAdmin',
@@ -402,8 +402,13 @@ const routes = [
         component: TrucksAdmin,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
-    //Categories
-    {path: '/categories', name: 'Categories', component: Categories, /*beforeEnter: useAuthGuard(['admin'])*/},
+    //Services
+    {
+        path: '/services-admin',
+        name: 'ServicesAdmin',
+        component: ServicesAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
 ];
 
 const router = createRouter({

@@ -350,14 +350,11 @@ controller.delete("/user/:userId/:skillId", (req, res, next) => {
  *             schema:
  *               $ref: '#/components/schemas/Skill'
  */
-controller.post(
-    "/",
-    (req, res, next) => {
-        skillsService.createOne(req.body)
-            .then((data) => res.status(201).json(data))
-            .catch((err) => next(err));
-    },
-);
+controller.post("/", (req, res, next) => {
+    skillsService.createOne(req.body)
+        .then((data) => res.status(201).json(data))
+        .catch((err) => next(err));
+});
 
 /**
  * @swagger

@@ -3,8 +3,6 @@ const recipeService = require("./service");
 const NotFoundError = require("../common/http_errors").NotFoundError;
 const authorize = require("../common/middlewares/authorize_middleware");
 const {upload, checkFileProvided} = require("../common/middlewares/uploads_middleware");
-const fs = require("fs");
-const path = require("path");
 
 const controller = Router();
 
