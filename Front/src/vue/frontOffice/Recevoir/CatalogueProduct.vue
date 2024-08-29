@@ -5,8 +5,7 @@ import Header from "@/components/HeaderFrontOffice.vue";
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import Swal from 'sweetalert2';
-import Cookies from 'js-cookie';
-import VueJwtDecode from 'vue-jwt-decode';
+import useAuth from "@/components/Auth/useAuth.js";
 
 const { t } = useI18n();
 const selectedCategory = ref('all');
@@ -14,23 +13,7 @@ const searchQuery = ref('');
 const products = ref([]);
 const cart = ref([]);
 const categories = ref([]);
-const token = Cookies.get('token');
-const userId = ref(null);
-
-if (token) {
-  try {
-    const decodedToken = VueJwtDecode.decode(token);
-    const expirationTime = decodedToken.exp * 1000;
-    if (Date.now() < expirationTime) {
-      userId.value = decodedToken.uid;
-    } else {
-      Cookies.remove('token');
-    }
-  } catch (error) {
-    console.error('Jeton invalide', error);
-    Cookies.remove('token');
-  }
-}
+const { userId, isAuthenticated } = useAuth();
 
 // Récupération des produits du stock
 const fetchProducts = async () => {
@@ -175,7 +158,12 @@ onMounted(() => {
 <template>
   <Header />
   <div class="spacer_perso"></div>
-  <div class="ui grid">
+  <div class="ui container">
+    <div v-if="!isAuthenticated" class="centered-message">
+      <i class="user icon"></i>
+      <p>{{ t('pleaseLogin') }}</p>
+    </div>
+    <div  v-else class="ui grid">
     <!-- Menu des catégories -->
     <div class="three wide column">
       <div class="ui vertical fluid tabular menu">
@@ -240,6 +228,7 @@ onMounted(() => {
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <style scoped>
@@ -286,5 +275,25 @@ onMounted(() => {
 
 .ui.grid > .five.wide.column {
   padding-right: 0;
+}
+
+.centered-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh; /* S'assure que le message est centré verticalement sur la page */
+  text-align: center;
+}
+
+.centered-message i.icon {
+  font-size: 4em; /* Agrandir l'icône */
+  color: #555; /* Couleur de l'icône */
+}
+
+.centered-message p {
+  font-size: 2em; /* Agrandir le texte */
+  color: #555; /* Couleur du texte */
+  margin-top: 20px; /* Espacement entre l'icône et le texte */
 }
 </style>
