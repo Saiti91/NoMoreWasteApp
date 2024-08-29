@@ -30,6 +30,7 @@ import Security from "@/vue/frontOffice/Services/Security.vue";
 import Cooking from "@/vue/frontOffice/Services/Cooking.vue";
 import Car from "@/vue/frontOffice/Services/Car.vue";
 import Help from "@/vue/frontOffice/Services/Help.vue";
+import Details from "@/vue/frontOffice/Services/Details.vue";
 
 
 //***** BACK OFFICE
@@ -215,6 +216,12 @@ const routes = [
         path: '/help',
         name: 'Help',
         component: Help,
+        //beforeEnter: useAuthGuard(['volunteer'])
+    },
+    {
+        path: '/service-details',
+        name: 'Details',
+        component: Details,
         //beforeEnter: useAuthGuard(['volunteer'])
     },
 
