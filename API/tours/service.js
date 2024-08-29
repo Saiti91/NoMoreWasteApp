@@ -1,5 +1,5 @@
 const tourRepository = require("./repository");
-const { InvalidArgumentError } = require("../common/service_errors");
+const {InvalidArgumentError} = require("../common/service_errors");
 
 async function createOne(data) {
     let tourId;
@@ -10,7 +10,7 @@ async function createOne(data) {
         // Call the method for 'distribute'
         tourId = tourRepository.createDistributionOne(data);
     }
-    return { routeId: tourId };
+    return {routeId: tourId};
 }
 
 async function getOne(id) {
@@ -44,9 +44,17 @@ async function deleteOne(id) {
     return tourRepository.deleteOne(id);
 }
 
+async function validateAllDestinationsProducts(id) {
+    await tourRepository.validateAllDestinationsProducts(id);
+}
+
+async function validateDestinationProducts(id) {
+    await tourRepository.validateDestinationProducts(id);
+}
+
 async function addDestination(routeId, destinationData) {
     const destinationId = tourRepository.addDestination(routeId, destinationData);
-    return { destinationId };
+    return {destinationId};
 }
 
 async function removeDestination(routeId, destinationId) {
@@ -71,5 +79,7 @@ module.exports = {
     removeDestination,
     addProductToDestination,
     removeProductFromDestination,
+    validateAllDestinationsProducts,
+    validateDestinationProducts,
     getAllRoutesForUser
 };

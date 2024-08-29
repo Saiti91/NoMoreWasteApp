@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS Destinations
     Route_ID       INT,
     Address_ID     INT,
     Type           BOOLEAN, -- true for 'collect', false for 'distribute'
+    Validated      BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (Route_ID) REFERENCES Routes (Route_ID) ON DELETE CASCADE,
     FOREIGN KEY (Address_ID) REFERENCES Address (Address_ID)
 );

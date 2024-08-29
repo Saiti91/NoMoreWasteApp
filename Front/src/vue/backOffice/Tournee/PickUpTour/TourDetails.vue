@@ -76,6 +76,61 @@ const generatePDF = () => {
   doc.save(`Tournee_${route.params.id}.pdf`);
 };
 
+const validateDestination = async (destinationId) => {
+  try {
+    await axios.post(`/tours/destinations/${destinationId}/validate`);
+    Swal.fire({
+      icon: 'success',
+      title: 'Validé',
+      text: 'Les produits de cette destination ont été validés et ajoutés au stock.',
+    });
+    await fetchTourDetails(); // Refresh the tour details after validation
+  } catch (err) {
+    console.error('Error validating destination:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: 'Une erreur est survenue lors de la validation des produits.',
+    });
+  }
+};
+
+const validateAllDestinations = async () => {
+  try {
+    await axios.post(`/tours/${route.params.id}/validate-all`);
+    Swal.fire({
+      icon: 'success',
+      title: 'Validé',
+      text: 'Toutes les destinations ont été validées et les produits ajoutés au stock.',
+    });
+    await fetchTourDetails(); // Refresh the tour details after validation
+  } catch (err) {
+    console.error('Error validating all destinations:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: 'Une erreur est survenue lors de la validation de toutes les destinations.',
+    });
+  }
+};
+
+const isPastOneHour = () => {
+  if (!tourDetails.value) return false;
+
+  const routeDateTime = new Date(`${tourDetails.value.Route_Date.split('T')[0]}T${tourDetails.value.Route_Time}`);
+  const currentTime = new Date();
+  const oneHourInMilliseconds = 60 * 60 * 1000;
+
+  // Check if the current time is at least one hour past the tour date and time
+  return currentTime.getTime() > (routeDateTime.getTime() + oneHourInMilliseconds);
+};
+
+const isAnyDestinationValidated = () => {
+  return tourDetails.value && tourDetails.value.Destinations
+      ? tourDetails.value.Destinations.some(destination => destination.Validated === 1)
+      : false;
+};
+
 onMounted(() => {
   fetchTourDetails();
 });
@@ -88,7 +143,7 @@ onMounted(() => {
     <div class="header-actions">
       <h1>Détails de la Tournée</h1>
       <div>
-        <button class="ui red button" @click="deleteTour">Supprimer la Tournée</button>
+        <button v-if="!isAnyDestinationValidated()" class="ui red button" @click="deleteTour">Supprimer la Tournée</button>
         <button class="ui teal button" @click="generatePDF">Générer le PDF</button>
       </div>
     </div>
@@ -120,6 +175,7 @@ onMounted(() => {
           <tr>
             <th>Adresse</th>
             <th>Produits</th>
+            <th>Actions</th>
           </tr>
           </thead>
           <tbody>
@@ -132,12 +188,18 @@ onMounted(() => {
                 </li>
               </ul>
             </td>
+            <td>
+              <button v-if="destination.Validated !== 1 && isPastOneHour()" class="ui green button" @click="validateDestination(destination.Destination_ID)">Valider</button>
+            </td>
           </tr>
           </tbody>
         </table>
       </div>
 
-      <button class="ui button" @click="router.push({ path: '/pickup-tours' })">Retour aux Tournées</button>
+      <div class="actions-container">
+        <button class="ui button" @click="router.push({ path: '/pickup-tours' })">Retour aux Tournées</button>
+        <button v-if="!isAnyDestinationValidated() && isPastOneHour()" class="ui blue button right-aligned" @click="validateAllDestinations">Valider Toutes les Destinations</button>
+      </div>
     </div>
   </div>
 </template>
@@ -184,5 +246,33 @@ onMounted(() => {
 
 .ui.teal.button:hover {
   background-color: #009c9a;
+}
+
+.ui.green.button {
+  background-color: #21ba45;
+  color: white;
+}
+
+.ui.green.button:hover {
+  background-color: #16ab39;
+}
+
+.ui.blue.button {
+  background-color: #2185d0;
+  color: white;
+}
+
+.ui.blue.button:hover {
+  background-color: #1678c2;
+}
+
+.actions-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.right-aligned {
+  margin-left: auto;
 }
 </style>

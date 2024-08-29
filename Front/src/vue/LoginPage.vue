@@ -1,17 +1,17 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import {ref} from 'vue';
+import {useRouter} from 'vue-router';
 import Cookies from 'js-cookie';
 import VueJwtDecode from 'vue-jwt-decode';
 import axiosInstance from "../utils/Axios.js";
 import Swal from 'sweetalert2';
-import { useI18n } from 'vue-i18n';
+import {useI18n} from 'vue-i18n';
 
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
 const router = useRouter();
-const { t } = useI18n();
+const {t} = useI18n();
 
 const validateEmail = (email) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -139,7 +139,6 @@ const submitForm = async () => {
 };
 </script>
 
-
 <template>
   <div class="ui middle aligned center aligned grid" style="height: 100vh;">
     <div class="column" style="max-width: 450px;">
@@ -151,24 +150,24 @@ const submitForm = async () => {
           <div class="field">
             <div class="ui left icon input">
               <i class="user icon"></i>
-              <input type="email" v-model="email" name="email" :placeholder="t('email')" required>
+              <input v-model="email" :placeholder="t('email')" name="email" required type="email">
             </div>
           </div>
           <div class="field">
             <div class="ui left icon input">
               <i class="lock icon"></i>
-              <input type="password" v-model="password" name="password" :placeholder="t('password')" required>
+              <input v-model="password" :placeholder="t('password')" name="password" required type="password">
             </div>
           </div>
           <button class="ui fluid large teal submit button" type="submit">{{ t('account_Login') }}</button>
         </div>
 
-        <div class="ui error message" v-if="errorMessage">
+        <div v-if="errorMessage" class="ui error message">
           {{ errorMessage }}
         </div>
       </form>
       <div class="ui message">{{ t('new_to_us') }}
-        <router-link to="/sign-up" class="item">{{ t('sign_up') }}</router-link>
+        <router-link class="item" to="/sign-up">{{ t('sign_up') }}</router-link>
       </div>
     </div>
   </div>

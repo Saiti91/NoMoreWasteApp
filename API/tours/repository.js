@@ -206,7 +206,7 @@ async function getOne(tourId) {
     const route = {
         Route_ID: routes[0].Route_ID,
         Route_Date: routes[0].Route_Date,
-        Route_Time: routes[0].Route_Time,  // Ajout de l'heure
+        Route_Time: routes[0].Route_Time,
         Route_Type: routes[0].Route_Type,
         Driver: {
             Driver_ID: routes[0].Driver_ID,
@@ -225,6 +225,7 @@ async function getOne(tourId) {
         SELECT
             d.Destination_ID,
             d.Type AS Destination_Type,
+            d.Validated,  -- Add Validated status
             a.Street,
             a.City,
             a.State,
@@ -258,6 +259,7 @@ async function getOne(tourId) {
             destination = {
                 Destination_ID: row.Destination_ID,
                 Destination_Type: row.Destination_Type,
+                Validated: row.Validated,  // Include Validated status
                 Address: {
                     Street: row.Street,
                     City: row.City,
@@ -307,6 +309,7 @@ async function getAll() {
                t.Capacity                       AS Truck_Capacity,
                d.Destination_ID,
                d.Type                           AS Destination_Type,
+               d.Validated,  -- Add Validated status
                a.Street,
                a.City,
                a.State,
@@ -320,7 +323,6 @@ async function getAll() {
                c.Name                           AS Category_Name,
                c.StorageSector
         FROM Routes r
-
                  JOIN
              Trucks t ON r.Truck_ID = t.Truck_ID
                  LEFT JOIN
@@ -346,7 +348,7 @@ async function getAll() {
             routes[row.Route_ID] = {
                 Route_ID: row.Route_ID,
                 Route_Date: row.Route_Date,
-                Route_Time: row.Route_Time,  // Ajout de l'heure
+                Route_Time: row.Route_Time,
                 Route_Type: row.Route_Type,
                 Driver: {
                     Driver_ID: row.Driver_ID,
@@ -369,6 +371,7 @@ async function getAll() {
             destination = {
                 Destination_ID: row.Destination_ID,
                 Destination_Type: row.Destination_Type,
+                Validated: row.Validated,  // Include Validated status
                 Address: {
                     Street: row.Street,
                     City: row.City,
@@ -393,7 +396,6 @@ async function getAll() {
             });
         }
     });
-    console.log('In Repository: ', Object.values(routes));
     return Object.values(routes);
 }
 
@@ -410,7 +412,7 @@ async function getAllRoutesForUser(userId) {
             SELECT
                 r.Route_ID,
                 r.Date AS Route_Date,
-                r.Time AS Route_Time,  
+                r.Time AS Route_Time,
                 r.Type AS Route_Type,
                 u.User_ID AS Driver_ID,
                 CONCAT(u.Firstname, ' ', u.Name) AS Driver_Name,
@@ -420,6 +422,7 @@ async function getAllRoutesForUser(userId) {
                 t.Capacity AS Truck_Capacity,
                 d.Destination_ID,
                 d.Type AS Destination_Type,
+                d.Validated,  -- Add Validated status
                 a.Street,
                 a.City,
                 a.State,
@@ -430,21 +433,21 @@ async function getAllRoutesForUser(userId) {
                 p.Name AS Product_Name,
                 p.Barcode,
                 dp.Quantity AS Product_Quantity
-            FROM 
+            FROM
                 Routes r
-            JOIN 
+                    JOIN
                 Users u ON r.User_ID = u.User_ID
-            JOIN 
+                    JOIN
                 Trucks t ON r.Truck_ID = t.Truck_ID
-            LEFT JOIN 
+                    LEFT JOIN
                 Destinations d ON r.Route_ID = d.Route_ID
-            LEFT JOIN 
+                    LEFT JOIN
                 Address a ON d.Address_ID = a.Address_ID
-            LEFT JOIN 
+                    LEFT JOIN
                 Destination_Products dp ON d.Destination_ID = dp.Destination_ID
-            LEFT JOIN 
+                    LEFT JOIN
                 Products p ON dp.Product_ID = p.Product_ID
-            WHERE 
+            WHERE
                 r.User_ID = ?
         `, [userId]);
 
@@ -455,7 +458,7 @@ async function getAllRoutesForUser(userId) {
                 routes[row.Route_ID] = {
                     Route_ID: row.Route_ID,
                     Route_Date: row.Route_Date,
-                    Route_Time: row.Route_Time,  // Ajout de l'heure
+                    Route_Time: row.Route_Time,
                     Route_Type: row.Route_Type,
                     Driver: {
                         Driver_ID: row.Driver_ID,
@@ -478,6 +481,7 @@ async function getAllRoutesForUser(userId) {
                 destination = {
                     Destination_ID: row.Destination_ID,
                     Destination_Type: row.Destination_Type,
+                    Validated: row.Validated,  // Include Validated status
                     Address: {
                         Street: row.Street,
                         City: row.City,
@@ -653,11 +657,74 @@ async function removeProductFromDestination(destinationId, productId) {
     await connection.end();
 }
 
+async function validateDestinationProducts(destinationId) {
+    const connection = await getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // Validate products for the destination by adding them to the stock
+        const [products] = await connection.execute(`
+            SELECT Product_ID, Quantity 
+            FROM Destination_Products 
+            WHERE Destination_ID = ?
+        `, [destinationId]);
+
+        for (const product of products) {
+            await connection.execute(`
+                UPDATE Stocks
+                SET Quantity = Quantity + ?
+                WHERE Product_ID = ?
+            `, [product.Quantity, product.Product_ID]);
+        }
+
+        // Mark the destination as validated
+        await connection.execute(`
+            UPDATE Destinations
+            SET Validated = 1
+            WHERE Destination_ID = ?
+        `, [destinationId]);
+
+        await connection.commit();
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        await connection.end();
+    }
+}
+
+async function validateAllDestinationsProducts(routeId) {
+    const connection = await getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // Get all destinations for the route
+        const [destinations] = await connection.execute(`
+            SELECT Destination_ID
+            FROM Destinations
+            WHERE Route_ID = ?
+        `, [routeId]);
+
+        for (const destination of destinations) {
+            await validateDestinationProducts(destination.Destination_ID);
+        }
+
+        await connection.commit();
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        await connection.end();
+    }
+}
+
 module.exports = {
     createCollectOne,
     createDistributionOne,
     getAll,
     getOne,
+    validateDestinationProducts,
+    validateAllDestinationsProducts,
     updateOne,
     deleteOne,
     addDestination,

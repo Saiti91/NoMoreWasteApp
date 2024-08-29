@@ -5,8 +5,9 @@ import HeaderBackOffice from "@/components/HeaderFrontOffice.vue";
 import { useI18n } from 'vue-i18n';
 import Cookies from 'js-cookie';
 import VueJwtDecode from 'vue-jwt-decode';
+import router from "@/routers/Router.js";
 
-const { t } = useI18n();
+const t = useI18n();
 const title = ref('');
 const direction = ref(null);
 const category = ref('');
@@ -15,12 +16,13 @@ const startTime = ref('');
 const duration = ref('');
 const format = ref('');
 const places = ref('');
-const selectedAddressId = ref(''); // Cette variable contiendra l'ID de l'adresse sélectionnée
+const selectedAddressId = ref('');
 const needsCustomerAddress = ref(false);
 const description = ref('');
 const image = ref(null);
 const categories = ref([]);
-const addresses = ref({}); // Initialiser comme un objet vide
+const addresses = ref({});
+const userId = ref(null);
 
 // Récupérer les catégories lors du montage du composant
 const fetchCategories = async () => {
@@ -68,7 +70,7 @@ const formattedAddresses = computed(() => {
 
 // Se déclenche lors du montage du composant
 onMounted(async () => {
-  fetchCategories();
+  await fetchCategories();
 
   // Récupérer le token et décoder l'ID utilisateur
   const token = Cookies.get('token');
@@ -80,6 +82,7 @@ onMounted(async () => {
     await fetchUserAddresses(userId);
   } else {
     console.error('Token non trouvé');
+    router.push({ name: 'Login' });
   }
 });
 
@@ -122,17 +125,9 @@ const saveTicket = async () => {
     formData.append('image', image.value);
   }
 
-  // Ajouter l'ID de l'utilisateur au FormData
-  const token = Cookies.get('token');
-  if (token) {
-    const decodedToken = VueJwtDecode.decode(token);
-    const userId = decodedToken.uid;
-    formData.append('ownerUserId', userId);
-  } else {
-    console.error('Token non trouvé');
-    return; // Arrêter la fonction si le token n'est pas disponible
-  }
-
+    if(userId){
+      formData.append('ownerUserId', userId);
+    }
   // Débogage : afficher le contenu du FormData
   for (let pair of formData.entries()) {
     console.log(pair[0] + ': ' + pair[1]);

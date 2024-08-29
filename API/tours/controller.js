@@ -372,6 +372,65 @@ controller.delete(
 
 /**
  * @swagger
+ * /destinations/{id}/validate:
+ *   post:
+ *     summary: Valide les produits d'une destination spécifique
+ *     tags: [Destinations]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID de la destination
+ *     responses:
+ *       200:
+ *         description: Produits validés et ajoutés au stock avec succès
+ *       404:
+ *         description: Destination non trouvée
+ *       500:
+ *         description: Erreur interne du serveur
+ */
+controller.post(
+    "/destinations/:id/validate", (req, res, next) => {
+        console.log('Donnée depuis le controller',req.body);
+        toursService.validateDestinationProducts(Number(req.params.id))
+            .then(() => res.status(200).json({ message: 'Produits validés avec succès.' }))
+            .catch(err => next(err));
+    }
+);
+
+/**
+ * @swagger
+ * /tours/{id}/validate-all:
+ *   post:
+ *     summary: Valide tous les produits de toutes les destinations d'une tournée
+ *     tags: [Tours]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID de la tournée
+ *     responses:
+ *       200:
+ *         description: Toutes les destinations validées et produits ajoutés au stock avec succès
+ *       404:
+ *         description: Tournée non trouvée
+ *       500:
+ *         description: Erreur interne du serveur
+ */
+controller.post(
+    "/:id/validate-all", (req, res, next) => {
+        toursService.validateAllDestinationsProducts(Number(req.params.id))
+            .then(() => res.status(200).json({ message: 'Toutes les destinations validées avec succès.' }))
+            .catch(err => next(err));
+    }
+);
+
+/**
+ * @swagger
  * /destinations/{id}/products:
  *   post:
  *     summary: Ajoute un produit à une destination
