@@ -1,84 +1,78 @@
 <script setup>
-import {onMounted, ref} from 'vue';
+import { onMounted, ref } from 'vue';
 import axios from '@/utils/Axios.js';
-import {useRoute, useRouter} from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import Header from "@/components/HeaderFrontOffice.vue";
 import UserMenuFO from "@/components/UserDetailsLeftMenuFO.vue";
 import Swal from "sweetalert2";
-import {useI18n} from 'vue-i18n';
+import { useI18n } from 'vue-i18n';
 
 const t = useI18n().t;
-const tours = ref([]);
+const tickets = ref([]);
 const route = useRoute();
 const router = useRouter();
 
-const fetchUserTours = async () => {
+const fetchUserTickets = async () => {
   try {
-    const response = await axios.get(`/tours/users/${route.params.id}`);
-    tours.value = response.data;
-    console.log(tours.value);
+    const response = await axios.get(`/tickets/user/${route.params.id}`);
+    tickets.value = response.data;
+    console.log(tickets.value);
   } catch (error) {
-    console.error('Error fetching user tours:', error);
+    console.error('Error fetching user tickets:', error);
   }
 };
 
 const formatDate = (date) => {
   if (!date) return t('noInfo');
-  const options = {year: 'numeric', month: 'long', day: 'numeric'};
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
 const formatTime = (time) => {
   if (!time) return t('noInfo');
-  const options = {hour: '2-digit', minute: '2-digit'};
+  const options = { hour: '2-digit', minute: '2-digit' };
   return new Date(`1970-01-01T${time}`).toLocaleTimeString('fr-FR', options);
 };
 
-const goToDetails = (tourId) => {
-  router.push({name: 'MyAccountRoutesDetails', params: {id: tourId}});
+const goToDetails = (ticketId) => {
+  router.push({ name: 'TicketDetails', params: { id: ticketId } });
 };
 
 onMounted(() => {
-  fetchUserTours();
+  fetchUserTickets();
 });
 </script>
 
 <template>
-  <Header/>
+  <Header />
   <div class="spacer_perso"></div>
   <div class="ui container full-width no-center">
     <div class="ui grid">
-      <UserMenuFO/>
+      <UserMenuFO />
       <div class="content-area">
-        <h2>{{ t('tourDetailsFO') }}</h2>
-        <div v-if="Object.keys(tours).length > 0" class="user-details">
+        <h2>{{ t('userTickets') }}</h2>
+        <div v-if="tickets.length > 0" class="user-details">
           <table class="ui celled table full-width-table">
             <thead>
             <tr>
-              <th>{{ t('tourDate') }}</th>
-              <th>{{ t('tourTime') }}</th>
-              <th>{{ t('camion') }}</th>
-              <th>{{ t('destinations') }}</th>
+              <th>{{ t('ticketTitle') }}</th>
+              <th>{{ t('startDate') }}</th>
+              <th>{{ t('startTime') }}</th>
+              <th>{{ t('description') }}</th>
             </tr>
             </thead>
             <tbody>
-            <tr v-for="tour in tours" :key="tour.Route_ID" class="clickable-row" @click="goToDetails(tour.Route_ID)">
-              <td>{{ formatDate(tour.Route_Date) }}</td>
-              <td>{{ formatTime(tour.Route_Time) }}</td>
-              <td>{{ tour.Truck.Truck_Model }} ({{ tour.Truck.Truck_Registration }})</td>
-              <td>
-                <ul>
-                  <li v-for="destination in tour.Destinations" :key="destination.Destination_ID">
-                    {{ destination.Address.Street }}, {{ destination.Address.City }}
-                  </li>
-                </ul>
-              </td>
+            <tr v-for="ticket in tickets" :key="ticket.Ticket_ID" class="clickable-row" @click="goToDetails(ticket.Ticket_ID)">
+              <td>{{ ticket.Title }}</td>
+              <td>{{ formatDate(ticket.Start_Date) }}</td>
+              <td>{{ formatTime(ticket.Start_Time) }}</td>
+              <td>{{ ticket.Description }}</td>
             </tr>
             </tbody>
           </table>
         </div>
         <div v-else>
-          <p>{{ t('noTourMsgFO') }}</p>
+          <p>{{ t('noTicketsMsg') }}</p>
         </div>
       </div>
     </div>
@@ -92,8 +86,8 @@ onMounted(() => {
 
 .content-area {
   padding: 20px;
-  margin-left: 50px; /* Match this with the actual width of the menu */
-  width: calc(70% - 50px); /* Ensure this calculation takes into account the menu's width */
+  margin-left: 50px;
+  width: calc(70% - 50px);
 }
 
 .user-details {

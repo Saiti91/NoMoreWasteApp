@@ -2,9 +2,10 @@
 import { ref, onMounted } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
-import router from "@/routers/Router.js";
+import { useRouter } from 'vue-router';
 
 const tickets = ref([]);
+const router = useRouter();
 
 // Function to format the start date
 const formatDate = (dateString) => {
@@ -14,8 +15,17 @@ const formatDate = (dateString) => {
 
 // Function to handle viewing ticket details (you might want to implement a detailed view later)
 const viewTicketDetails = (ticketId) => {
-  // Navigate to the ticket details page (assuming such a page exists)
-  router.push(`/tickets/${ticketId}`);
+  router.push(`/services-admin-details/${ticketId}`);
+};
+
+// Function to check if the address is empty and display "en distanciel" if so
+const formatAddress = (ticket) => {
+  if (!ticket.Street && !ticket.City && !ticket.State && !ticket.Postal_Code && !ticket.Country) {
+    return "en distanciel";
+  }
+
+  // Format the address if available
+  return `${ticket.Street || ''}, ${ticket.City || ''}, ${ticket.State || ''}, ${ticket.Postal_Code || ''}, ${ticket.Country || ''}`.replace(/(,\s?)+$/, '');
 };
 
 // Function to fetch the tickets
@@ -23,6 +33,7 @@ const fetchTickets = async () => {
   try {
     const response = await axios.get('/tickets');
     tickets.value = response.data;
+    console.log('Tickets:', tickets.value);
   } catch (error) {
     console.error('Error fetching tickets:', error);
   }
@@ -50,13 +61,7 @@ onMounted(() => {
           <p><strong>Durée:</strong> {{ ticket.Duration }} minutes</p>
           <p><strong>Places:</strong> {{ ticket.Places }}</p>
           <p><strong>Outils nécessaires:</strong> {{ ticket.Tools }}</p>
-          <p><strong>Adresse:</strong>
-            {{ ticket.Street }},
-            {{ ticket.City }},
-            {{ ticket.State }},
-            {{ ticket.Postal_Code }},
-            {{ ticket.Country }}
-          </p>
+          <p><strong>Adresse:</strong> {{ formatAddress(ticket) }}</p>
           <p class="description">{{ ticket.Description }}</p>
           <button @click="viewTicketDetails(ticket.Ticket_ID)" class="view-ticket-button">Voir les détails</button>
         </div>

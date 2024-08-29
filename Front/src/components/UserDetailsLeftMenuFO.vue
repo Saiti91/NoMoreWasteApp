@@ -27,17 +27,17 @@ const isRouteActive = (route) => activeRoute.value === route;
     </router-link>
 
     <router-link
-        :to="`/my-account-services-proposed/${route.params.id}`"
+        :to="`/my-account-service-owned/${route.params.id}`"
         class="item"
-        :class="{ active: isRouteActive(`/my-account-services-proposed/${route.params.id}`) }">
+        :class="{ active: isRouteActive(`/my-account-services-owned/${route.params.id}`) }">
       <i class="briefcase icon"></i>
       {{ t('servicesProposés') }}
     </router-link>
 
     <router-link
-        :to="`/my-account-services-participated/${route.params.id}`"
+        :to="`/my-account-service-participated/${route.params.id}`"
         class="item"
-        :class="{ active: isRouteActive(`/my-account-services-participated/${route.params.id}`) }">
+        :class="{ active: isRouteActive(`/my-account-service-participated/${route.params.id}`) }">
       <i class="handshake icon"></i>
       {{ t('servicesParticipés') }}
     </router-link>

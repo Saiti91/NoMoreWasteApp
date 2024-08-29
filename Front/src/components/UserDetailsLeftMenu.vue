@@ -27,17 +27,17 @@ const isRouteActive = (route) => activeRoute.value === route;
     </router-link>
 
     <router-link
-        :to="`/user-services-proposed/${route.params.id}`"
+        :to="`/my-account-service-owned/${route.params.id}`"
         class="item"
-        :class="{ active: isRouteActive(`/user-services-proposed/${route.params.id}`) }">
+        :class="{ active: isRouteActive(`/user-services-owned/${route.params.id}`) }">
       <i class="briefcase icon"></i>
       {{ t('servicesProposés') }}
     </router-link>
 
     <router-link
-        :to="`/user-services-participated/${route.params.id}`"
+        :to="`/my-account-service-participated/${route.params.id}`"
         class="item"
-        :class="{ active: isRouteActive(`/user-services-participated/${route.params.id}`) }">
+        :class="{ active: isRouteActive(`/user-service-participated/${route.params.id}`) }">
       <i class="handshake icon"></i>
       {{ t('servicesParticipés') }}
     </router-link>
@@ -64,6 +64,13 @@ const isRouteActive = (route) => activeRoute.value === route;
         :class="{ active: isRouteActive(`/user-routes/${route.params.id}`) }">
       <i class="box icon"></i>
       {{ t('tournee') }}
+    </router-link>
+    <router-link
+        :to="`/user-skills/${route.params.id}`"
+        class="item"
+        :class="{ active: isRouteActive(`/user-skills/${route.params.id}`) }">
+      <i class="box icon"></i>
+      {{ t('skills') }}
     </router-link>
   </div>
 </template>

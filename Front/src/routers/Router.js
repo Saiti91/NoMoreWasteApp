@@ -13,6 +13,8 @@ import MyAccountRecievedProduct from "@/vue/frontOffice/Compte/MyAccountRecieved
 import MyAccountRoutes from "@/vue/frontOffice/Compte/MyAccountRoutes.vue";
 import MyAccountRoutesDetails from "@/vue/frontOffice/Compte/MyAccountRoutesDetails.vue";
 import MyAccountSkillsDetails from "@/vue/frontOffice/Compte/MyAccountSkills.vue";
+import MyAccountServicesOwned from "@/vue/frontOffice/Compte/MyAccountServicesOwned.vue";
+import MyAccountServicesParticipated from "@/vue/frontOffice/Compte/MyAccountServicesParticipated.vue";
 
 import CreateTicket from "@/vue/frontOffice/Tickets/CreateTicket.vue";
 
@@ -40,6 +42,9 @@ import UserDetailsDonations from "@/vue/backOffice/Users/UserDetailsDonations.vu
 import UserDetailsRecievedProduct from "@/vue/backOffice/Users/UserDetailsRecievedProduct.vue";
 import UserDetailsRoutes from "@/vue/backOffice/Users/UserDetailsRoutes.vue";
 import UserDetailsRoutesDetails from "@/vue/backOffice/Users/UserDetailsRoutesDetails.vue";
+import UserAdminServicesOwned from "@/vue/backOffice/Users/UserAdminServicesOwned.vue";
+import UserAdminServicesParticipated from "@/vue/backOffice/Users/UserAdminServicesParticipated.vue";
+import UserAdminSkills from "@/vue/backOffice/Users/UserAdminSkills.vue";
 
 //***** Stocks
 import StocksAdmin from '@/vue/backOffice/Stocks/StocksAdmin.vue';
@@ -85,6 +90,7 @@ import TrucksAdmin from "@/vue/backOffice/Trucks/TrucksAdmin.vue";
 
 //***** Services
 import ServicesAdmin from "@/vue/backOffice/Services/ServicesAdmin.vue";
+import ServicesAdminDetails from "@/vue/backOffice/Services/ServicesAdminDetails.vue";
 
 
 const routes = [
@@ -114,6 +120,18 @@ const routes = [
         name: 'MyAccount',
         component: MyAccount,
         //beforeEnter: useAuthGuard(['volunteer'])
+    },
+    {
+        path: '/my-account-service-owned/:id',
+        name: 'MyAccountServicesOwned',
+        component: MyAccountServicesOwned,
+        /*beforeEnter: useAuthGuard(['volunteer'])*/
+    },
+    {
+        path: '/my-account-service-participated/:id',
+        name: 'MyAccountServicesParticipated',
+        component: MyAccountServicesParticipated,
+        /*beforeEnter: useAuthGuard(['volunteer'])*/
     },
     {
         path: '/my-account-donations/:id',
@@ -222,6 +240,18 @@ const routes = [
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
     {
+        path: '/user-services-owned/:id',
+        name: 'UserAdminServicesOwned',
+        component: UserAdminServicesOwned,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/user-services-participated/:id',
+        name: 'UserAdminServicesParticipated',
+        component: UserAdminServicesParticipated,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
         path: '/user-donations/:id',
         name: 'UserDetailsDonations',
         component: UserDetailsDonations,
@@ -244,6 +274,11 @@ const routes = [
         name: 'UserDetailsRoutesDetails',
         component: UserDetailsRoutesDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/user-skills/:id',
+        name: 'UserAdminSkills',
+        component: UserAdminSkills,
     },
     //Stocks
     {
@@ -407,6 +442,12 @@ const routes = [
         path: '/services-admin',
         name: 'ServicesAdmin',
         component: ServicesAdmin,
+        /*beforeEnter: useAuthGuard(['admin'])*/
+    },
+    {
+        path: '/services-admin-details/:id',
+        name: 'ServicesAdminDetails',
+        component: ServicesAdminDetails,
         /*beforeEnter: useAuthGuard(['admin'])*/
     },
 ];
