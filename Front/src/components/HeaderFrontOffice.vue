@@ -3,7 +3,8 @@ import HeaderComponent from './HeaderComponent.vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
-import useAuth from '@/components/Auth/useAuth'; // Importation de useAuth
+import useAuth from '@/components/Auth/useAuth';
+import Cookies from "js-cookie"; // Importation de useAuth
 
 const { t } = useI18n();
 
@@ -12,7 +13,12 @@ const profileSrc = new URL('@/assets/user_profile_icon.svg', import.meta.url).hr
 
 const router = useRouter();
 
-const { isAuthenticated, userId, logout } = useAuth(); // Utilisation de useAuth pour obtenir l'état d'authentification, l'ID utilisateur, et la fonction de déconnexion
+const { isAuthenticated, userId } = useAuth(); // Utilisation de useAuth pour obtenir l'état d'authentification, l'ID utilisateur, et la fonction de déconnexion
+
+function logout() {
+  Cookies.remove('token');
+  router.push('/');
+}
 
 onMounted(() => {
 });
