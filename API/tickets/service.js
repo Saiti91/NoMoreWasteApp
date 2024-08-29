@@ -53,10 +53,21 @@ async function deleteOne(id) {
     return { message: `Ticket with ID ${id} has been deleted.` };
 }
 
+//Récupère tous les tickets d'un utilisateur
+async function getAllForUser(userId) {
+    const tickets = await Repository.getAllForUser(userId);
+    if (tickets.length === 0) {
+        throw new NotFoundError(`No tickets found for user ID ${userId}`);
+    }
+    return tickets;
+}
+
+
 module.exports = {
     createOne,
     getOne,
     getAll,
     updateOne,
     deleteOne,
+    getAllForUser,
 };

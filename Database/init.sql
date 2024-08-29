@@ -709,7 +709,7 @@ INSERT INTO Tickets (Title, Direction, Start_Date, Start_Time, End_Of_Subscripti
                      Address_needs, Customers_Address, Description, Image, Status_ID, Owner_User_ID, Skill_ID)
 VALUES
 -- Conseils anti-gaspi (proposition)
-('Conseils anti-gaspi', true, '2024-09-01', '10:00:00', '2024-08-25', 90, 10, 'Livrets', NULL, false, NULL,
+('Conseils anti-gaspi', true, '2024-09-01', '10:00:00', '2024-09-25', 90, 10, 'Livrets', NULL, false, NULL,
  'Atelier pour apprendre à réduire le gaspillage alimentaire.', '1.jpg', 1, 2,
  4),                                                                               -- Skill_ID pour 'Conseils anti-gaspi'
 

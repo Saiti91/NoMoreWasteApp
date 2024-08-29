@@ -30,6 +30,7 @@ onMounted(() => {
       <router-link class="item" to="/mission">{{ t('missions') }}</router-link>
       <router-link class="item" to="/catalogue">{{ t('recevoirDesDons') }}</router-link>
       <router-link class="item" to="/donation">{{ t('faireUnDon') }}</router-link>
+      <router-link class="item" to="/advice">{{ t('more') }}</router-link>
       <router-link class="item" to="/join-us">{{ t('join_us') }}</router-link>
     </template>
     <template #profile-dropdown>

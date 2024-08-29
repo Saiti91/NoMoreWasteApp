@@ -284,4 +284,43 @@ controller.delete("/:id", async (req, res, next) => {
     }
 });
 
+/**
+ * @swagger
+ * /tickets/user/{id}:
+ *   get:
+ *     summary: Get all tickets for a specific user (owner)
+ *     tags: [Tickets]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The user ID (owner_id)
+ *     responses:
+ *       200:
+ *         description: A list of tickets owned by the user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Ticket'
+ *       404:
+ *         description: No tickets found for this user.
+ */
+controller.get("/user/:id", async (req, res, next) => {
+    try {
+        const tickets = await ticketsService.getAllForUser(Number(req.params.id));
+        if (tickets.length === 0) {
+            return res.status(404).json({ error: `No tickets found for user ID ${req.params.id}` });
+        }
+        res.json(tickets);
+    } catch (err) {
+        next(err);
+    }
+});
+
+
+
 module.exports = controller;

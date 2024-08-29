@@ -24,6 +24,7 @@ const recipesController = require("./recipes/controller");
 const skillsController = require("./skills/controller");
 const subscriptionsController = require("./subscriptions/controller");
 const addressesController = require("./addresses/controller");
+const registrationsController = require("./registrations/controller");
 
 const app = express();
 const port = 3000;
@@ -48,7 +49,7 @@ app.get("/", (_req, res) => {
         message: "Welcome to PCS API!",
         routes: ["/users", "/auth","/stocks", "/api-docs", "/donations","/tours",
             "/tickets","/categories","/stripe","/requests","/products",
-            "/productsCategories","/trucks","/recipes", "/skills", "/subscriptions", "/addresses"],
+            "/productsCategories","/trucks","/recipes", "/skills", "/subscriptions", "/addresses", "/registrations"],
     });
 });
 
@@ -70,6 +71,7 @@ app.use("/recipes", recipesController);
 app.use("/skills", skillsController);
 app.use("/subscriptions", subscriptionsController);
 app.use("/addresses", addressesController);
+app.use("/registrations", registrationsController);
 
 // Application du middleware `idParamGuard` aux routes avec paramètre `id`
 app.use("/users/:id", idParamGuard);
@@ -84,6 +86,7 @@ app.use("/productsCategories/:id", idParamGuard);
 app.use("/trucks/:id", idParamGuard);
 app.use("/recipes/:id", idParamGuard);
 app.use("/skills/:id", idParamGuard);
+app.use("/registrations/:id", idParamGuard);
 
 //Stripe
 app.use('/stripe', stripeRoutes);

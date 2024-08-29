@@ -179,10 +179,25 @@ async function deleteOne(id) {
     return result.affectedRows;
 }
 
+//
+async function getAllForUser(userId) {
+    const connection = await getConnection();
+    try {
+        const [rows] = await connection.execute(
+            'SELECT * FROM Tickets WHERE Owner_User_ID = ?',
+            [userId]
+        );
+        return rows;
+    } finally {
+        await connection.end();
+    }
+}
+
 module.exports = {
     createOne,
     getOne,
     getAll,
     updateOne,
     deleteOne,
+    getAllForUser,
 };
