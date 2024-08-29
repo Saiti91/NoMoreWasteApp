@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderFrontOffice.vue";
 import { useI18n } from 'vue-i18n';
@@ -15,13 +15,14 @@ const startTime = ref('');
 const duration = ref('');
 const format = ref('');
 const places = ref('');
-const address = ref('');
+const selectedAddressId = ref(''); // Cette variable contiendra l'ID de l'adresse sélectionnée
 const needsCustomerAddress = ref(false);
 const description = ref('');
 const image = ref(null);
 const categories = ref([]);
+const addresses = ref({}); // Initialiser comme un objet vide
 
-// Fetch categories on mount
+// Récupérer les catégories lors du montage du composant
 const fetchCategories = async () => {
   try {
     const response = await axios.get('/skills');
@@ -31,9 +32,58 @@ const fetchCategories = async () => {
   }
 };
 
-onMounted(fetchCategories);
+// Récupérer les adresses de l'utilisateur
+const fetchUserAddresses = async (userId) => {
+  try {
+    const response = await axios.get(`/addresses/${userId}`);
+    // Assurez-vous que la réponse est un objet
+    if (response.data && typeof response.data === 'object') {
+      addresses.value = response.data;
+    } else {
+      console.error('La réponse de l\'API des adresses n\'est pas un objet:', response.data);
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des adresses:', error);
+  }
+};
 
-// Handle file upload
+// Fusionner l'adresse pour l'affichage
+const formattedAddresses = computed(() => {
+  if (addresses.value && typeof addresses.value === 'object') {
+    const address = addresses.value;
+    const result = {
+      id: address.Address_ID,
+      fullAddress: `${address.Street}, ${address.City}, ${address.State}, ${address.Postal_Code}, ${address.Country}`
+    };
+
+    // Afficher l'adresse fusionnée dans la console
+    console.log('Adresse fusionnée:', result);
+
+    return [result]; // Retourner un tableau contenant l'adresse
+  } else {
+    console.error('addresses.value n\'est pas un objet ou est vide:', addresses.value);
+    return [];
+  }
+});
+
+// Se déclenche lors du montage du composant
+onMounted(async () => {
+  fetchCategories();
+
+  // Récupérer le token et décoder l'ID utilisateur
+  const token = Cookies.get('token');
+  if (token) {
+    const decodedToken = VueJwtDecode.decode(token);
+    const userId = decodedToken.uid;
+
+    // Récupérer les adresses de l'utilisateur
+    await fetchUserAddresses(userId);
+  } else {
+    console.error('Token non trouvé');
+  }
+});
+
+// Gérer le téléchargement de fichier
 function handleFileUpload(event) {
   const file = event.target.files[0];
   if (file) {
@@ -42,18 +92,18 @@ function handleFileUpload(event) {
   }
 }
 
-// Save ticket using FormData
+// Enregistrer le ticket en utilisant FormData
 const saveTicket = async () => {
   const formData = new FormData();
 
-  // Append form fields to FormData
+  // Ajouter les champs du formulaire au FormData
   formData.append('title', title.value);
   formData.append('direction', direction.value);
   formData.append('skillId', category.value);
   formData.append('startDate', startDate.value);
   formData.append('startTime', startTime.value);
 
-  // Calculate duration in minutes
+  // Calculer la durée en minutes
   let calculatedDuration = parseInt(duration.value, 10);
   if (format.value === 'Heures') {
     calculatedDuration *= 60;
@@ -63,16 +113,16 @@ const saveTicket = async () => {
   formData.append('duration', calculatedDuration);
 
   formData.append('places', places.value);
-  formData.append('address', address.value);
+  formData.append('addressId', selectedAddressId.value); // Utiliser l'ID de l'adresse sélectionnée
   formData.append('needsCustomerAddress', needsCustomerAddress.value);
   formData.append('description', description.value);
 
-  // Append image to FormData, if available
+  // Ajouter l'image au FormData, si disponible
   if (image.value) {
     formData.append('image', image.value);
   }
 
-  // Get the user ID from the token and append to FormData
+  // Ajouter l'ID de l'utilisateur au FormData
   const token = Cookies.get('token');
   if (token) {
     const decodedToken = VueJwtDecode.decode(token);
@@ -80,19 +130,19 @@ const saveTicket = async () => {
     formData.append('ownerUserId', userId);
   } else {
     console.error('Token non trouvé');
-    return; // Stop the function if the token is not available
+    return; // Arrêter la fonction si le token n'est pas disponible
   }
 
-  // Debugging: Log the FormData content
+  // Débogage : afficher le contenu du FormData
   for (let pair of formData.entries()) {
     console.log(pair[0] + ': ' + pair[1]);
   }
 
-  // Send the request using axios
+  // Envoyer la requête avec axios
   try {
     const response = await axios.post('/tickets', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data', // Set the correct content type
+        'Content-Type': 'multipart/form-data', // Spécifier le bon type de contenu
       },
     });
     console.log('Ticket sauvegardé:', response.data);
@@ -194,64 +244,43 @@ const saveTicket = async () => {
         <input v-model="places" type="text" maxlength="3" placeholder="Nombre de places"/>
       </div>
 
-      <!-- Adresse du service -->
+      <!-- Sélection de l'adresse -->
       <div class="field">
         <label>Adresse du service</label>
-        <input v-model="address" type="text" placeholder="Adresse"/>
+        <select v-model="selectedAddressId" class="ui dropdown" required>
+          <option value="" disabled>Choisir</option>
+          <option v-for="address in formattedAddresses" :key="address.id" :value="address.id">
+            {{ address.fullAddress }}
+          </option>
+        </select>
       </div>
 
-      <!-- Besoin d'adresse du client -->
-      <div v-if="direction === 1" class="ui segment">
-        <div class="field">
-          <div class="ui checkbox">
-            <input type="checkbox" v-model="needsCustomerAddress" tabindex="0" class="hidden"/>
-            <label>Vous avez besoin de l'adresse des participants/membres</label>
-          </div>
+      <!-- Besoin d'adresse client -->
+      <div class="field">
+        <div class="ui checkbox">
+          <input type="checkbox" v-model="needsCustomerAddress"/>
+          <label>Besoin d'adresse client</label>
         </div>
       </div>
 
       <!-- Description -->
       <div class="field">
         <label>Description</label>
-        <textarea v-model="description" required></textarea>
+        <textarea v-model="description" rows="4" placeholder="Description" required></textarea>
       </div>
 
-      <!-- Upload image -->
+      <!-- Image -->
       <div class="field">
         <label>Image</label>
         <input type="file" @change="handleFileUpload"/>
       </div>
 
-      <!-- Boutons -->
-      <div class="ui buttons">
-        <button class="negative ui button">Annuler</button>
-        <button class="ui button">Prévisualiser</button>
-        <button type="button" class="positive ui button" @click="saveTicket">Sauvegarder</button>
-      </div>
+      <!-- Bouton d'enregistrement -->
+      <button class="ui button primary" @click="saveTicket">Enregistrer</button>
     </div>
   </div>
 </template>
 
 <style scoped>
-.spacer {
-  margin: 20px 0;
-}
-
-.ui.container.full-width {
-  width: 100%;
-  margin-top: 20px;
-  padding: 0 20px;
-}
-
-.ui.celled.table.full-width-table {
-  width: 100%;
-}
-
-.ui.celled.table tr.clickable-row {
-  cursor: pointer;
-}
-
-.ui.celled.table tr.clickable-row:hover {
-  background-color: #f1f1f1;
-}
+/* Ajouter des styles spécifiques ici */
 </style>
