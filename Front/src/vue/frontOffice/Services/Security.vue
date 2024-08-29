@@ -62,6 +62,11 @@ const goToServiceDetails = (ticketId) => {
   router.push(`/service-details/${ticketId}`);
 };
 
+//rediriger vers création de ticket
+const goToCreateTicket = () => {
+  router.push('/create-ticket');
+};
+
 onMounted(() => {
   fetchTickets();
 });
@@ -74,7 +79,12 @@ onMounted(() => {
     <div class="ui grid">
       <ServiceMenu/>
       <div class="content-area">
-        <h2>{{ t('security') }}</h2>
+        <div class="header-section">
+          <h2>{{ t('security') }}</h2>
+          <button class="ui teal button" @click="goToCreateTicket">
+            {{ t('createTicketPropose') }}
+          </button>
+        </div>
         <div v-if="tickets.length === 0" class="no-tickets-message">
           <i class="frown outline icon huge"></i>
           <p>{{ t('noTicketsAvailable') }}</p>
@@ -102,20 +112,31 @@ onMounted(() => {
 .spacer_perso {
   margin: 7%;
 }
+
 .content-area {
   padding: 20px;
   margin-left: 7%;
   width: calc(70% - 50px);
 }
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .ui.cards {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
 }
+
 .card {
   margin: 10px;
   width: 300px;
 }
+
 .no-tickets-message {
   display: flex;
   flex-direction: column;
