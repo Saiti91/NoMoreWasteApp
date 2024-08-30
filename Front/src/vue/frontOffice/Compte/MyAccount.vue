@@ -6,6 +6,7 @@ import Header from "@/components/HeaderFrontOffice.vue";
 import UserMenuFO from "@/components/UserDetailsLeftMenuFO.vue";
 import Swal from "sweetalert2";
 import {useI18n} from 'vue-i18n';
+import * as XLSX from "xlsx";
 
 const user = ref(null);
 const originalUser = ref(null);
@@ -17,6 +18,7 @@ const showConfirmPassword = ref(false);
 const t = useI18n().t;
 const route = useRoute();
 const router = useRouter();
+const schedule = ref([]);
 
 // Format the birthdate for the input field
 const formatDateForInput = (date) => {
@@ -27,6 +29,7 @@ const formatDateForInput = (date) => {
   const day = String(parsedDate.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
+
 
 // Fetch user details
 const fetchUserDetails = async () => {
@@ -143,6 +146,50 @@ const validateSuppression = () => {
   });
 };
 
+const generateExcel = () => {
+  // Define the days of the week and time slots
+  const daysOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+  const timeSlots = [
+    '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30',
+    '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+    '16:00', '16:30', '17:00', '17:30'
+  ];
+
+  // Initialize Excel data with headers
+  const ws_data = [
+    ['HEURE', 'Date', ...daysOfWeek]
+  ];
+
+  // Prepare an empty schedule grid
+  const scheduleGrid = timeSlots.map(slot => [slot, '', '', '', '', '', '', '']);
+
+  // Populate the schedule grid with events
+  schedule.value.forEach(event => {
+    const eventDate = new Date(event.date);
+    const dayIndex = eventDate.getDay(); // getDay() returns 0-6 (0 = Sunday, 6 = Saturday)
+    const timeSlotIndex = timeSlots.indexOf(event.time.slice(0, 5));
+
+    // Map Sunday to the last column and adjust for Monday as the first day
+    const adjustedDayIndex = dayIndex === 0 ? 6 : dayIndex - 1;
+
+    if (adjustedDayIndex >= 0 && adjustedDayIndex < 7 && timeSlotIndex >= 0) {
+      // Adjust the dayIndex to match the daysOfWeek array
+      scheduleGrid[timeSlotIndex][adjustedDayIndex + 2] = `${event.title}` || `''}`; // +2 for correct column offset
+    }
+  });
+
+  // Merge the header and the grid
+  ws_data.push(...scheduleGrid);
+
+  // Create a new workbook and a worksheet
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Weekly Schedule');
+
+  // Write the workbook and trigger a download
+  XLSX.writeFile(wb, `schedule_${user.value.Name}.xlsx`);
+};
+
 onMounted(() => {
   fetchUserDetails();
 });
@@ -221,6 +268,7 @@ onMounted(() => {
             </p>
           </div>
           <button @click="updateUserDetails" class="ui teal button">{{ t('saveChanges') }}</button>
+          <button @click="generateExcel" class="ui green button">Télécharger le planning</button>
         </div>
       </div>
     </div>
