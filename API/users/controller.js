@@ -79,6 +79,62 @@ controller.get(
 
 /**
  * @swagger
+ * /users/{id}/schedule:
+ *   get:
+ *     summary: Get a user's schedule by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The user ID
+ *     responses:
+ *       200:
+ *         description: User's schedule.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   title:
+ *                     type: string
+ *                   type:
+ *                     type: string
+ *                   date:
+ *                     type: string
+ *                     format: date
+ *                   time:
+ *                     type: string
+ *                     format: time
+ *                   duration:
+ *                     type: integer
+ *                   description:
+ *                     type: string
+ *                   address:
+ *                     type: string
+ *       404:
+ *         description: User not found or no schedule available
+ */
+controller.get(
+    "/:id/schedule",
+    (req, res, next) => {
+        usersService.getUserSchedule(Number(req.params.id))
+            .then((data) => {
+                if (data.length === 0) {
+                    throw new NotFoundError(`No schedule found for user with ID ${req.params.id}`);
+                }
+                res.json(data);
+            })
+            .catch((err) => next(err));
+    },
+);
+
+/**
+ * @swagger
  * /users/{id}:
  *   get:
  *     summary: Get a user by ID

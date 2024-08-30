@@ -3,7 +3,9 @@ import { ref, onMounted } from 'vue';
 import axios from '@/utils/Axios.js';
 import Swal from "sweetalert2";
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n(); // Use i18n for translations
 const trucks = ref([]);
 const truckForm = ref({
   Registration: '',
@@ -118,45 +120,45 @@ onMounted(() => {
     <HeaderBackOffice />
     <div class="spacer"></div>
 
-    <h1>Gestion des Camions</h1>
+    <h1>{{ t('trucksManagement') }}</h1>
 
     <!-- Formulaire pour ajouter ou mettre à jour un camion -->
     <div class="truck-form">
-      <h2>{{ editMode ? 'Modifier le Camion' : 'Ajouter un Camion' }}</h2>
+      <h2>{{ editMode.value ? t('editTruck') : t('addTruck') }}</h2>
       <form @submit.prevent="handleSubmit">
         <div>
-          <label for="registration">Immatriculation:</label>
+          <label for="registration">{{ t('registration') }}:</label>
           <input type="text" id="registration" v-model="truckForm.Registration" required />
         </div>
         <div>
-          <label for="capacity">Capacité:</label>
+          <label for="capacity">{{ t('capacity') }}:</label>
           <input type="number" id="capacity" v-model="truckForm.Capacity" required />
         </div>
         <div>
-          <label for="model">Modèle:</label>
+          <label for="model">{{ t('model') }}:</label>
           <input type="text" id="model" v-model="truckForm.Model" required />
         </div>
         <div>
-          <label for="conditions">Conditions (1-5):</label>
+          <label for="conditions">{{ t('conditions') }}:</label>
           <input type="number" id="conditions" v-model="truckForm.Conditions" min="1" max="5" required />
         </div>
-        <button type="submit">{{ editMode ? 'Mettre à jour' : 'Ajouter' }}</button>
-        <button type="button" @click="resetForm">Annuler</button>
+        <button type="submit">{{ editMode.value ? t('update') : t('add') }}</button>
+        <button type="button" @click="resetForm">{{ t('cancel') }}</button>
       </form>
     </div>
 
     <!-- Liste des camions -->
     <div class="truck-list">
-      <h2>Liste des Camions</h2>
+      <h2>{{ t('truckList') }}</h2>
       <table>
         <thead>
         <tr>
-          <th>ID</th>
-          <th>Immatriculation</th>
-          <th>Capacité</th>
-          <th>Modèle</th>
-          <th>Conditions</th>
-          <th>Actions</th>
+          <th>{{ t('id') }}</th>
+          <th>{{ t('registration') }}</th>
+          <th>{{ t('capacity') }}</th>
+          <th>{{ t('model') }}</th>
+          <th>{{ t('conditions') }}</th>
+          <th>{{ t('actions') }}</th>
         </tr>
         </thead>
         <tbody>
@@ -167,8 +169,8 @@ onMounted(() => {
           <td>{{ truck.Model }}</td>
           <td>{{ truck.Conditions }}</td>
           <td>
-            <button @click="editTruck(truck)">Modifier</button>
-            <button @click="deleteTruck(truck.Truck_ID)">Supprimer</button>
+            <button @click="editTruck(truck)">{{ t('edit') }}</button>
+            <button @click="deleteTruck(truck.Truck_ID)">{{ t('delete') }}</button>
           </td>
         </tr>
         </tbody>

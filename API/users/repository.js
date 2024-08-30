@@ -37,7 +37,7 @@ async function createOne(user) {
 
         // Créer le dossier pour l'utilisateur
         const userDir = join(__dirname, '..', 'uploads', 'justificatif', String(user_id));
-        mkdirSync(userDir, { recursive: true });
+        mkdirSync(userDir, {recursive: true});
 
         console.log(`Directory created at: ${userDir}`);
 
@@ -62,13 +62,40 @@ async function getOne(id) {
     const query = `
         SELECT u.*, a.Street, a.City, a.State, a.Postal_Code, a.Country
         FROM Users u
-        LEFT JOIN Address a ON u.Address_ID = a.Address_ID
+                 LEFT JOIN Address a ON u.Address_ID = a.Address_ID
         WHERE u.User_ID = ?
     `;
 
     const [rows] = await connection.execute(query, [id]);
     await connection.end();
     return rows[0] || null;
+}
+
+async function getUserSchedule(userId) {
+    const connection = await getConnection();
+
+    const query = `
+        SELECT t.Title                                                              AS title,
+               CASE
+                   WHEN t.Direction = 1 THEN 'Proposition'
+                   ELSE 'Demande'
+                   END                                                              AS type,
+               t.Start_Date                                                         AS date,
+               t.Start_Time                                                         AS time,
+               t.Duration                                                           AS duration,
+               t.Description                                                        AS description,
+               CONCAT(a.Street, ', ', a.City, ', ', a.Postal_Code, ', ', a.Country) AS address
+        FROM Tickets t
+                 LEFT JOIN Address a ON t.Address_ID = a.Address_ID
+                 INNER JOIN Ticket_Users tu ON tu.Ticket_ID = t.Ticket_ID
+        WHERE tu.User_ID = ?
+          AND t.Start_Date BETWEEN CURDATE() AND CURDATE() + INTERVAL 7 DAY
+        ORDER BY t.Start_Date, t.Start_Time;
+    `;
+
+    const [rows] = await connection.execute(query, [userId]);
+    await connection.end();
+    return rows;
 }
 
 async function checkPassword(id, password) {
@@ -165,13 +192,13 @@ async function updateOne(id, user) {
         } = user;
 
         const userDetails = {
-            ...(Name !== undefined && { Name }),
-            ...(Firstname !== undefined && { Firstname }),
-            ...(Password !== undefined && { Password }),
-            ...(Phone !== undefined && { Phone }),
-            ...(Email !== undefined && { Email }),
-            ...(Birthdate !== undefined && { Birthdate }),
-            ...(IsRegistered !== undefined && { IsRegistered })
+            ...(Name !== undefined && {Name}),
+            ...(Firstname !== undefined && {Firstname}),
+            ...(Password !== undefined && {Password}),
+            ...(Phone !== undefined && {Phone}),
+            ...(Email !== undefined && {Email}),
+            ...(Birthdate !== undefined && {Birthdate}),
+            ...(IsRegistered !== undefined && {IsRegistered})
         };
 
         console.log("User Details to Update:", userDetails);
@@ -183,21 +210,23 @@ async function updateOne(id, user) {
 
             const userValues = [...Object.values(userDetails), id];
             const [userResult] = await connection.execute(
-                `UPDATE Users SET ${userUpdateStr} WHERE User_ID = ?`,
+                `UPDATE Users
+                 SET ${userUpdateStr}
+                 WHERE User_ID = ?`,
                 userValues
             );
             console.log("User Update Query Result:", userResult);
         }
 
         if (Object.keys(address).length > 0) {
-            const { street, city, state, postal_code, country } = address;
+            const {street, city, state, postal_code, country} = address;
 
             const addressDetails = {
-                ...(street !== undefined && { Street: street }),
-                ...(city !== undefined && { City: city }),
-                ...(state !== undefined && { State: state }),
-                ...(postal_code !== undefined && { Postal_Code: postal_code }),
-                ...(country !== undefined && { Country: country })
+                ...(street !== undefined && {Street: street}),
+                ...(city !== undefined && {City: city}),
+                ...(state !== undefined && {State: state}),
+                ...(postal_code !== undefined && {Postal_Code: postal_code}),
+                ...(country !== undefined && {Country: country})
             };
 
             console.log("Address Details to Update:", addressDetails);
@@ -205,7 +234,9 @@ async function updateOne(id, user) {
             if (Object.keys(addressDetails).length > 0) {
                 // Récupérer l'ID de l'adresse de l'utilisateur
                 const [rows] = await connection.execute(
-                    `SELECT Address_ID FROM Users WHERE User_ID = ?`,
+                    `SELECT Address_ID
+                     FROM Users
+                     WHERE User_ID = ?`,
                     [id]
                 );
                 if (rows.length === 0) {
@@ -220,7 +251,9 @@ async function updateOne(id, user) {
 
                 const addressValues = [...Object.values(addressDetails), addressId];
                 const [addressResult] = await connection.execute(
-                    `UPDATE Address SET ${addressUpdateStr} WHERE Address_ID = ?`,
+                    `UPDATE Address
+                     SET ${addressUpdateStr}
+                     WHERE Address_ID = ?`,
                     addressValues
                 );
                 console.log("Address Update Query Result:", addressResult);
@@ -268,5 +301,7 @@ async function updateIsRegistered(userId, isRegistered) {
     }
 }
 
-module.exports = {createOne, getOne, getOneVerifBy, verifySkill, getAll, deleteOne, getOneBy, checkPassword,
-    updateOne, updateIsRegistered};
+module.exports = {
+    createOne, getOne, getOneVerifBy, getUserSchedule, verifySkill, getAll, deleteOne, getOneBy, checkPassword,
+    updateOne, updateIsRegistered
+};

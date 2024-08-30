@@ -3,6 +3,9 @@ import { ref, onMounted } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n(); // Use i18n for translations
 
 const tickets = ref([]);
 const router = useRouter();
@@ -21,7 +24,7 @@ const viewTicketDetails = (ticketId) => {
 // Function to check if the address is empty and display "en distanciel" if so
 const formatAddress = (ticket) => {
   if (!ticket.Street && !ticket.City && !ticket.State && !ticket.Postal_Code && !ticket.Country) {
-    return "en distanciel";
+    return t('remote');
   }
 
   // Format the address if available
@@ -35,7 +38,7 @@ const fetchTickets = async () => {
     tickets.value = response.data;
     console.log('Tickets:', tickets.value);
   } catch (error) {
-    console.error('Error fetching tickets:', error);
+    console.error(t('errorFetchingTickets'), error);
   }
 };
 
@@ -49,21 +52,21 @@ onMounted(() => {
   <div class="spacer"></div>
   <div class="content-container">
     <div class="header-row">
-      <h1>Tous les tickets</h1>
+      <h1>{{ t('allTickets') }}</h1>
     </div>
     <div class="ticket-list">
       <div v-for="ticket in tickets" :key="ticket.Ticket_ID" class="ticket-card">
         <!-- Image removed -->
         <div class="ticket-details">
           <h2>{{ ticket.Title }}</h2>
-          <p><strong>Organisé par:</strong> {{ ticket.OwnerFirstname }} {{ ticket.OwnerName }}</p>
-          <p><strong>Date de début:</strong> {{ formatDate(ticket.Start_Date) }}</p>
-          <p><strong>Durée:</strong> {{ ticket.Duration }} minutes</p>
-          <p><strong>Places:</strong> {{ ticket.Places }}</p>
-          <p><strong>Outils nécessaires:</strong> {{ ticket.Tools }}</p>
-          <p><strong>Adresse:</strong> {{ formatAddress(ticket) }}</p>
+          <p><strong>{{ t('organizedBy') }}:</strong> {{ ticket.OwnerFirstname }} {{ ticket.OwnerName }}</p>
+          <p><strong>{{ t('startDate') }}:</strong> {{ formatDate(ticket.Start_Date) }}</p>
+          <p><strong>{{ t('duration') }}:</strong> {{ ticket.Duration }} {{ t('minutes') }}</p>
+          <p><strong>{{ t('places') }}:</strong> {{ ticket.Places }}</p>
+          <p><strong>{{ t('toolsRequired') }}:</strong> {{ ticket.Tools }}</p>
+          <p><strong>{{ t('address') }}:</strong> {{ formatAddress(ticket) }}</p>
           <p class="description">{{ ticket.Description }}</p>
-          <button @click="viewTicketDetails(ticket.Ticket_ID)" class="view-ticket-button">Voir les détails</button>
+          <button @click="viewTicketDetails(ticket.Ticket_ID)" class="view-ticket-button">{{ t('viewDetails') }}</button>
         </div>
       </div>
     </div>

@@ -27,6 +27,15 @@ async function getOne(id, issuer) {
     return user ? { ...user, password: "[redacted]" } : null;
 }
 
+async function getUserSchedule(userId) {
+    if (!Number.isInteger(userId)) {
+        throw new Error("getUserSchedule: userId must be an integer");
+    }
+
+    const schedule = await Repository.getUserSchedule(userId);
+    return schedule;
+}
+
 async function getOneBy(attribute, value) {
     if (attribute === undefined || value === undefined) {
         throw new Error("getOneBy: Both attribute and value must be defined");
@@ -124,4 +133,4 @@ async function deleteOne(id, issuer) {
     return await Repository.deleteOne(id);
 }
 
-module.exports = { createOne, getOne, getOneBy, verifySkill , getOneVerifBy,getAll, updateOne, deleteOne };
+module.exports = { createOne, getOne, getOneBy, getUserSchedule, verifySkill , getOneVerifBy,getAll, updateOne, deleteOne };

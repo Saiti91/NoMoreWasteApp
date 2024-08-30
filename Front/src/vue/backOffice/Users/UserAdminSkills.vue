@@ -2,8 +2,8 @@
 import { onMounted, ref } from 'vue';
 import axios from '@/utils/Axios.js';
 import { useRoute } from 'vue-router';
-import Header from "@/components/HeaderFrontOffice.vue";
-import UserMenuFO from "@/components/UserDetailsLeftMenuFO.vue";
+import Header from "@/components/HeaderBackOffice.vue";
+import UserMenu from "@/components/UserDetailsLeftMenu.vue";
 import Swal from "sweetalert2";
 import { useI18n } from 'vue-i18n';
 
@@ -69,7 +69,7 @@ onMounted(() => {
   <div class="spacer_perso"></div>
   <div class="ui container full-width no-center">
     <div class="ui grid">
-      <UserMenuFO />
+      <UserMenu />
       <div class="content-area">
         <h2>{{ t('skillsmanagement') }}</h2>
         <div class="skills-section">

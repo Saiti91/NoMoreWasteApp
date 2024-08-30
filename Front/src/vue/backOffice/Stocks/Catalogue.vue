@@ -98,28 +98,28 @@ onMounted(() => {
   <HeaderBackOffice/>
   <div class="spacer"></div>
   <div class="ui container">
-    <h2>Catalogue des Produits</h2>
+    <h2>{{ t('productCatalog') }}</h2>
 
     <!-- Filters -->
     <div class="ui form">
       <div class="fields">
         <div class="field">
-          <label>Catégorie</label>
+          <label>{{ t('category') }}</label>
           <select v-model="selectedCategory" class="ui dropdown">
             <option value="all">{{ t('allCategories') }}</option>
             <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
           </select>
         </div>
         <div class="field">
-          <label>Zone de Stockage</label>
+          <label>{{ t('storageZone') }}</label>
           <select v-model="selectedZone" class="ui dropdown">
             <option value="all">{{ t('allZones') }}</option>
             <option v-for="zone in zones" :key="zone" :value="zone">{{ zone }}</option>
           </select>
         </div>
         <div class="field">
-          <label>Rechercher</label>
-          <input type="text" v-model="searchQuery" placeholder="Rechercher un produit...">
+          <label>{{ t('search') }}</label>
+          <input type="text" v-model="searchQuery" :placeholder="t('search') + '...'">
         </div>
       </div>
     </div>
@@ -130,10 +130,10 @@ onMounted(() => {
         <div class="ui card">
           <div class="content">
             <div class="header">{{ product.Name }}</div>
-            <div class="meta">Code-barres: {{ product.Barcode }}</div>
-            <div class="meta">Type: {{ product.Category_Name }}</div>
-            <div class="meta">Stock: {{ product.Quantity }}</div>
-            <div class="meta">Zone: {{ product.StorageSector }}</div>
+            <div class="meta">{{ t('barcode') }}: {{ product.Barcode }}</div>
+            <div class="meta">{{ t('type') }}: {{ product.Category_Name }}</div>
+            <div class="meta">{{ t('stock') }}: {{ product.Quantity }}</div>
+            <div class="meta">{{ t('zone') }}: {{ product.StorageSector }}</div>
           </div>
         </div>
       </div>
@@ -141,9 +141,9 @@ onMounted(() => {
 
     <!-- Pagination Controls -->
     <div class="pagination-controls">
-      <button @click="previousPage" :disabled="currentPage === 1">Précédent</button>
-      <span>Page {{ currentPage }} sur {{ totalPages }}</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">Suivant</button>
+      <button @click="previousPage" :disabled="currentPage === 1">{{ t('previous') }}</button>
+      <span>{{ t('page') }} {{ currentPage }} {{ t('of') }} {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="currentPage === totalPages">{{ t('next') }}</button>
     </div>
   </div>
 </template>

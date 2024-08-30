@@ -1,9 +1,11 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import {onMounted, ref} from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import router from "@/routers/Router.js";
+import {useI18n} from 'vue-i18n';
 
+const t = useI18n().t;
 const recipes = ref([]);
 
 const getImageUrl = (recipeId) => {
@@ -37,21 +39,21 @@ onMounted(() => {
 </script>
 
 <template>
-  <HeaderBackOffice />
+  <HeaderBackOffice/>
   <div class="spacer"></div>
   <div class="content-container">
     <div class="header-row">
-      <h1>Toutes les recettes</h1>
-      <button @click="addRecipe" class="add-recipe-button">Ajouter une recette</button>
+      <h1>{{ t('allRecipes') }}</h1>
+      <button class="add-recipe-button" @click="addRecipe">{{ t('addRecipe') }}</button>
     </div>
     <div class="recipe-list">
       <div v-for="recipe in recipes" :key="recipe.Recipes_ID" class="recipe-card">
-        <img :src="getImageUrl(recipe.Recipes_ID)" alt="Recipe Image" class="recipe-image" />
+        <img :src="getImageUrl(recipe.Recipes_ID)" alt="Recipe Image" class="recipe-image"/>
         <div class="recipe-details">
           <h2>{{ recipe.Name }}</h2>
           <ul class="ingredients-list">
             <li v-for="ingredient in recipe.Ingredients" :key="ingredient.Product_ID">
-              {{ formatQuantity(ingredient.Quantity) }} {{ ingredient.Unit }} {{ ingredient.Name }}
+              {{ formatQuantity(ingredient.Quantity) }} {{ t('unit') }} {{ ingredient.Name }}
             </li>
           </ul>
           <p class="instructions">{{ recipe.Instructions }}</p>

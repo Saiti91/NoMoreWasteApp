@@ -1,9 +1,12 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import {ref, onMounted} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
 import HeaderBackOffice from "@/components/HeaderBackOffice.vue";
 import axios from '@/utils/Axios.js';
 import Swal from 'sweetalert2';
+import {useI18n} from 'vue-i18n';
+
+const {t} = useI18n(); // Use i18n for translations
 
 const route = useRoute();
 const router = useRouter();
@@ -25,7 +28,7 @@ const formatDate = (dateString) => {
 // Function to check if the address is empty and display "en distanciel" if so
 const formatAddress = (ticket) => {
   if (!ticket.Street && !ticket.City && !ticket.State && !ticket.Postal_Code && !ticket.Country) {
-    return "en distanciel";
+    return t('remote');
   }
 
   // Format the address if available
@@ -35,7 +38,7 @@ const formatAddress = (ticket) => {
 // Function to fetch the ticket details
 const fetchTicketDetails = async () => {
   if (!ticketId) {
-    error.value = 'Ticket ID non valide.';
+    error.value = t('invalidTicketId');
     loading.value = false;
     return;
   }
@@ -47,12 +50,12 @@ const fetchTicketDetails = async () => {
     await fetchRegisteredUsers(); // Fetch users after getting ticket details
     loading.value = false;
   } catch (err) {
-    error.value = 'Erreur lors de la récupération des détails du ticket.';
-    console.error('Error fetching ticket details:', err);
+    error.value = t('errorFetchingTicketDetails');
+    console.error(t('errorFetchingTicketDetails'), err);
     loading.value = false;
     Swal.fire({
       icon: 'error',
-      title: 'Erreur',
+      title: t('error'),
       text: error.value,
     });
   }
@@ -60,7 +63,7 @@ const fetchTicketDetails = async () => {
 
 // Function to get the image URL with possible extensions
 const getImageUrl = (imagePath) => {
-  console.log('Image path:', imagePath); // Log the image path
+  console.log(t('imagePath'), imagePath); // Log the image path
   if (!imagePath) {
     imageLoaded.value = false;
     return '';
@@ -71,7 +74,7 @@ const getImageUrl = (imagePath) => {
 
   for (let extension of extensions) {
     const url = `${baseUrl}${imagePath}.${extension}`;
-    console.log('Trying URL:', url); // Log each URL tried
+    console.log(t('tryingUrl'), url); // Log each URL tried
     return url;
   }
 
@@ -82,7 +85,7 @@ const getImageUrl = (imagePath) => {
 // Function to handle image loading error
 const onImageError = () => {
   imageLoaded.value = false;
-  console.log('Image failed to load'); // Log when the image fails to load
+  console.log(t('imageLoadFailed')); // Log when the image fails to load
 };
 
 // Function to fetch registered users for the ticket
@@ -98,9 +101,9 @@ const fetchRegisteredUsers = async () => {
     }
   } catch (err) {
     if (err.response && err.response.status === 404) {
-      console.warn('Aucun utilisateur inscrit pour ce ticket.');
+      console.warn(t('noUsersRegistered'));
     } else {
-      console.error('Error fetching registered users:', err);
+      console.error(t('errorFetchingUsers'), err);
     }
   }
 };
@@ -111,16 +114,16 @@ const deleteTicket = async () => {
     await axios.delete(`/tickets/${ticketId}`);
     Swal.fire({
       icon: 'success',
-      title: 'Supprimé',
-      text: 'Le ticket a été supprimé avec succès.',
+      title: t('deleted'),
+      text: t('ticketDeletedSuccessfully'),
     });
     router.push({name: 'ServicesAdmin'});
   } catch (err) {
-    console.error('Error deleting ticket:', err);
+    console.error(t('errorDeletingTicket'), err);
     Swal.fire({
       icon: 'error',
-      title: 'Erreur',
-      text: 'Une erreur est survenue lors de la suppression du ticket.',
+      title: t('error'),
+      text: t('ticketDeleteError'),
     });
   }
 };
@@ -134,46 +137,47 @@ onMounted(() => {
   <HeaderBackOffice/>
   <div class="spacer"></div>
   <div class="content-container">
-    <div v-if="loading">Chargement...</div>
+    <div v-if="loading">{{ t('loading') }}</div>
     <div v-else-if="error">{{ error }}</div>
     <div v-else>
       <div class="header-row">
-        <h1>Détails du Ticket</h1>
-        <button class="ui red button" @click="deleteTicket">Supprimer le Ticket</button>
+        <h1>{{ t('ticketDetails') }}</h1>
+        <button class="ui red button" @click="deleteTicket">{{ t('deleteTicket') }}</button>
       </div>
       <div class="ticket-detail-card">
         <div class="ticket-image-container">
-          <img v-if="imageLoaded" :src="getImageUrl(ticketDetails.Ticket_ID)" alt="Ticket Image"
+          <img v-if="imageLoaded" :src="getImageUrl(ticketDetails.Ticket_ID)" :alt="t('ticketImage')"
                class="ticket-image" @error="onImageError"/>
           <div v-else class="no-image">
             <i class="image outline icon"></i>
-            <p>Pas d'image pour ce ticket</p>
+            <p>{{ t('noImageForTicket') }}</p>
           </div>
         </div>
         <div class="ticket-details">
           <h2>{{ ticketDetails.Title }}</h2>
-          <p><strong>Organisé par:</strong> {{ ticketDetails.OwnerFirstname }} {{ ticketDetails.OwnerName }}</p>
-          <p><strong>Date de début:</strong> {{ formatDate(ticketDetails.Start_Date) }}</p>
-          <p><strong>Durée:</strong> {{ ticketDetails.Duration }} minutes</p>
-          <p><strong>Places:</strong> {{ ticketDetails.Places }}</p>
-          <p><strong>Outils nécessaires:</strong> {{ ticketDetails.Tools }}</p>
-          <p><strong>Adresse:</strong> {{ formatAddress(ticketDetails) }}</p>
+          <p><strong>{{ t('organizedBy') }}:</strong> {{ ticketDetails.OwnerFirstname }} {{ ticketDetails.OwnerName }}
+          </p>
+          <p><strong>{{ t('startDate') }}:</strong> {{ formatDate(ticketDetails.Start_Date) }}</p>
+          <p><strong>{{ t('duration') }}:</strong> {{ ticketDetails.Duration }} {{ t('minutes') }}</p>
+          <p><strong>{{ t('places') }}:</strong> {{ ticketDetails.Places }}</p>
+          <p><strong>{{ t('toolsRequired') }}:</strong> {{ ticketDetails.Tools }}</p>
+          <p><strong>{{ t('address') }}:</strong> {{ formatAddress(ticketDetails) }}</p>
           <p class="description">{{ ticketDetails.Description }}</p>
         </div>
       </div>
 
       <!-- Registered Users Table -->
       <div class="registered-users">
-        <h3>Utilisateurs Inscrits</h3>
+        <h3>{{ t('registeredUsers') }}</h3>
         <div v-if="registeredUsers.length > 0">
           <table class="ui celled table">
             <thead>
             <tr>
-              <th>Nom</th>
-              <th>Prénom</th>
-              <th>Email</th>
-              <th>Téléphone</th>
-              <th>Adresse</th>
+              <th>{{ t('lastName') }}</th>
+              <th>{{ t('firstName') }}</th>
+              <th>{{ t('email') }}</th>
+              <th>{{ t('phone') }}</th>
+              <th>{{ t('address') }}</th>
             </tr>
             </thead>
             <tbody>
@@ -188,11 +192,11 @@ onMounted(() => {
           </table>
         </div>
         <div v-else>
-          <p>Aucun utilisateur inscrit pour le moment.</p>
+          <p>{{ t('noUsersRegisteredYet') }}</p>
         </div>
       </div>
     </div>
-    <button class="ui button" @click="router.push({ name: 'ServicesAdmin' })">Retour</button>
+    <button class="ui button" @click="router.push({ name: 'ServicesAdmin' })">{{ t('back') }}</button>
   </div>
 </template>
 
