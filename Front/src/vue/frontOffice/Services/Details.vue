@@ -17,6 +17,7 @@ const isOwner = ref(false);
 const route = useRoute();
 const router = useRouter();
 const ticketId = route.params.id;
+const imageLoaded = ref(true); // Track if the image is loaded successfully
 
 const statusMapping = {
   1: t('openRegistration'),
@@ -116,6 +117,33 @@ const unregisterForTicket = async () => {
   }
 };
 
+// Function to get the image URL with possible extensions
+const getImageUrl = (imagePath) => {
+  console.log('Image path:', imagePath); // Log the image path
+  if (!imagePath) {
+    imageLoaded.value = false;
+    return '';
+  }
+
+  const baseUrl = `${axios.defaults.baseURL}/uploads/tickets/`;
+  const extensions = ['jpg', 'jpeg', 'png'];
+
+  for (let extension of extensions) {
+    const url = `${baseUrl}${imagePath}.${extension}`;
+    console.log('Trying URL:', url); // Log each URL tried
+    return url;
+  }
+
+  imageLoaded.value = false;
+  return ''; // If no valid image URL is found
+};
+
+// Function to handle image loading error
+const onImageError = () => {
+  imageLoaded.value = false;
+  console.log('Image failed to load'); // Log when the image fails to load
+};
+
 onMounted(() => {
   fetchTicketDetails();
 });
@@ -137,8 +165,14 @@ onMounted(() => {
         <p v-if="ticket.Tools"><strong>{{ t('tools') }} :</strong> {{ ticket.Tools }}</p>
         <p v-if="ticket.Status_ID"><strong>{{ t('registration') }} :</strong> {{ statusMapping[ticket.Status_ID] }}</p>
         <p v-if="skillName"><strong>{{ t('skill') }} :</strong> {{ skillName }}</p>
-        <img v-if="ticket.Image" :src="ticket.Image" alt="Ticket Image" />
-
+        <div class="ticket-image-container">
+          <img v-if="imageLoaded" :src="getImageUrl(ticket.Ticket_ID)" alt="Ticket Image"
+               class="ticket-image" @error="onImageError"/>
+          <div v-else class="no-image">
+            <i class="image outline icon"></i>
+            <p>{{ t('noImage') }}</p>
+          </div>
+        </div>
         <div v-if="!isOwner">
           <button v-if="!isUserRegistered" class="ui teal button" @click="registerForTicket">
             {{ t('sign_up') }}
@@ -193,5 +227,35 @@ onMounted(() => {
 
 .ui.button {
   margin-top: 20px;
+}
+
+.ticket-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 150px;
+  border-radius: 8px;
+  background-color: #eaeaea;
+  text-align: center;
+}
+
+.ticket-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.no-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #aaa;
+}
+
+.no-image i.icon {
+  font-size: 40px;
 }
 </style>
