@@ -206,6 +206,11 @@ const filteredCategories = computed(() => {
   }
   return categories.value; // Afficher toutes les catégories
 });
+
+// Ajouter la méthode cancel pour gérer la redirection
+function cancel() {
+  router.push('/'); // Remplace '/' par la route souhaitée
+}
 </script>
 
 <template>
@@ -364,8 +369,17 @@ const filteredCategories = computed(() => {
         <input type="file" @change="handleFileUpload"/>
       </div>
 
-      <!-- Bouton de soumission -->
-      <button class="ui button" @click="saveTicket">Enregistrer</button>
+      <!-- Boutons d'annulation et de soumission -->
+      <div class="field">
+        <div class="ui two column grid">
+          <div class="column">
+            <button class="ui red large fluid button" @click="cancel">Annuler</button>
+          </div>
+          <div class="column">
+            <button class="ui green large fluid button" @click="saveTicket">Enregistrer</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -377,5 +391,25 @@ const filteredCategories = computed(() => {
 
 .custom-right-padding {
   padding-right: 0 !important;
+}
+
+/* Style des boutons */
+.ui.red.button {
+  background-color: #e57373;
+  color: white;
+}
+
+.ui.green.button {
+  background-color: #81c784;
+  color: white;
+}
+
+.ui.large.button {
+  font-size: 1.2rem;
+  padding: 0.75em 1.5em;
+}
+
+.ui.fluid.button {
+  width: 100%;
 }
 </style>
