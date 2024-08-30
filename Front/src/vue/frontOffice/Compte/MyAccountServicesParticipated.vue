@@ -42,6 +42,13 @@ const formatTime = (time) => {
   return new Date(`1970-01-01T${time}`).toLocaleTimeString('fr-FR', options);
 };
 
+const formatAddress = (ticket) => {
+  if (!ticket.Address_ID) {
+    return t('remote');
+  }
+  return `${ticket.Street}, ${ticket.Postal_Code} ${ticket.City}, ${ticket.Country}`;
+};
+
 const goToDetails = (ticketId) => {
   router.push({ name: 'TicketDetails', params: { id: ticketId } });
 };
@@ -98,6 +105,8 @@ onMounted(() => {
               <th>{{ t('ticketTitle') }}</th>
               <th>{{ t('startDate') }}</th>
               <th>{{ t('startTime') }}</th>
+              <th>{{ t('tools') }}</th>
+              <th>{{ t('address') }}</th>
               <th>{{ t('description') }}</th>
               <th>{{ t('actions') }}</th>
             </tr>
@@ -107,6 +116,8 @@ onMounted(() => {
               <td @click="goToDetails(ticket.Ticket_ID)">{{ ticket.Title }}</td>
               <td @click="goToDetails(ticket.Ticket_ID)">{{ formatDate(ticket.Start_Date) }}</td>
               <td @click="goToDetails(ticket.Ticket_ID)">{{ formatTime(ticket.Start_Time) }}</td>
+              <td @click="goToDetails(ticket.Ticket_ID)">{{ ticket.Tools || t('noInfo') }}</td>
+              <td @click="goToDetails(ticket.Ticket_ID)">{{ formatAddress(ticket) }}</td>
               <td @click="goToDetails(ticket.Ticket_ID)">{{ ticket.Description }}</td>
               <td>
                 <button @click="unsubscribeFromTicket(ticket.Ticket_ID)" class="ui red button small">{{ t('unregister') }}</button>
