@@ -294,5 +294,20 @@
   "yesDel": "Oui, supprimer!",
   "yesUnsubscribe": "Oui, se désinscrire !",
   "youHaveBeenRegistered": "Vous pouvez retrouver toutes vos inscriptions dans votre espace utilisateur.",
-  "zoneDeStockage": "Zone de Stockage"
+  "zoneDeStockage": "Zone de Stockage",
+  "confirmDeleteTitle": "Êtes-vous sûr de vouloir supprimer ce service ?",
+  "confirmDeleteText": "Cette action est irréversible.",
+  "confirmDeleteButton": "Oui, supprimer !",
+  "cancelButton": "Annuler",
+  "deletedTitle": "Service supprimé !",
+  "deletedText": "Le service a été supprimé avec succès.",
+  "errorTitle": "Erreur",
+  "errorText": "Une erreur est survenue lors de la suppression du service.",
+  "userTickets": "Vos services",
+  "ticketTitle": "Titre du service",
+  "startDate": "Date de début",
+  "startTime": "Heure de début",
+  "description": "Description",
+  "actions": "Actions",
+  "noTicketsMsg": "Aucun service trouvé."
 }

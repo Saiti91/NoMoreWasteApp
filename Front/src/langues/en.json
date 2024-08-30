@@ -296,5 +296,20 @@
   "yesDel": "Yes, delete !",
   "yesUnsubscribe": "Yes, Unsubscribe!",
   "youHaveBeenRegistered": "You can find all your registrations in your user area.",
-  "zoneDeStockage": "Stackage Zone"
+  "zoneDeStockage": "Stackage Zone",
+  "confirmDeleteTitle": "Are you sure you want to delete this service?",
+  "confirmDeleteText": "This action cannot be undone.",
+  "confirmDeleteButton": "Yes, delete!",
+  "cancelButton": "Cancel",
+  "deletedTitle": "Service deleted!",
+  "deletedText": "The service has been successfully deleted.",
+  "errorTitle": "Error",
+  "errorText": "An error occurred while deleting the service.",
+  "userTickets": "Your Services",
+  "ticketTitle": "Service Title",
+  "startDate": "Start Date",
+  "startTime": "Start Time",
+  "description": "Description",
+  "actions": "Actions",
+  "noTicketsMsg": "No services found."
 }

@@ -38,11 +38,32 @@ const goToDetails = (ticketId) => {
   router.push({ name: 'TicketDetails', params: { id: ticketId } });
 };
 
+const deleteTicket = async (ticketId) => {
+  const result = await Swal.fire({
+    title: t('confirmDeleteTitle'),
+    text: t('confirmDeleteText'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('confirmDeleteButton'),
+    cancelButtonText: t('cancelButton')
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await axios.delete(`/tickets/${ticketId}`);
+      tickets.value = tickets.value.filter(ticket => ticket.Ticket_ID !== ticketId);
+      Swal.fire(t('deletedTitle'), t('deletedText'), 'success');
+    } catch (error) {
+      console.error('Error deleting ticket:', error);
+      Swal.fire(t('errorTitle'), t('errorText'), 'error');
+    }
+  }
+};
+
 onMounted(() => {
   fetchUserTickets();
 });
 </script>
-
 <template>
   <Header />
   <div class="spacer_perso"></div>
@@ -59,14 +80,20 @@ onMounted(() => {
               <th>{{ t('startDate') }}</th>
               <th>{{ t('startTime') }}</th>
               <th>{{ t('description') }}</th>
+              <th>{{ t('actions') }}</th>
             </tr>
             </thead>
             <tbody>
-            <tr v-for="ticket in tickets" :key="ticket.Ticket_ID" class="clickable-row" @click="goToDetails(ticket.Ticket_ID)">
-              <td>{{ ticket.Title }}</td>
-              <td>{{ formatDate(ticket.Start_Date) }}</td>
-              <td>{{ formatTime(ticket.Start_Time) }}</td>
-              <td>{{ ticket.Description }}</td>
+            <tr v-for="ticket in tickets" :key="ticket.Ticket_ID" class="clickable-row">
+              <td @click="goToDetails(ticket.Ticket_ID)">{{ ticket.Title }}</td>
+              <td @click="goToDetails(ticket.Ticket_ID)">{{ formatDate(ticket.Start_Date) }}</td>
+              <td @click="goToDetails(ticket.Ticket_ID)">{{ formatTime(ticket.Start_Time) }}</td>
+              <td @click="goToDetails(ticket.Ticket_ID)">{{ ticket.Description }}</td>
+              <td>
+                <button class="ui red button" @click="deleteTicket(ticket.Ticket_ID)">
+                  {{ t('delete') }}
+                </button>
+              </td>
             </tr>
             </tbody>
           </table>
@@ -78,7 +105,6 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .spacer_perso {
   margin: 7%;
@@ -120,6 +146,15 @@ h2 {
 .ui.celled.table.full-width-table td {
   text-align: center;
   padding: 10px;
+}
+
+.ui.red.button {
+  background-color: #db2828;
+  color: white;
+}
+
+.ui.red.button:hover {
+  background-color: #c82323;
 }
 
 p {
