@@ -18,6 +18,7 @@ const route = useRoute();
 const router = useRouter();
 const ticketId = route.params.id;
 const imageLoaded = ref(true); // Track if the image is loaded successfully
+const fullAddress = ref(''); // Store the full address
 
 const statusMapping = {
   1: t('openRegistration'),
@@ -69,6 +70,12 @@ const fetchTicketDetails = async () => {
 
       // Check if the user is already registered
       isUserRegistered.value = registrations.some(registration => registration.User_ID === userId.value);
+
+      // If the user is registered and the address exists, construct the full address
+      if (isUserRegistered.value && ticket.value.Address_ID) {
+        fullAddress.value = `${ticket.value.Street}, ${ticket.value.Postal_Code} ${ticket.value.City}, ${ticket.value.Country}`;
+      }
+
     } catch (error) {
       // If no registrations, the user is not registered
       isUserRegistered.value = false;
@@ -92,6 +99,9 @@ const registerForTicket = async () => {
       text: t('youHaveBeenRegistered'),
     });
     isUserRegistered.value = true;
+    if (ticket.value.Address_ID) {
+      fullAddress.value = `${ticket.value.Street}, ${ticket.value.Postal_Code} ${ticket.value.City}, ${ticket.value.Country}`;
+    }
   } catch (error) {
     Swal.fire({
       icon: 'error',
@@ -165,6 +175,17 @@ onMounted(() => {
         <p v-if="ticket.Tools"><strong>{{ t('tools') }} :</strong> {{ ticket.Tools }}</p>
         <p v-if="ticket.Status_ID"><strong>{{ t('registration') }} :</strong> {{ statusMapping[ticket.Status_ID] }}</p>
         <p v-if="skillName"><strong>{{ t('skill') }} :</strong> {{ skillName }}</p>
+
+        <!-- Display the address based on conditions -->
+        <p v-if="!isUserRegistered">
+          <strong>{{ t('address') }} :</strong>
+          {{ ticket.Address_ID ? t('onSite') : t('remote') }}
+        </p>
+        <p v-else>
+          <strong>{{ t('address') }} :</strong>
+          {{ fullAddress || t('remote') }}
+        </p>
+
         <div class="ticket-image-container">
           <img v-if="imageLoaded" :src="getImageUrl(ticket.Ticket_ID)" alt="Ticket Image"
                class="ticket-image" @error="onImageError"/>
