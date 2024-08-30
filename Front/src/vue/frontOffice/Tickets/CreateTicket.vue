@@ -22,10 +22,12 @@ const places = ref('');
 const selectedAddressId = ref('');
 const needsCustomerAddress = ref(false);
 const description = ref('');
+const tools = ref(''); // Ajout pour les outils nécessaires
 const image = ref(null);
 const categories = ref([]);
 const addresses = ref({});
 const userId = ref(null);
+const userSkills = ref([]); // Liste des compétences de l'utilisateur
 const changeEndDate = ref(false); // Case à cocher pour activer ou désactiver la date de fin
 
 // Récupérer les catégories lors du montage du composant
@@ -35,6 +37,16 @@ const fetchCategories = async () => {
     categories.value = response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories:', error);
+  }
+};
+
+// Récupérer les compétences de l'utilisateur
+const fetchUserSkills = async (userId) => {
+  try {
+    const response = await axios.get(`/skills/user/${userId}`);
+    userSkills.value = response.data;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des compétences de l\'utilisateur:', error);
   }
 };
 
@@ -85,8 +97,9 @@ onMounted(async () => {
     const decodedToken = VueJwtDecode.decode(token);
     userId.value = decodedToken.uid;
     await fetchUserAddresses(userId.value);
+    await fetchUserSkills(userId.value); // Récupérer les compétences de l'utilisateur
   } else {
-    router.push({ name: 'Login' });
+    router.push({name: 'Login'});
   }
 });
 
@@ -95,6 +108,7 @@ function handleFileUpload(event) {
   const file = event.target.files[0];
   if (file) {
     image.value = file;
+    console.log('Fichier sélectionné:', file);
   }
 }
 
@@ -102,10 +116,20 @@ function handleFileUpload(event) {
 const saveTicket = async () => {
   const formData = new FormData();
 
+  // Logs pour le débogage
+  console.log('Titre:', title.value);
   formData.append('title', title.value);
+
+  console.log('Direction:', direction.value);
   formData.append('direction', direction.value);
+
+  console.log('Catégorie:', category.value);
   formData.append('skillId', category.value);
+
+  console.log('Date de début:', startDate.value);
   formData.append('startDate', startDate.value);
+
+  console.log('Heure de début:', startTime.value);
   formData.append('startTime', startTime.value);
 
   let calculatedDuration = parseInt(duration.value, 10);
@@ -114,31 +138,48 @@ const saveTicket = async () => {
   } else if (format.value === 'Jours') {
     calculatedDuration *= 1440;
   }
+  console.log('Durée:', calculatedDuration);
   formData.append('duration', calculatedDuration);
+
+  console.log('Nombre de places:', places.value || 1);
   formData.append('places', places.value || 1);
+
+  console.log('Adresse ID:', selectedAddressId.value);
   formData.append('addressId', selectedAddressId.value);
+
+  console.log('Besoin d\'adresse client:', needsCustomerAddress.value);
   formData.append('needsCustomerAddress', needsCustomerAddress.value);
+
+  console.log('Description:', description.value);
   formData.append('description', description.value);
 
+  // Ajouter les outils nécessaires
+  console.log('Outils nécessaires:', tools.value);
+  formData.append('Tools', tools.value); // Ajouter directement la chaîne de texte
+
   if (image.value) {
+    console.log('Image:', image.value);
     formData.append('image', image.value);
   }
 
   if (userId.value) {
+    console.log('ID utilisateur propriétaire:', userId.value);
     formData.append('ownerUserId', userId.value);
   }
 
-  // Fusionner la date et l'heure de fin d'inscription
+  // Ajouter la date de fin d'inscription
   let endOfSubscription = `${startDate.value}T${startTime.value}`;
   if (changeEndDate.value) {
     if (endDate.value && endTime.value) {
       endOfSubscription = `${endDate.value}T${endTime.value}`;
     }
   }
+  console.log('Date de fin d\'inscription:', endOfSubscription);
   formData.append('End_Of_Subscription', endOfSubscription);
 
   try {
     const response = await axios.post('/tickets/tickets', formData);
+    console.log('Ticket sauvegardé:', response.data);
     Swal.fire({
       title: 'Succès',
       text: 'Le ticket a été enregistré avec succès!',
@@ -148,6 +189,7 @@ const saveTicket = async () => {
       router.push('/');
     });
   } catch (error) {
+    console.error('Erreur lors de la sauvegarde du ticket:', error.response?.data || error.message);
     Swal.fire({
       title: 'Erreur',
       text: 'Une erreur s\'est produite lors de l\'enregistrement du ticket.',
@@ -156,6 +198,14 @@ const saveTicket = async () => {
     });
   }
 };
+
+// Mettre à jour les options des catégories en fonction de la direction sélectionnée
+const filteredCategories = computed(() => {
+  if (direction.value === 1) { // Si direction est "Proposer"
+    return userSkills.value; // Afficher les compétences de l'utilisateur
+  }
+  return categories.value; // Afficher toutes les catégories
+});
 </script>
 
 <template>
@@ -195,7 +245,7 @@ const saveTicket = async () => {
         <label>Catégorie</label>
         <select v-model="category" class="ui dropdown" required>
           <option value="" disabled>Choisir</option>
-          <option v-for="categorie in categories" :key="categorie.Skill_ID" :value="categorie.Skill_ID">
+          <option v-for="categorie in filteredCategories" :key="categorie.Skill_ID" :value="categorie.Skill_ID">
             {{ categorie.Name }}
           </option>
         </select>
@@ -300,6 +350,12 @@ const saveTicket = async () => {
       <div class="field">
         <label>Description</label>
         <textarea v-model="description" placeholder="Description du service"></textarea>
+      </div>
+
+      <!-- Outils nécessaires -->
+      <div class="field">
+        <label>Outils nécessaires</label>
+        <textarea v-model="tools" maxlength="255" placeholder="Entrez les outils nécessaires"></textarea>
       </div>
 
       <!-- Image -->
