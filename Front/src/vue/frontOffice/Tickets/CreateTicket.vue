@@ -22,13 +22,13 @@ const places = ref('');
 const selectedAddressId = ref('');
 const needsCustomerAddress = ref(false);
 const description = ref('');
-const tools = ref(''); // Ajout pour les outils nécessaires
+const tools = ref('');
 const image = ref(null);
 const categories = ref([]);
 const addresses = ref({});
 const userId = ref(null);
-const userSkills = ref([]); // Liste des compétences de l'utilisateur
-const changeEndDate = ref(false); // Case à cocher pour activer ou désactiver la date de fin
+const userSkills = ref([]);
+const changeEndDate = ref(false);
 
 // Récupérer les catégories lors du montage du composant
 const fetchCategories = async () => {
@@ -97,9 +97,9 @@ onMounted(async () => {
     const decodedToken = VueJwtDecode.decode(token);
     userId.value = decodedToken.uid;
     await fetchUserAddresses(userId.value);
-    await fetchUserSkills(userId.value); // Récupérer les compétences de l'utilisateur
+    await fetchUserSkills(userId.value);
   } else {
-    router.push({name: 'Login'});
+    router.push({ name: 'Login' });
   }
 });
 
@@ -155,7 +155,7 @@ const saveTicket = async () => {
 
   // Ajouter les outils nécessaires
   console.log('Outils nécessaires:', tools.value);
-  formData.append('Tools', tools.value); // Ajouter directement la chaîne de texte
+  formData.append('Tools', tools.value);
 
   if (image.value) {
     console.log('Image:', image.value);
@@ -326,7 +326,7 @@ const filteredCategories = computed(() => {
       </div>
 
       <!-- Nombre de places -->
-      <div class="field">
+      <div v-if="direction === 1" class="field">
         <label>Nombre de places</label>
         <input v-model="places" type="number" min="1" placeholder="Nombre de places" required/>
       </div>
@@ -342,7 +342,7 @@ const filteredCategories = computed(() => {
       </div>
 
       <!-- Adresse client -->
-      <div class="field">
+      <div v-if="direction === 1" class="field">
         <label><input v-model="needsCustomerAddress" type="checkbox"/> J'ai besoin de l'adresse du client</label>
       </div>
 
@@ -353,7 +353,7 @@ const filteredCategories = computed(() => {
       </div>
 
       <!-- Outils nécessaires -->
-      <div class="field">
+      <div v-if="direction === 1" class="field">
         <label>Outils nécessaires</label>
         <textarea v-model="tools" maxlength="255" placeholder="Entrez les outils nécessaires"></textarea>
       </div>
