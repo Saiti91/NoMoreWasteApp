@@ -17,7 +17,7 @@ const { isAuthenticated, userId, isSubscribed } = useAuth();
 
 function logout() {
   Cookies.remove('token');
-  router.push('/');
+  router.push('/login');
 }
 
 // Intercepter le clic sur le lien "Nos petits plus"
