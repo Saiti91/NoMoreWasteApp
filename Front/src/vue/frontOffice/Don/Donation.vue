@@ -174,7 +174,7 @@ onMounted(() => {
 <template>
   <Header />
   <div class="spacer_perso"></div>
-  <div class="ui container">
+  <div class="new_spacer">
     <div v-if="!isAuthenticated" class="centered-message">
       <i class="user icon"></i>
       <p>{{ t('pleaseLogin') }}</p>
@@ -264,6 +264,10 @@ onMounted(() => {
 <style scoped>
 .spacer_perso {
   margin-top: 4.5%;
+}
+
+.new_spacer {
+  margin-top: 5%;
 }
 
 .centered-message {
