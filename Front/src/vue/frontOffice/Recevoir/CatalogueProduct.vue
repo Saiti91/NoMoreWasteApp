@@ -35,6 +35,10 @@ const fetchCategories = async () => {
   }
 };
 
+const normalizeString = (str) => {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
+
 // Filtrer les produits par rapport aux catégories
 const filteredProducts = computed(() => {
   let filtered = products.value;
@@ -42,7 +46,10 @@ const filteredProducts = computed(() => {
     filtered = filtered.filter(product => product.Category_Name === selectedCategory.value);
   }
   if (searchQuery.value) {
-    filtered = filtered.filter(product => product.Name.toLowerCase().includes(searchQuery.value.toLowerCase()));
+    const normalizedSearchQuery = normalizeString(searchQuery.value);
+    filtered = filtered.filter(stock =>
+        normalizeString(stock.Name).includes(normalizedSearchQuery)
+    );
   }
   return filtered;
 });
