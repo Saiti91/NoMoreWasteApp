@@ -50,7 +50,7 @@ onMounted(() => {
     <div class="ui grid">
       <UserMenuFO />
       <div class="content-area">
-        <h2>{{ t('userTickets') }}</h2>
+        <h2>{{ t('userTicketsTitleFront') }}</h2>
         <div v-if="tickets.length > 0" class="user-details">
           <table class="ui celled table full-width-table">
             <thead>

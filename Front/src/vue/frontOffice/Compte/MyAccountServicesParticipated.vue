@@ -90,7 +90,7 @@ onMounted(() => {
     <div class="ui grid">
       <UserMenuFO />
       <div class="content-area">
-        <h2>{{ t('userParticipations') }}</h2>
+        <h2>{{ t('userParticipationsTitleFront') }}</h2>
         <div v-if="tickets.length > 0" class="user-details">
           <table class="ui celled table full-width-table">
             <thead>
@@ -109,7 +109,7 @@ onMounted(() => {
               <td @click="goToDetails(ticket.Ticket_ID)">{{ formatTime(ticket.Start_Time) }}</td>
               <td @click="goToDetails(ticket.Ticket_ID)">{{ ticket.Description }}</td>
               <td>
-                <button @click="unsubscribeFromTicket(ticket.Ticket_ID)" class="ui red button small">{{ t('unsubscribe') }}</button>
+                <button @click="unsubscribeFromTicket(ticket.Ticket_ID)" class="ui red button small">{{ t('unregister') }}</button>
               </td>
             </tr>
             </tbody>
