@@ -10,6 +10,15 @@ export default function useAuth() {
 
     const token = Cookies.get('token');
 
+    const checkSubscriptionStatus = async () => {
+        try {
+            const response = await axios.get(`/users/${userId.value}`);
+            isSubscribed.value = response.data.IsRegistered === 1;
+        } catch (error) {
+            console.error('Erreur lors de la vérification de l\'abonnement', error);
+        }
+    };
+
     if (token) {
         try {
             const decodedToken = VueJwtDecode.decode(token);
@@ -30,14 +39,7 @@ export default function useAuth() {
         }
     }
 
-    const checkSubscriptionStatus = async () => {
-        try {
-            const response = await axios.get(`/users/${userId.value}`);
-            isSubscribed.value = response.data.IsRegistered === 1;
-        } catch (error) {
-            console.error('Erreur lors de la vérification de l\'abonnement', error);
-        }
-    };
+
 
     const logout = () => {
         Cookies.remove('token');
