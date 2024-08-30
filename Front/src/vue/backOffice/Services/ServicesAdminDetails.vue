@@ -11,6 +11,7 @@ const ticketDetails = ref(null);
 const registeredUsers = ref([]); // To store the registered users
 const loading = ref(true);
 const error = ref(null);
+const imageLoaded = ref(true); // Track if the image is loaded successfully
 
 // Get the ticket ID from the route parameters
 const ticketId = route.params.id;
@@ -42,6 +43,7 @@ const fetchTicketDetails = async () => {
   try {
     const response = await axios.get(`/tickets/${ticketId}`);
     ticketDetails.value = response.data;
+    console.log('Ticket details:', ticketDetails.value);
     await fetchRegisteredUsers(); // Fetch users after getting ticket details
     loading.value = false;
   } catch (err) {
@@ -56,17 +58,50 @@ const fetchTicketDetails = async () => {
   }
 };
 
+// Function to get the image URL with possible extensions
+const getImageUrl = (imagePath) => {
+  console.log('Image path:', imagePath); // Log the image path
+  if (!imagePath) {
+    imageLoaded.value = false;
+    return '';
+  }
+
+  const baseUrl = `${axios.defaults.baseURL}/uploads/tickets/`;
+  const extensions = ['jpg', 'jpeg', 'png'];
+
+  for (let extension of extensions) {
+    const url = `${baseUrl}${imagePath}.${extension}`;
+    console.log('Trying URL:', url); // Log each URL tried
+    return url;
+  }
+
+  imageLoaded.value = false;
+  return ''; // If no valid image URL is found
+};
+
+// Function to handle image loading error
+const onImageError = () => {
+  imageLoaded.value = false;
+  console.log('Image failed to load'); // Log when the image fails to load
+};
+
 // Function to fetch registered users for the ticket
 const fetchRegisteredUsers = async () => {
   try {
     const response = await axios.get(`/registrations/ticket/${ticketId}`);
-    const userPromises = response.data.map(async registration => {
-      const userResponse = await axios.get(`/users/${registration.User_ID}`);
-      return userResponse.data;
-    });
-    registeredUsers.value = await Promise.all(userPromises); // Wait for all user fetches to complete
+    if (response.status === 200 && response.data.length > 0) {
+      const userPromises = response.data.map(async registration => {
+        const userResponse = await axios.get(`/users/${registration.User_ID}`);
+        return userResponse.data;
+      });
+      registeredUsers.value = await Promise.all(userPromises); // Wait for all user fetches to complete
+    }
   } catch (err) {
-    console.error('Error fetching registered users:', err);
+    if (err.response && err.response.status === 404) {
+      console.warn('Aucun utilisateur inscrit pour ce ticket.');
+    } else {
+      console.error('Error fetching registered users:', err);
+    }
   }
 };
 
@@ -79,7 +114,7 @@ const deleteTicket = async () => {
       title: 'Supprimé',
       text: 'Le ticket a été supprimé avec succès.',
     });
-    router.push({name: 'ServicesAdmin'}); // Redirect to the main page after deletion
+    router.push({name: 'ServicesAdmin'});
   } catch (err) {
     console.error('Error deleting ticket:', err);
     Swal.fire({
@@ -107,8 +142,14 @@ onMounted(() => {
         <button class="ui red button" @click="deleteTicket">Supprimer le Ticket</button>
       </div>
       <div class="ticket-detail-card">
-        <img :src="`${axios.defaults.baseURL}/uploads/tickets/${ticketDetails.Image}`" alt="Ticket Image"
-             class="ticket-image"/>
+        <div class="ticket-image-container">
+          <img v-if="imageLoaded" :src="getImageUrl(ticketDetails.Ticket_ID)" alt="Ticket Image"
+               class="ticket-image" @error="onImageError"/>
+          <div v-else class="no-image">
+            <i class="image outline icon"></i>
+            <p>Pas d'image pour ce ticket</p>
+          </div>
+        </div>
         <div class="ticket-details">
           <h2>{{ ticketDetails.Title }}</h2>
           <p><strong>Organisé par:</strong> {{ ticketDetails.OwnerFirstname }} {{ ticketDetails.OwnerName }}</p>
@@ -124,26 +165,31 @@ onMounted(() => {
       <!-- Registered Users Table -->
       <div class="registered-users">
         <h3>Utilisateurs Inscrits</h3>
-        <table class="ui celled table">
-          <thead>
-          <tr>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Email</th>
-            <th>Téléphone</th>
-            <th>Adresse</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="user in registeredUsers" :key="user.User_ID">
-            <td>{{ user.Name }}</td>
-            <td>{{ user.Firstname }}</td>
-            <td>{{ user.Email }}</td>
-            <td>{{ user.Phone }}</td>
-            <td>{{ `${user.Street}, ${user.City}, ${user.State}, ${user.Postal_Code}, ${user.Country}` }}</td>
-          </tr>
-          </tbody>
-        </table>
+        <div v-if="registeredUsers.length > 0">
+          <table class="ui celled table">
+            <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Email</th>
+              <th>Téléphone</th>
+              <th>Adresse</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="user in registeredUsers" :key="user.User_ID">
+              <td>{{ user.Name }}</td>
+              <td>{{ user.Firstname }}</td>
+              <td>{{ user.Email }}</td>
+              <td>{{ user.Phone }}</td>
+              <td>{{ `${user.Street}, ${user.City}, ${user.State}, ${user.Postal_Code}, ${user.Country}` }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-else>
+          <p>Aucun utilisateur inscrit pour le moment.</p>
+        </div>
       </div>
     </div>
     <button class="ui button" @click="router.push({ name: 'ServicesAdmin' })">Retour</button>
@@ -173,11 +219,34 @@ onMounted(() => {
   gap: 20px;
 }
 
-.ticket-image {
+.ticket-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 150px;
   height: 150px;
-  object-fit: cover;
   border-radius: 8px;
+  background-color: #eaeaea;
+  text-align: center;
+}
+
+.ticket-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.no-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #aaa;
+}
+
+.no-image i.icon {
+  font-size: 40px;
 }
 
 .ticket-details {
