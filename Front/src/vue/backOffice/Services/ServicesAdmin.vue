@@ -53,7 +53,7 @@ onMounted(() => {
     </div>
     <div class="ticket-list">
       <div v-for="ticket in tickets" :key="ticket.Ticket_ID" class="ticket-card">
-        <img :src="`${axios.defaults.baseURL}/uploads/tickets/${ticket.Image}`" alt="Ticket Image" class="ticket-image" />
+        <!-- Image removed -->
         <div class="ticket-details">
           <h2>{{ ticket.Title }}</h2>
           <p><strong>Organisé par:</strong> {{ ticket.OwnerFirstname }} {{ ticket.OwnerName }}</p>
@@ -92,20 +92,12 @@ onMounted(() => {
 
 .ticket-card {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column; /* Change to column since there's no image */
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  gap: 20px;
   max-width: 100%;
-}
-
-.ticket-image {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 8px;
 }
 
 .ticket-details {

@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n';
 import Cookies from 'js-cookie';
 import VueJwtDecode from 'vue-jwt-decode';
 import router from "@/routers/Router.js";
+import Swal from 'sweetalert2';
 
 const t = useI18n();
 const title = ref('');
@@ -127,22 +128,38 @@ const saveTicket = async () => {
     formData.append('image', image.value);
   }
 
-    if(userId){
-      formData.append('ownerUserId', userId.value);
-    }
-  // Débogage : afficher le contenu du FormData
-  for (let pair of formData.entries()) {
-    console.log(pair[0] + ': ' + pair[1]);
+  if (userId.value) {
+    formData.append('ownerUserId', userId.value);
   }
 
   // Envoyer la requête avec axios
   try {
     const response = await axios.post('/tickets/tickets', formData);
     console.log('Ticket sauvegardé:', response.data);
+
+    // Si la sauvegarde est réussie, afficher une alerte de confirmation
+    Swal.fire({
+      title: 'Succès',
+      text: 'Le ticket a été enregistré avec succès!',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      // Rediriger vers la page d'accueil après la confirmation
+      router.push('/');
+    });
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde du ticket:', error.response.data || error.message);
+    console.error('Erreur lors de la sauvegarde du ticket:', error.response?.data || error.message);
+
+    // Si une erreur se produit, afficher une alerte d'erreur
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Une erreur s\'est produite lors de l\'enregistrement du ticket.',
+      icon: 'error',
+      confirmButtonText: 'OK'
+    });
   }
 };
+
 </script>
 
 <template>
@@ -161,10 +178,10 @@ const saveTicket = async () => {
       <!-- Direction -->
       <div class="field">
         <div class="ui grid">
-          <div class="one wide column">
+          <div class="two wide column custom-right-padding">
             <label>Je souhaite</label>
           </div>
-          <div class="two wide column">
+          <div class="three wide column custom-left-padding">
             <select v-model="direction" class="ui dropdown" required>
               <option value="">Choisir</option>
               <option :value="1">Proposer</option>
@@ -172,10 +189,11 @@ const saveTicket = async () => {
             </select>
           </div>
           <div class="two wide column">
-            <label>un service</label>
+            <label class="custom-margin">un service</label>
           </div>
         </div>
       </div>
+
 
       <!-- Catégorie -->
       <div class="field">
@@ -214,7 +232,7 @@ const saveTicket = async () => {
       <!-- Durée et Format -->
       <div class="field">
         <div class="ui grid">
-          <div class="three wide column">
+          <div class="two wide column">
             <label>Le service dure</label>
           </div>
           <div class="two wide column">
@@ -242,6 +260,7 @@ const saveTicket = async () => {
         <label>Adresse du service</label>
         <select v-model="selectedAddressId" class="ui dropdown" required>
           <option value="" disabled>Choisir</option>
+          <option value="">En Distantiel</option>
           <option v-for="address in formattedAddresses" :key="address.id" :value="address.id">
             {{ address.fullAddress }}
           </option>
@@ -275,5 +294,11 @@ const saveTicket = async () => {
 </template>
 
 <style scoped>
-/* Ajouter des styles spécifiques ici */
+.custom-left-padding {
+  padding-left: 0 !important;
+}
+
+.custom-right-padding {
+  padding-right: 0 !important;
+}
 </style>

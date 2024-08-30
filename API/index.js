@@ -30,6 +30,8 @@ const app = express();
 const port = 3000;
 
 app.use('/uploads/recipes', express.static('uploads/recipes'));
+app.use('/uploads/tickets', express.static('uploads/tickets'));
+app.use('/uploads/justificatifs', express.static('uploads/justificatifs'));
 
 // Transforme le JSON en un objet utilisable dans le code
 app.use(bodyParser.json());
