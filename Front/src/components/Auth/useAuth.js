@@ -1,10 +1,11 @@
-// src/components/Auth/useAuth.js
 import { ref } from 'vue';
 import Cookies from 'js-cookie';
 import VueJwtDecode from 'vue-jwt-decode';
+import axios from '@/utils/Axios.js';
 
 export default function useAuth() {
     const isAuthenticated = ref(false);
+    const isSubscribed = ref(false); // Nouvelle propriété pour vérifier l'abonnement
     const userId = ref(null);
 
     const token = Cookies.get('token');
@@ -17,6 +18,9 @@ export default function useAuth() {
             if (Date.now() < expirationTime) {
                 isAuthenticated.value = true;
                 userId.value = decodedToken.uid;
+
+                // Vérifier si l'utilisateur est abonné
+                checkSubscriptionStatus();
             } else {
                 Cookies.remove('token');
             }
@@ -26,14 +30,25 @@ export default function useAuth() {
         }
     }
 
+    const checkSubscriptionStatus = async () => {
+        try {
+            const response = await axios.get(`/users/${userId.value}`);
+            isSubscribed.value = response.data.IsRegistered === 1;
+        } catch (error) {
+            console.error('Erreur lors de la vérification de l\'abonnement', error);
+        }
+    };
+
     const logout = () => {
         Cookies.remove('token');
         isAuthenticated.value = false;
+        isSubscribed.value = false;
         userId.value = null;
     };
 
     return {
         isAuthenticated,
+        isSubscribed, // Inclure la propriété isSubscribed dans les retours
         userId,
         logout,
     };
