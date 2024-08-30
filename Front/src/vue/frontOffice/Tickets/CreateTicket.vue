@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderFrontOffice.vue";
 import { useI18n } from 'vue-i18n';
@@ -14,6 +14,8 @@ const direction = ref(null);
 const category = ref('');
 const startDate = ref('');
 const startTime = ref('');
+const endDate = ref('');
+const endTime = ref('');
 const duration = ref('');
 const format = ref('');
 const places = ref('');
@@ -24,6 +26,7 @@ const image = ref(null);
 const categories = ref([]);
 const addresses = ref({});
 const userId = ref(null);
+const changeEndDate = ref(false); // Case à cocher pour activer ou désactiver la date de fin
 
 // Récupérer les catégories lors du montage du composant
 const fetchCategories = async () => {
@@ -39,7 +42,6 @@ const fetchCategories = async () => {
 const fetchUserAddresses = async (userId) => {
   try {
     const response = await axios.get(`/addresses/${userId}`);
-    // Assurez-vous que la réponse est un objet
     if (response.data && typeof response.data === 'object') {
       addresses.value = response.data;
     } else {
@@ -58,43 +60,41 @@ const formattedAddresses = computed(() => {
       id: address.Address_ID,
       fullAddress: `${address.Street}, ${address.City}, ${address.State}, ${address.Postal_Code}, ${address.Country}`
     };
-
-    // Afficher l'adresse fusionnée dans la console
-    console.log('Adresse fusionnée:', result);
-
-    return [result]; // Retourner un tableau contenant l'adresse
+    return [result];
   } else {
     console.error('addresses.value n\'est pas un objet ou est vide:', addresses.value);
     return [];
   }
 });
 
-// Se déclenche lors du montage du composant
-onMounted(async () => {
-  await fetchCategories();
-
-  // Récupérer le token et décoder l'ID utilisateur
-  const token = Cookies.get('token');
-  if (token) {
-    const decodedToken = VueJwtDecode.decode(token);
-    userId.value = decodedToken.uid; // Utiliser .value pour mettre à jour la valeur réactive
-    console.log('ID utilisateur:', userId.value); // Correctement afficher la valeur de l'ID utilisateur
-
-    // Récupérer les adresses de l'utilisateur
-    await fetchUserAddresses(userId.value); // Utiliser userId.value
-  } else {
-    console.error('Token non trouvé');
-    router.push({ name: 'Login' });
+// Mettre à jour la date de fin d'inscription automatiquement
+watch([startDate, startTime, endDate, endTime], ([newStartDate, newStartTime, newEndDate, newEndTime]) => {
+  if (changeEndDate.value) {
+    if (newStartDate && newStartTime) {
+      endDate.value = newEndDate || newStartDate;
+      endTime.value = newEndTime || newStartTime;
+    }
   }
 });
 
+// Se déclenche lors du montage du composant
+onMounted(async () => {
+  await fetchCategories();
+  const token = Cookies.get('token');
+  if (token) {
+    const decodedToken = VueJwtDecode.decode(token);
+    userId.value = decodedToken.uid;
+    await fetchUserAddresses(userId.value);
+  } else {
+    router.push({ name: 'Login' });
+  }
+});
 
 // Gérer le téléchargement de fichier
 function handleFileUpload(event) {
   const file = event.target.files[0];
   if (file) {
     image.value = file;
-    console.log('Fichier sélectionné:', file);
   }
 }
 
@@ -102,14 +102,12 @@ function handleFileUpload(event) {
 const saveTicket = async () => {
   const formData = new FormData();
 
-  // Ajouter les champs du formulaire au FormData
   formData.append('title', title.value);
   formData.append('direction', direction.value);
   formData.append('skillId', category.value);
   formData.append('startDate', startDate.value);
   formData.append('startTime', startTime.value);
 
-  // Calculer la durée en minutes
   let calculatedDuration = parseInt(duration.value, 10);
   if (format.value === 'Heures') {
     calculatedDuration *= 60;
@@ -117,13 +115,11 @@ const saveTicket = async () => {
     calculatedDuration *= 1440;
   }
   formData.append('duration', calculatedDuration);
-
   formData.append('places', places.value || 1);
-  formData.append('addressId', selectedAddressId.value); // Utiliser l'ID de l'adresse sélectionnée
+  formData.append('addressId', selectedAddressId.value);
   formData.append('needsCustomerAddress', needsCustomerAddress.value);
   formData.append('description', description.value);
 
-  // Ajouter l'image au FormData, si disponible
   if (image.value) {
     formData.append('image', image.value);
   }
@@ -132,25 +128,26 @@ const saveTicket = async () => {
     formData.append('ownerUserId', userId.value);
   }
 
-  // Envoyer la requête avec axios
+  // Fusionner la date et l'heure de fin d'inscription
+  let endOfSubscription = `${startDate.value}T${startTime.value}`;
+  if (changeEndDate.value) {
+    if (endDate.value && endTime.value) {
+      endOfSubscription = `${endDate.value}T${endTime.value}`;
+    }
+  }
+  formData.append('End_Of_Subscription', endOfSubscription);
+
   try {
     const response = await axios.post('/tickets/tickets', formData);
-    console.log('Ticket sauvegardé:', response.data);
-
-    // Si la sauvegarde est réussie, afficher une alerte de confirmation
     Swal.fire({
       title: 'Succès',
       text: 'Le ticket a été enregistré avec succès!',
       icon: 'success',
       confirmButtonText: 'OK'
     }).then(() => {
-      // Rediriger vers la page d'accueil après la confirmation
       router.push('/');
     });
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde du ticket:', error.response?.data || error.message);
-
-    // Si une erreur se produit, afficher une alerte d'erreur
     Swal.fire({
       title: 'Erreur',
       text: 'Une erreur s\'est produite lors de l\'enregistrement du ticket.',
@@ -159,7 +156,6 @@ const saveTicket = async () => {
     });
   }
 };
-
 </script>
 
 <template>
@@ -193,7 +189,6 @@ const saveTicket = async () => {
           </div>
         </div>
       </div>
-
 
       <!-- Catégorie -->
       <div class="field">
@@ -229,6 +224,37 @@ const saveTicket = async () => {
         </div>
       </div>
 
+      <!-- Changer la date de fin d'inscription -->
+      <div class="field">
+        <div class="ui checkbox">
+          <input type="checkbox" v-model="changeEndDate"/>
+          <label>Changer la date de fin d'inscription</label>
+        </div>
+      </div>
+
+      <!-- Date et Heure de fin -->
+      <div v-if="changeEndDate" class="two fields">
+        <div class="field">
+          <label>Date de fin</label>
+          <div class="ui calendar" id="enddate">
+            <div class="ui input left icon">
+              <i class="calendar icon"></i>
+              <input v-model="endDate" type="date" placeholder="Date de fin"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Heure de fin</label>
+          <div class="ui calendar" id="endtime">
+            <div class="ui input left icon">
+              <i class="clock icon"></i>
+              <input v-model="endTime" type="time" placeholder="Heure de fin"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Durée et Format -->
       <div class="field">
         <div class="ui grid">
@@ -249,36 +275,31 @@ const saveTicket = async () => {
         </div>
       </div>
 
-      <!-- Nombre de personnes -->
-      <div v-if="direction === 1" class="field">
-        <label>Combien de personnes peuvent participer</label>
-        <input v-model="places" type="text" maxlength="3" placeholder="Nombre de places"/>
+      <!-- Nombre de places -->
+      <div class="field">
+        <label>Nombre de places</label>
+        <input v-model="places" type="number" min="1" placeholder="Nombre de places" required/>
       </div>
 
-      <!-- Sélection de l'adresse -->
+      <!-- Adresse -->
       <div class="field">
-        <label>Adresse du service</label>
+        <label>Adresse</label>
         <select v-model="selectedAddressId" class="ui dropdown" required>
-          <option value="" disabled>Choisir</option>
-          <option value="">En Distantiel</option>
           <option v-for="address in formattedAddresses" :key="address.id" :value="address.id">
             {{ address.fullAddress }}
           </option>
         </select>
       </div>
 
-      <!-- Besoin d'adresse client -->
+      <!-- Adresse client -->
       <div class="field">
-        <div class="ui checkbox">
-          <input type="checkbox" v-model="needsCustomerAddress"/>
-          <label>Besoin d'adresse client</label>
-        </div>
+        <label><input v-model="needsCustomerAddress" type="checkbox"/> J'ai besoin de l'adresse du client</label>
       </div>
 
       <!-- Description -->
       <div class="field">
         <label>Description</label>
-        <textarea v-model="description" rows="4" placeholder="Description" required></textarea>
+        <textarea v-model="description" placeholder="Description du service"></textarea>
       </div>
 
       <!-- Image -->
@@ -287,8 +308,8 @@ const saveTicket = async () => {
         <input type="file" @change="handleFileUpload"/>
       </div>
 
-      <!-- Bouton d'enregistrement -->
-      <button class="ui button primary" @click="saveTicket">Enregistrer</button>
+      <!-- Bouton de soumission -->
+      <button class="ui button" @click="saveTicket">Enregistrer</button>
     </div>
   </div>
 </template>
