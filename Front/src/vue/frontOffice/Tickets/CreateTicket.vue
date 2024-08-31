@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import axios from '@/utils/Axios.js';
 import HeaderBackOffice from "@/components/HeaderFrontOffice.vue";
 import { useI18n } from 'vue-i18n';
@@ -14,32 +14,84 @@ const direction = ref(null);
 const category = ref('');
 const startDate = ref('');
 const startTime = ref('');
+const endDate = ref('');
+const endTime = ref('');
 const duration = ref('');
 const format = ref('');
 const places = ref('');
 const selectedAddressId = ref('');
 const needsCustomerAddress = ref(false);
 const description = ref('');
+const tools = ref('');
 const image = ref(null);
 const categories = ref([]);
 const addresses = ref({});
 const userId = ref(null);
+const userSkills = ref([]);
+const changeEndDate = ref(false);
+const cuisineCategory = ref(null); // Pour stocker la catégorie "Cuisine"
+const antiGaspiCategory = ref(null); // Pour stocker la catégorie "Conseil anti-gaspi"
 
-// Récupérer les catégories lors du montage du composant
+
 const fetchCategories = async () => {
   try {
     const response = await axios.get('/skills');
-    categories.value = response.data;
+    categories.value = response.data.map(category => {
+      if (category.Name === "Permis de conduire") {
+        return {
+          ...category,
+          Name: "Covoiturage"
+        };
+      }
+      if (category.Name === "Cuisine") {
+        cuisineCategory.value = category; // Stocke la catégorie "Cuisine"
+      }
+      if (category.Name === "Conseils anti-gaspi") {
+        antiGaspiCategory.value = category; // Stocke la catégorie "Conseil anti-gaspi"
+      }
+      return category;
+    });
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories:', error);
   }
 };
 
+
+const fetchUserSkills = async (userId) => {
+  try {
+    const response = await axios.get(`/skills/user/${userId}`);
+    userSkills.value = response.data.map(skill => {
+      if (skill.Name === "Permis de conduire") {
+        return {
+          ...skill,
+          Name: "Covoiturage"
+        };
+      }
+      return skill;
+    });
+
+    // Ajouter "Cuisine" à la liste des compétences de l'utilisateur
+    if (cuisineCategory.value) {
+      userSkills.value.push(cuisineCategory.value);
+    }
+
+    // Ajouter "Conseil anti-gaspi" à la liste des compétences de l'utilisateur
+    if (antiGaspiCategory.value) {
+      userSkills.value.push(antiGaspiCategory.value);
+    }
+
+  } catch (error) {
+    console.error('Erreur lors de la récupération des compétences de l\'utilisateur:', error);
+  }
+};
+
+
+
+
 // Récupérer les adresses de l'utilisateur
 const fetchUserAddresses = async (userId) => {
   try {
     const response = await axios.get(`/addresses/${userId}`);
-    // Assurez-vous que la réponse est un objet
     if (response.data && typeof response.data === 'object') {
       addresses.value = response.data;
     } else {
@@ -58,36 +110,36 @@ const formattedAddresses = computed(() => {
       id: address.Address_ID,
       fullAddress: `${address.Street}, ${address.City}, ${address.State}, ${address.Postal_Code}, ${address.Country}`
     };
-
-    // Afficher l'adresse fusionnée dans la console
-    console.log('Adresse fusionnée:', result);
-
-    return [result]; // Retourner un tableau contenant l'adresse
+    return [result];
   } else {
     console.error('addresses.value n\'est pas un objet ou est vide:', addresses.value);
     return [];
   }
 });
 
-// Se déclenche lors du montage du composant
-onMounted(async () => {
-  await fetchCategories();
-
-  // Récupérer le token et décoder l'ID utilisateur
-  const token = Cookies.get('token');
-  if (token) {
-    const decodedToken = VueJwtDecode.decode(token);
-    userId.value = decodedToken.uid; // Utiliser .value pour mettre à jour la valeur réactive
-    console.log('ID utilisateur:', userId.value); // Correctement afficher la valeur de l'ID utilisateur
-
-    // Récupérer les adresses de l'utilisateur
-    await fetchUserAddresses(userId.value); // Utiliser userId.value
-  } else {
-    console.error('Token non trouvé');
-    router.push({ name: 'Login' });
+// Mettre à jour la date de fin d'inscription automatiquement
+watch([startDate, startTime, endDate, endTime], ([newStartDate, newStartTime, newEndDate, newEndTime]) => {
+  if (changeEndDate.value) {
+    if (newStartDate && newStartTime) {
+      endDate.value = newEndDate || newStartDate;
+      endTime.value = newEndTime || newStartTime;
+    }
   }
 });
 
+// Se déclenche lors du montage du composant
+onMounted(async () => {
+  await fetchCategories();
+  const token = Cookies.get('token');
+  if (token) {
+    const decodedToken = VueJwtDecode.decode(token);
+    userId.value = decodedToken.uid;
+    await fetchUserAddresses(userId.value);
+    await fetchUserSkills(userId.value);
+  } else {
+    router.push({ name: 'Login' });
+  }
+});
 
 // Gérer le téléchargement de fichier
 function handleFileUpload(event) {
@@ -102,55 +154,80 @@ function handleFileUpload(event) {
 const saveTicket = async () => {
   const formData = new FormData();
 
-  // Ajouter les champs du formulaire au FormData
+  // Logs pour le débogage
+  console.log('Titre:', title.value);
   formData.append('title', title.value);
+
+  console.log('Direction:', direction.value);
   formData.append('direction', direction.value);
+
+  console.log('Catégorie:', category.value);
   formData.append('skillId', category.value);
+
+  console.log('Date de début:', startDate.value);
   formData.append('startDate', startDate.value);
+
+  console.log('Heure de début:', startTime.value);
   formData.append('startTime', startTime.value);
 
-  // Calculer la durée en minutes
   let calculatedDuration = parseInt(duration.value, 10);
   if (format.value === 'Heures') {
     calculatedDuration *= 60;
   } else if (format.value === 'Jours') {
     calculatedDuration *= 1440;
   }
+  console.log('Durée:', calculatedDuration);
   formData.append('duration', calculatedDuration);
 
+  console.log('Nombre de places:', places.value || 1);
   formData.append('places', places.value || 1);
-  formData.append('addressId', selectedAddressId.value); // Utiliser l'ID de l'adresse sélectionnée
+
+  console.log('Adresse ID:', selectedAddressId.value);
+  formData.append('addressId', selectedAddressId.value);
+
+  console.log('Besoin d\'adresse client:', needsCustomerAddress.value);
   formData.append('needsCustomerAddress', needsCustomerAddress.value);
+
+  console.log('Description:', description.value);
   formData.append('description', description.value);
 
-  // Ajouter l'image au FormData, si disponible
+  // Ajouter les outils nécessaires
+  console.log('Outils nécessaires:', tools.value);
+  formData.append('Tools', tools.value);
+
   if (image.value) {
+    console.log('Image:', image.value);
     formData.append('image', image.value);
   }
 
   if (userId.value) {
+    console.log('ID utilisateur propriétaire:', userId.value);
     formData.append('ownerUserId', userId.value);
   }
 
-  // Envoyer la requête avec axios
+  // Ajouter la date de fin d'inscription
+  let endOfSubscription = `${startDate.value}T${startTime.value}`;
+  if (changeEndDate.value) {
+    if (endDate.value && endTime.value) {
+      endOfSubscription = `${endDate.value}T${endTime.value}`;
+    }
+  }
+  console.log('Date de fin d\'inscription:', endOfSubscription);
+  formData.append('End_Of_Subscription', endOfSubscription);
+
   try {
     const response = await axios.post('/tickets/tickets', formData);
     console.log('Ticket sauvegardé:', response.data);
-
-    // Si la sauvegarde est réussie, afficher une alerte de confirmation
     Swal.fire({
       title: 'Succès',
       text: 'Le ticket a été enregistré avec succès!',
       icon: 'success',
       confirmButtonText: 'OK'
     }).then(() => {
-      // Rediriger vers la page d'accueil après la confirmation
       router.push('/');
     });
   } catch (error) {
     console.error('Erreur lors de la sauvegarde du ticket:', error.response?.data || error.message);
-
-    // Si une erreur se produit, afficher une alerte d'erreur
     Swal.fire({
       title: 'Erreur',
       text: 'Une erreur s\'est produite lors de l\'enregistrement du ticket.',
@@ -160,6 +237,18 @@ const saveTicket = async () => {
   }
 };
 
+// Mettre à jour les options des catégories en fonction de la direction sélectionnée
+const filteredCategories = computed(() => {
+  if (direction.value === 1) { // Si direction est "Proposer"
+    return userSkills.value; // Afficher les compétences de l'utilisateur
+  }
+  return categories.value; // Afficher toutes les catégories
+});
+
+// Ajouter la méthode cancel pour gérer la redirection
+function cancel() {
+  router.push('/'); // Remplace '/' par la route souhaitée
+}
 </script>
 
 <template>
@@ -194,13 +283,12 @@ const saveTicket = async () => {
         </div>
       </div>
 
-
       <!-- Catégorie -->
       <div class="field">
         <label>Catégorie</label>
         <select v-model="category" class="ui dropdown" required>
           <option value="" disabled>Choisir</option>
-          <option v-for="categorie in categories" :key="categorie.Skill_ID" :value="categorie.Skill_ID">
+          <option v-for="categorie in filteredCategories" :key="categorie.Skill_ID" :value="categorie.Skill_ID">
             {{ categorie.Name }}
           </option>
         </select>
@@ -229,6 +317,37 @@ const saveTicket = async () => {
         </div>
       </div>
 
+      <!-- Changer la date de fin d'inscription -->
+      <div class="field">
+        <div class="ui checkbox">
+          <input type="checkbox" v-model="changeEndDate"/>
+          <label>Changer la date de fin d'inscription</label>
+        </div>
+      </div>
+
+      <!-- Date et Heure de fin -->
+      <div v-if="changeEndDate" class="two fields">
+        <div class="field">
+          <label>Date de fin</label>
+          <div class="ui calendar" id="enddate">
+            <div class="ui input left icon">
+              <i class="calendar icon"></i>
+              <input v-model="endDate" type="date" placeholder="Date de fin"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Heure de fin</label>
+          <div class="ui calendar" id="endtime">
+            <div class="ui input left icon">
+              <i class="clock icon"></i>
+              <input v-model="endTime" type="time" placeholder="Heure de fin"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Durée et Format -->
       <div class="field">
         <div class="ui grid">
@@ -249,36 +368,39 @@ const saveTicket = async () => {
         </div>
       </div>
 
-      <!-- Nombre de personnes -->
+      <!-- Nombre de places -->
       <div v-if="direction === 1" class="field">
-        <label>Combien de personnes peuvent participer</label>
-        <input v-model="places" type="text" maxlength="3" placeholder="Nombre de places"/>
+        <label>Nombre de places</label>
+        <input v-model="places" type="number" min="1" placeholder="Nombre de places" required/>
       </div>
 
-      <!-- Sélection de l'adresse -->
+      <!-- Adresse -->
       <div class="field">
-        <label>Adresse du service</label>
+        <label>Adresse</label>
         <select v-model="selectedAddressId" class="ui dropdown" required>
-          <option value="" disabled>Choisir</option>
-          <option value="">En Distantiel</option>
+          <option value="" disabled >Choisir</option>
+          <option value="" >Distantiel</option>
           <option v-for="address in formattedAddresses" :key="address.id" :value="address.id">
             {{ address.fullAddress }}
           </option>
         </select>
       </div>
 
-      <!-- Besoin d'adresse client -->
-      <div class="field">
-        <div class="ui checkbox">
-          <input type="checkbox" v-model="needsCustomerAddress"/>
-          <label>Besoin d'adresse client</label>
-        </div>
+      <!-- Adresse client -->
+      <div v-if="direction === 1" class="field">
+        <label><input v-model="needsCustomerAddress" type="checkbox"/> J'ai besoin de l'adresse du client</label>
       </div>
 
       <!-- Description -->
       <div class="field">
         <label>Description</label>
-        <textarea v-model="description" rows="4" placeholder="Description" required></textarea>
+        <textarea v-model="description" placeholder="Description du service"></textarea>
+      </div>
+
+      <!-- Outils nécessaires -->
+      <div v-if="direction === 1" class="field">
+        <label>Outils nécessaires</label>
+        <textarea v-model="tools" maxlength="255" placeholder="Entrez les outils nécessaires"></textarea>
       </div>
 
       <!-- Image -->
@@ -287,8 +409,17 @@ const saveTicket = async () => {
         <input type="file" @change="handleFileUpload"/>
       </div>
 
-      <!-- Bouton d'enregistrement -->
-      <button class="ui button primary" @click="saveTicket">Enregistrer</button>
+      <!-- Boutons d'annulation et de soumission -->
+      <div class="field">
+        <div class="ui two column grid">
+          <div class="column">
+            <button class="ui red large fluid button" @click="cancel">Annuler</button>
+          </div>
+          <div class="column">
+            <button class="ui green large fluid button" @click="saveTicket">Enregistrer</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -300,5 +431,25 @@ const saveTicket = async () => {
 
 .custom-right-padding {
   padding-right: 0 !important;
+}
+
+/* Style des boutons */
+.ui.red.button {
+  background-color: #e57373;
+  color: white;
+}
+
+.ui.green.button {
+  background-color: #81c784;
+  color: white;
+}
+
+.ui.large.button {
+  font-size: 1.2rem;
+  padding: 0.75em 1.5em;
+}
+
+.ui.fluid.button {
+  width: 100%;
 }
 </style>
