@@ -378,6 +378,8 @@ function cancel() {
       <div class="field">
         <label>Adresse</label>
         <select v-model="selectedAddressId" class="ui dropdown" required>
+          <option value="" disabled >Choisir</option>
+          <option value="" >Distantiel</option>
           <option v-for="address in formattedAddresses" :key="address.id" :value="address.id">
             {{ address.fullAddress }}
           </option>
