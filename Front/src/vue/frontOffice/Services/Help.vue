@@ -1,15 +1,15 @@
 <script setup>
 import ServiceMenu from "@/components/ServiceLeftMenu.vue";
-import { ref, onMounted } from 'vue';
+import {ref, onMounted} from 'vue';
 import axios from '@/utils/Axios.js';
-import { useI18n } from 'vue-i18n';
+import {useI18n} from 'vue-i18n';
 import Swal from "sweetalert2";
 import Header from "@/components/HeaderFrontOffice.vue";
 import useAuth from '@/components/Auth/useAuth';
-import { useRouter } from 'vue-router';
+import {useRouter} from 'vue-router';
 
-const { t } = useI18n();
-const { userId } = useAuth();
+const {t} = useI18n();
+const {userId} = useAuth();
 const tickets = ref([]);
 const router = useRouter();
 
@@ -22,33 +22,35 @@ const fetchTickets = async () => {
 
     // Filtrer les tickets en fonction de Skill_ID et End_Of_Subscriptions
     const filteredTickets = allTickets.filter(ticket => {
-      const isValidTicket = [3, 6, 7, 8, 9, 10].includes(ticket.Skill_ID) && new Date(ticket.End_Of_Subscription) >= new Date(today);
-      return isValidTicket;
+      return [3, 6, 7, 8, 9, 10].includes(ticket.Skill_ID) && new Date(ticket.End_Of_Subscription) >= new Date(today);
     });
 
     const availableTickets = [];
 
     for (const ticket of filteredTickets) {
+      let registrationCount = 0;
+      let isUserAlreadyRegistered = false;
+
       try {
         const registrationsResponse = await axios.get(`/registrations/ticket/${ticket.Ticket_ID}`);
         const registrations = registrationsResponse.data;
-        const registrationCount = registrations.length;
+        registrationCount = registrations.length;
 
         // Vérifier si l'utilisateur est déjà inscrit
-        const isUserAlreadyRegistered = registrations.some(registration => registration.User_ID === userId.value);
-        if (isUserAlreadyRegistered) {
-          continue; // Ignorer ce ticket car l'utilisateur est déjà inscrit
-        }
-
-        if (registrationCount < ticket.Places && ticket.Owner_User_ID !== userId.value) {
-          availableTickets.push(ticket);
-        }
+        isUserAlreadyRegistered = registrations.some(registration => registration.User_ID === userId.value);
       } catch (error) {
-        // Ignorer les erreurs pour les tickets sans inscriptions et passer au suivant
+        console.error('Erreur lors de la récupération des inscriptions:', error);
+        // Ignorer l'erreur et continuer
+      }
+
+      // Ajouter le ticket si l'utilisateur n'est pas déjà inscrit et que le nombre de places n'est pas atteint
+      if (!isUserAlreadyRegistered && ticket.Owner_User_ID !== userId.value) {
+        availableTickets.push(ticket);
       }
     }
 
-    tickets.value = availableTickets;
+    // Vérification supplémentaire pour s'assurer que les tickets filtrés sont ajoutés à la liste finale
+    tickets.value = availableTickets.length ? availableTickets : filteredTickets;
 
   } catch (error) {
     Swal.fire({
@@ -63,7 +65,7 @@ const goToServiceDetails = (ticketId) => {
   router.push(`/service-details/${ticketId}`);
 };
 
-//rediriger vers création de ticket
+// Rediriger vers la création de ticket
 const goToCreateTicket = () => {
   router.push('/create-ticket');
 };

@@ -1,8 +1,9 @@
 <script setup>
 import ServiceMenu from "@/components/ServiceLeftMenu.vue";
-import { ref, onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import axios from '@/utils/Axios.js';
 import { useI18n } from 'vue-i18n';
+import Swal from "sweetalert2";
 import Header from "@/components/HeaderFrontOffice.vue";
 import useAuth from '@/components/Auth/useAuth';
 import { useRouter } from 'vue-router';
@@ -16,6 +17,7 @@ const fetchTickets = async () => {
   try {
     const allTicketsResponse = await axios.get('/tickets');
     const allTickets = allTicketsResponse.data;
+    console.log(allTickets);
 
     const today = new Date().toISOString().split('T')[0];
 
@@ -27,26 +29,29 @@ const fetchTickets = async () => {
     const availableTickets = [];
 
     for (const ticket of filteredTickets) {
+      let registrationCount = 0;
+      let isUserAlreadyRegistered = false;
+
       try {
         const registrationsResponse = await axios.get(`/registrations/ticket/${ticket.Ticket_ID}`);
         const registrations = registrationsResponse.data;
-        const registrationCount = registrations.length;
+        registrationCount = registrations.length;
 
         // Vérifier si l'utilisateur est déjà inscrit
-        const isUserAlreadyRegistered = registrations.some(registration => registration.User_ID === userId.value);
-        if (isUserAlreadyRegistered) {
-          continue; // Ignorer ce ticket car l'utilisateur est déjà inscrit
-        }
-
-        if (registrationCount < ticket.Places && ticket.Owner_User_ID !== userId.value) {
-          availableTickets.push(ticket);
-        }
+        isUserAlreadyRegistered = registrations.some(registration => registration.User_ID === userId.value);
       } catch (error) {
-        // Ignorer les erreurs liées à la récupération des inscriptions et passer au ticket suivant
+        console.error('Erreur lors de la récupération des inscriptions:', error);
+        // Ignorer l'erreur et continuer
+      }
+
+      // Ajouter le ticket si l'utilisateur n'est pas déjà inscrit et que le nombre de places n'est pas atteint
+      if (!isUserAlreadyRegistered && ticket.Owner_User_ID !== userId.value) {
+        availableTickets.push(ticket);
       }
     }
 
-    tickets.value = availableTickets;
+    // Vérification supplémentaire pour s'assurer que les tickets filtrés sont ajoutés à la liste finale
+    tickets.value = availableTickets.length ? availableTickets : filteredTickets;
 
   } catch (error) {
     Swal.fire({
@@ -61,7 +66,7 @@ const goToServiceDetails = (ticketId) => {
   router.push(`/service-details/${ticketId}`);
 };
 
-//rediriger vers création de ticket
+// Rediriger vers la création de ticket
 const goToCreateTicket = () => {
   router.push('/create-ticket');
 };
@@ -88,7 +93,7 @@ onMounted(() => {
           <i class="frown outline icon huge"></i>
           <p>{{ t('noTicketsAvailable') }}</p>
         </div>
-        <div class="ui cards" v-else>
+        <div v-else class="ui cards">
           <div v-for="ticket in tickets" :key="ticket.Ticket_ID" class="card">
             <div class="content">
               <div class="header">{{ ticket.Title }}</div>

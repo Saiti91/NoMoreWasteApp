@@ -22,33 +22,35 @@ const fetchTickets = async () => {
 
     // Filter tickets based on Skill_ID and End_Of_Subscriptions
     const filteredTickets = allTickets.filter(ticket => {
-      const isValidTicket = ticket.Skill_ID === 4 && new Date(ticket.End_Of_Subscription) >= new Date(today);
-      return isValidTicket;
+      return ticket.Skill_ID === 4 && new Date(ticket.End_Of_Subscription) >= new Date(today);
     });
 
     const availableTickets = [];
 
     for (const ticket of filteredTickets) {
+      let registrationCount = 0;
+      let isUserAlreadyRegistered = false;
+
       try {
         const registrationsResponse = await axios.get(`/registrations/ticket/${ticket.Ticket_ID}`);
         const registrations = registrationsResponse.data;
-        const registrationCount = registrations.length;
+        registrationCount = registrations.length;
 
         // Vérifier si l'utilisateur est déjà inscrit
-        const isUserAlreadyRegistered = registrations.some(registration => registration.User_ID === userId.value);
-        if (isUserAlreadyRegistered) {
-          continue; // Ignorer ce ticket car l'utilisateur est déjà inscrit
-        }
-
-        if (registrationCount < ticket.Places && ticket.Owner_User_ID !== userId.value) {
-          availableTickets.push(ticket);
-        }
+        isUserAlreadyRegistered = registrations.some(registration => registration.User_ID === userId.value);
       } catch (error) {
-        // On ignore les erreurs pour les tickets sans inscriptions et on passe au suivant
+        console.error('Erreur lors de la récupération des inscriptions:', error);
+        // Ignorer l'erreur et continuer
+      }
+
+      // Ajouter le ticket si l'utilisateur n'est pas déjà inscrit et que le ticket ne lui appartient pas
+      if (!isUserAlreadyRegistered && ticket.Owner_User_ID !== userId.value) {
+        availableTickets.push(ticket);
       }
     }
 
-    tickets.value = availableTickets;
+    // Vérification supplémentaire pour s'assurer que les tickets filtrés sont ajoutés à la liste finale
+    tickets.value = availableTickets.length ? availableTickets : filteredTickets;
 
   } catch (error) {
     console.error('Erreur lors de la récupération des tickets:', error);

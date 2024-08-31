@@ -408,10 +408,10 @@ VALUES ('ABC123', 10, 'Renault', 2),
 
 -- Données de test pour la table Subscriptions
 INSERT INTO Subscriptions (User_ID, End_Date, Amount, Status)
-VALUES (1, '2024-08-29', 9.99, true),
-       (2, '2024-09-07', 9.99, false),
-       (3, '2024-08-29', 9.99, true),
-       (4, '2023-04-10', 9.99, false),
+VALUES (1, '2024-09-05', 9.99, true),
+       (2, '2024-09-04', 9.99, true),
+       (3, '2024-09-03', 9.99, true),
+       (4, '2023-09-10', 9.99, true),
        (5, '2024-09-07', 9.99, true);
 
 -- Données de test pour la table Schedules
