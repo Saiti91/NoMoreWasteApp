@@ -29,26 +29,64 @@ const addresses = ref({});
 const userId = ref(null);
 const userSkills = ref([]);
 const changeEndDate = ref(false);
+const cuisineCategory = ref(null); // Pour stocker la catégorie "Cuisine"
+const antiGaspiCategory = ref(null); // Pour stocker la catégorie "Conseil anti-gaspi"
 
-// Récupérer les catégories lors du montage du composant
+
 const fetchCategories = async () => {
   try {
     const response = await axios.get('/skills');
-    categories.value = response.data;
+    categories.value = response.data.map(category => {
+      if (category.Name === "Permis de conduire") {
+        return {
+          ...category,
+          Name: "Covoiturage"
+        };
+      }
+      if (category.Name === "Cuisine") {
+        cuisineCategory.value = category; // Stocke la catégorie "Cuisine"
+      }
+      if (category.Name === "Conseils anti-gaspi") {
+        antiGaspiCategory.value = category; // Stocke la catégorie "Conseil anti-gaspi"
+      }
+      return category;
+    });
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories:', error);
   }
 };
 
-// Récupérer les compétences de l'utilisateur
+
 const fetchUserSkills = async (userId) => {
   try {
     const response = await axios.get(`/skills/user/${userId}`);
-    userSkills.value = response.data;
+    userSkills.value = response.data.map(skill => {
+      if (skill.Name === "Permis de conduire") {
+        return {
+          ...skill,
+          Name: "Covoiturage"
+        };
+      }
+      return skill;
+    });
+
+    // Ajouter "Cuisine" à la liste des compétences de l'utilisateur
+    if (cuisineCategory.value) {
+      userSkills.value.push(cuisineCategory.value);
+    }
+
+    // Ajouter "Conseil anti-gaspi" à la liste des compétences de l'utilisateur
+    if (antiGaspiCategory.value) {
+      userSkills.value.push(antiGaspiCategory.value);
+    }
+
   } catch (error) {
     console.error('Erreur lors de la récupération des compétences de l\'utilisateur:', error);
   }
 };
+
+
+
 
 // Récupérer les adresses de l'utilisateur
 const fetchUserAddresses = async (userId) => {
